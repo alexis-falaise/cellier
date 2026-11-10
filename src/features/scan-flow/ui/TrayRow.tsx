@@ -26,7 +26,7 @@ export interface TrayRowProps {
 
 interface Display {
   name: string;
-  /** Rounded tabular figures (code digits). */
+  /** Tabular figures (code digits). */
   digits: boolean;
   status: string;
   visual: CategoryVisual | null;

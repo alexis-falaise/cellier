@@ -60,7 +60,7 @@ export interface LargeTitleHeaderProps {
 }
 
 /**
- * iOS large title (04 §1, 02 §4.1): the 34 px serif title scrolls natively; the compact Headline title fades in over the
+ * iOS large title (04 §1, 02 §4.1): the 34 px display-font title scrolls natively; the compact Headline title fades in over the
  * last 12 px and the bar material fades in over the first 8 px past the threshold. Scroll-linked, no spring.
  */
 export function LargeTitleHeader({

@@ -8,7 +8,7 @@ They sit on top of `docs/BRIEF.md` and `docs/architecture/00-decisions.md` and c
 
 | File | What it contains | Read it when |
 |---|---|---|
-| `01-design-system.md` | Principles, colour (warm stone neutrals, bottle-green accent, semantic colours, materials, a 208-pair WCAG contrast table), typography (system sans, New York serif titles, rounded tabular numerals, Dynamic Type), spacing, radii, elevation, safe areas, touch targets, Lucide icon inventory (names checked against lucide-static 1.71.0), the 28 default categories with icon and colour, accessibility checklist, token naming. | Building any visual element. |
+| `01-design-system.md` | Principles, colour (cool fog neutrals, spruce accent, restrained semantic colours, materials, a WCAG contrast table for light, dark and increased contrast), typography (system sans, Schibsted Grotesk display titles, SF Pro tabular numerals, Dynamic Type), spacing, radii, elevation, safe areas, touch targets, Lucide icon inventory (names checked against lucide-static 1.71.0), the 28 default categories with icon and colour, accessibility checklist, token naming. | Building any visual element. |
 | `tokens.css` | The same tokens as a Tailwind CSS v4 `@theme` block, the semantic layer, dark mode (`prefers-color-scheme` and `[data-theme="dark"]`), increased contrast, reduced transparency, safe-area and layout variables. Copy it into the app after `@import "tailwindcss";`. | Setting up styling. |
 | `02-motion-haptics.md` | Motion principles, the eight spring presets with exact Motion for React parameters and derived physics, gesture thresholds (drag, sheets, swipe rows, edge swipe back, toasts, pull to refresh), the choreography table for every interaction, the haptic policy and its iOS limits, optional scan sound, performance rules, reduced motion, device checks. | Building anything that moves or responds to touch. |
 | `03-screens.md` | Information architecture, route table, deep links, global states (offline, pending sync, conflicts, quarantine, clamped withdrawals, permissions), every screen and sheet with layout, states and copy, data-model implications, and the French copy deck with `fr.ts` keys and plural forms. | Building a screen or writing a string. |
@@ -19,14 +19,15 @@ Where documents disagree, the order of precedence is: `tokens.css` for values, `
 
 ## Foundations (shared by all documents)
 
-- **Mood.** A cool, quiet stone cellar with good light: warm limestone neutrals, one deep bottle-green accent,
-  editorial serif titles, rounded numerals for counts, and springs that only bounce when a finger threw something.
-- **Type.** System sans (SF Pro) for UI; `ui-serif` (New York) for titles of 28 px and above and the wordmark;
-  `ui-rounded` (SF Pro Rounded) with tabular figures for every quantity. All three ship with iOS, so there are no
-  licences and no font downloads.
-- **Colour.** One accent: bottle green (`#28704E` light fill, `#30825C` dark fill; text `#226546` / `#82D2A8`).
-  Success reuses the accent, running low is amber, errors are brick red, sync and offline states are neutral.
-  Category colours are 12 muted hues of equal lightness, used only on icon tiles.
+- **Mood.** A cool, quiet Nordic pantry with good light: paper-white and fog neutrals, near-black ink, one deep
+  spruce accent, a Scandinavian grotesk for titles, and springs that only bounce when a finger threw something.
+- **Type.** System sans (SF Pro) for UI; Schibsted Grotesk (Oslo, SIL OFL, self-hosted 46 KB woff2, precached) for
+  titles of 28 px and above and the wordmark, with explicit size-specific tracking; SF Pro semibold with tabular
+  figures for every quantity.
+- **Colour.** Neutrals are a cool fog (light canvas `#F2F4F4`, cells `#FDFEFE`, ink `#0F1414`; dark canvas `#090D0D`,
+  cells `#191F1F`). One accent: spruce (`#2F5D4A` light fill, `#42755F` dark fill; text `#2B5745` / `#9ACBB4`).
+  Success reuses the accent, running low is a muted amber, errors a muted brick red, sync and offline states are
+  neutral. Category colours are 12 near-monochrome tints of equal lightness, used only on icon tiles.
 - **Navigation.** Three tabs (Accueil, Stock, Courses) on a floating capsule, with a detached 60 px scan button
   (tap: add; long-press 450 ms: withdraw). The scanner is a full-screen cover. The current pantry name is the large
   title and opens the pantry switcher. Réglages are behind the avatar on Accueil. Item detail is a push; edits are
@@ -41,8 +42,9 @@ Where documents disagree, the order of precedence is: `tokens.css` for values, `
 ## Decisions taken without asking the owner
 
 1. Name of the interface word for a pantry: «cellier»; the first pantry is named «Cave» by default (`03` §6).
-2. Accent colour is bottle green, the only saturated colour in the interface (`01` §2).
-3. Titles use the New York serif; quantities use SF Pro Rounded tabular figures (`01` §3).
+2. Accent colour is spruce green (hue 165, deep and low-chroma), the only saturated colour in the interface (`01` §2).
+3. Titles use Schibsted Grotesk; quantities use SF Pro tabular figures (`01` §3). This replaced the New York serif
+   and SF Pro Rounded at the owner's request (November 2026 restyle, `01` §11.6).
 4. Running low, forecasts and the groceries list are computed per product for the whole household; the pantry
    switcher only filters lists (`03` §6).
 5. Days of cover are always shown as approximate («≈ 4 j», then weeks after 14 days); estimates with too little
@@ -63,8 +65,10 @@ Where documents disagree, the order of precedence is: `tokens.css` for values, `
 15. Categories: the 28 categories of `docs/research/06-category-mapping.md` are adopted unchanged, with the same
     snake_case slugs; nothing was merged or renamed (`01` §6.3).
 16. Sheets are opaque; only the tab bar, the scrolled navigation bar and toasts use translucent material (`01` §2.4).
-17. The `theme-color` values are `#F6F4F1` (light) and `#0F0E0C` (dark), replacing the provisional values in
-    `research/21`.
+17. The `theme-color` values are `#F2F4F4` (light) and `#090D0D` (dark), the grouped canvas of each theme; the
+    manifest uses `#F2F4F4`.
+18. Neutrals are cool (hue 200) rather than warm, and category tiles are near-monochrome tints, so lists read calm
+    and premium (`01` §2.1, §6.1). Ramp and semantic token names were kept, so no component changed.
 
 ## Notes for the architecture thread
 
@@ -87,8 +91,9 @@ Motion 14.12.0 installed in a scratch folder outside the project.
 
 | Question | Result | Change made |
 |---|---|---|
-| Does Safari already apply SF's size-specific tracking? | Yes, for `-apple-system`, `ui-rounded` and `ui-serif`; explicit `letter-spacing` is added on top. | All `--text-*--letter-spacing` tokens set to `normal` (`tokens.css`, `01` §3.2). |
-| Do `ui-serif` and `ui-rounded` resolve, and do tabular figures work? | Yes (New York and SF Pro Rounded; "11111" = "00000" in width with `tabular-nums`). | Note in `01` §3.1. |
+| Does Safari already apply SF's size-specific tracking? | Yes, for `-apple-system`, `ui-rounded` and `ui-serif`; explicit `letter-spacing` is added on top. | SF Pro `--text-*--letter-spacing` tokens set to `normal`; the display-font roles (restyle) carry explicit tracking (`tokens.css`, `01` §3.2). |
+| Do `ui-serif` and `ui-rounded` resolve, and do tabular figures work? | Yes (New York and SF Pro Rounded; "11111" = "00000" in width with `tabular-nums`). Both were later replaced (restyle). | Note in `01` §3.1. |
+| Restyle: does Schibsted Grotesk (Google Fonts latin subset) render French and keep `tnum`? | Yes in Safari 26.3: é è ê à ç œ « » ’ render; "11111" = "00000" in width. Albert Sans has no `tnum`. | `01` §3.1. |
 | Does `font: -apple-system-body` follow Dynamic Type? | Yes in Safari: 17 px at default, 28 px at Accessibility Medium. | Note in `01` §3.3. |
 | `prefers-contrast: more`, `prefers-reduced-transparency` | Both parsed by Safari 26.3; contrast matches when Increase Contrast is on. | Notes in `01` §2.5 and `tokens.css`; the manual transparency hook stays for older iOS. |
 | `corner-shape: squircle` | Not supported in Safari 26.3. | Plain `border-radius` ships (`01` §4.4). |

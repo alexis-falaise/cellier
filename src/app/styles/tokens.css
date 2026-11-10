@@ -24,6 +24,34 @@
  */
 
 /* ------------------------------------------------------------------ */
+/* 0. Display font (self-hosted)                                      */
+/* ------------------------------------------------------------------ */
+/* Schibsted Grotesk, variable weight 400-900, SIL OFL 1.1 (public/fonts/OFL.txt). File: the official Google Fonts
+   "latin" subset (Basic Latin, Latin-1, œ Œ, general punctuation incl. ’ … « », €), 46 KB. Preloaded in index.html,
+   precached by the service worker. */
+@font-face {
+  font-family: "Schibsted Grotesk";
+  src: url("/fonts/schibsted-grotesk-latin.woff2") format("woff2");
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC,
+    U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Metric-matched fallback shown until the woff2 arrives: Helvetica Neue Medium scaled to Schibsted Grotesk
+   SemiBold's advance widths (+4.4 %) and its vertical metrics (ascent 0.977, descent 0.258, no line gap). */
+@font-face {
+  font-family: "Schibsted Grotesk Fallback";
+  src: local("HelveticaNeue-Medium"), local("Helvetica Neue Medium"), local("Arial");
+  size-adjust: 104.4%;
+  ascent-override: 93.6%;
+  descent-override: 24.7%;
+  line-gap-override: 0%;
+}
+
+/* ------------------------------------------------------------------ */
 /* 1. Ramp                                                            */
 /* ------------------------------------------------------------------ */
 @theme static {
@@ -35,131 +63,139 @@
   --shadow-*: initial;
   --ease-*: initial;
 
-  /* Stone ("pierre"): warm limestone neutral, hue 80. */
-  --color-stone-0: oklch(0.995 0.0015 80); /* #FEFDFC */
-  --color-stone-25: oklch(0.982 0.003 80); /* #FAF9F7 */
-  --color-stone-50: oklch(0.968 0.0045 80); /* #F6F4F1 */
-  --color-stone-100: oklch(0.944 0.006 80); /* #EFECE8 */
-  --color-stone-150: oklch(0.918 0.007 80); /* #E6E3DF */
-  --color-stone-200: oklch(0.885 0.008 80); /* #DCD9D3 */
-  --color-stone-300: oklch(0.81 0.009 80); /* #C4C0BB */
-  --color-stone-350: oklch(0.745 0.0095 80); /* #AFACA6 */
-  --color-stone-400: oklch(0.7 0.01 80); /* #A29E98 */
-  --color-stone-450: oklch(0.66 0.01 80); /* #95928B */
-  --color-stone-500: oklch(0.595 0.01 80); /* #827E78 */
-  --color-stone-550: oklch(0.535 0.01 80); /* #706D67 */
-  --color-stone-600: oklch(0.48 0.01 80); /* #615D57 */
-  --color-stone-700: oklch(0.415 0.009 80); /* #4E4B46 */
-  --color-stone-800: oklch(0.33 0.008 80); /* #383531 */
-  --color-stone-850: oklch(0.285 0.007 80); /* #2C2A26 */
-  --color-stone-900: oklch(0.245 0.006 80); /* #22201D */
-  --color-stone-925: oklch(0.215 0.0055 80); /* #1B1917 */
-  --color-stone-950: oklch(0.185 0.005 80); /* #141210 */
-  --color-stone-975: oklch(0.165 0.0045 80); /* #0F0E0C */
-  --color-stone-990: oklch(0.13 0.004 80); /* #080706  increased-contrast text only */
+  /* Fog ("brume"): cool Nordic neutral, hue 200. The `stone` name is kept so no component changes. */
+  --color-stone-0: oklch(0.995 0.001 200); /* #FDFEFE */
+  --color-stone-25: oklch(0.982 0.002 200); /* #F8F9FA */
+  --color-stone-50: oklch(0.966 0.003 200); /* #F2F4F4 */
+  --color-stone-100: oklch(0.942 0.004 200); /* #E9EDED */
+  --color-stone-150: oklch(0.915 0.005 200); /* #DFE4E4 */
+  --color-stone-200: oklch(0.882 0.006 200); /* #D4D9DA */
+  --color-stone-300: oklch(0.81 0.007 200); /* #BCC2C3 */
+  --color-stone-350: oklch(0.745 0.008 200); /* #A7AEAE */
+  --color-stone-400: oklch(0.7 0.008 200); /* #99A0A0 */
+  --color-stone-450: oklch(0.66 0.008 200); /* #8D9494 */
+  --color-stone-500: oklch(0.595 0.008 200); /* #7A8080 */
+  --color-stone-550: oklch(0.535 0.008 200); /* #686F6F */
+  --color-stone-600: oklch(0.472 0.008 200); /* #565D5D */
+  --color-stone-700: oklch(0.415 0.008 200); /* #474D4D */
+  --color-stone-800: oklch(0.33 0.008 200); /* #313737 */
+  --color-stone-850: oklch(0.27 0.008 200); /* #222828 */
+  --color-stone-900: oklch(0.232 0.008 200); /* #191F1F */
+  --color-stone-925: oklch(0.205 0.008 200); /* #131819 */
+  --color-stone-950: oklch(0.185 0.008 200); /* #0F1414 */
+  --color-stone-975: oklch(0.155 0.007 200); /* #090D0D */
+  --color-stone-990: oklch(0.125 0.006 200); /* #050707  increased-contrast text only */
   --color-black: oklch(0 0 0); /* #000000  scanner only */
 
-  /* Bottle green ("vert bouteille"), hue 160: the only accent. */
-  --color-green-50: oklch(0.962 0.022 160); /* #E7F7ED */
-  --color-green-100: oklch(0.93 0.04 160); /* #D2F1DF */
-  --color-green-300: oklch(0.8 0.1 160); /* #82D2A8 */
-  --color-green-400: oklch(0.72 0.115 160); /* #5BBB8C */
-  --color-green-500: oklch(0.6 0.11 160); /* #389469 */
-  --color-green-550: oklch(0.545 0.1 160); /* #30825C */
-  --color-green-600: oklch(0.49 0.09 160); /* #28704E */
-  --color-green-650: oklch(0.455 0.085 160); /* #226546 */
-  --color-green-700: oklch(0.41 0.075 160); /* #1D573C */
-  --color-green-800: oklch(0.33 0.055 160); /* #183E2B */
-  --color-green-900: oklch(0.27 0.04 160); /* #132C20 */
-  --color-green-950: oklch(0.235 0.03 160); /* #112219 */
+  /* Spruce ("épicéa"), hue 165: the only accent. The `green` name is kept. */
+  --color-green-50: oklch(0.962 0.014 165); /* #EAF6F0 */
+  --color-green-100: oklch(0.93 0.025 165); /* #D9EEE4 */
+  --color-green-300: oklch(0.8 0.06 165); /* #9ACBB4 */
+  --color-green-400: oklch(0.7 0.068 165); /* #76AC94 */
+  --color-green-500: oklch(0.6 0.07 165); /* #568E76 */
+  --color-green-550: oklch(0.52 0.066 165); /* #42755F */
+  --color-green-600: oklch(0.44 0.06 165); /* #2F5D4A */
+  --color-green-650: oklch(0.42 0.058 165); /* #2B5745 */
+  --color-green-700: oklch(0.37 0.052 165); /* #224839 */
+  --color-green-800: oklch(0.31 0.042 165); /* #1A372B */
+  --color-green-900: oklch(0.26 0.032 165); /* #142920 */
+  --color-green-950: oklch(0.235 0.022 165); /* #14211B */
 
-  /* Amber ("ambre"): running low / warning. */
-  --color-amber-100: oklch(0.945 0.045 82); /* #FCEBCC */
-  --color-amber-300: oklch(0.84 0.12 80); /* #F4C26A */
-  --color-amber-600: oklch(0.525 0.11 68); /* #935C0F */
-  --color-amber-700: oklch(0.47 0.1 66); /* #804E0B */
-  --color-amber-900: oklch(0.29 0.05 75); /* #3A270B */
+  /* Amber ("ambre"): running low / warning. Desaturated, still clearly amber. */
+  --color-amber-100: oklch(0.952 0.024 85); /* #F7EEDD */
+  --color-amber-300: oklch(0.83 0.075 80); /* #E1C390 */
+  --color-amber-600: oklch(0.52 0.085 70); /* #88602D */
+  --color-amber-700: oklch(0.465 0.075 68); /* #755127 */
+  --color-amber-900: oklch(0.28 0.03 75); /* #322718 */
 
   /* Brick ("brique"): danger / error. */
-  --color-brick-100: oklch(0.94 0.03 30); /* #FFE4DF */
-  --color-brick-300: oklch(0.76 0.12 28); /* #F49286 */
-  --color-brick-500: oklch(0.58 0.16 30); /* #C74C3D */
-  --color-brick-600: oklch(0.51 0.15 31); /* #AB3B2B */
-  --color-brick-700: oklch(0.45 0.135 31); /* #912F21 */
-  --color-brick-900: oklch(0.29 0.06 28); /* #451E1A */
+  --color-brick-100: oklch(0.952 0.017 28); /* #FAEBE9 */
+  --color-brick-300: oklch(0.77 0.085 28); /* #E5A096 */
+  --color-brick-500: oklch(0.555 0.125 28); /* #B05248 */
+  --color-brick-600: oklch(0.5 0.12 28); /* #9C443B */
+  --color-brick-700: oklch(0.44 0.105 28); /* #833830 */
+  --color-brick-900: oklch(0.28 0.04 28); /* #3A211E */
 
-  /* Category hues: equal lightness per step (tile 100 = L 0.94, glyph 600 = L 0.52,
-     dark tile 850 = L 0.31, dark glyph 300 = L 0.82). Chroma trimmed per hue to stay in sRGB. */
-  --color-tomato-100: oklch(0.94 0.03 28); /* #FFE4E0 */
-  --color-tomato-600: oklch(0.52 0.095 28); /* #98524A */
-  --color-tomato-850: oklch(0.31 0.04 28); /* #422825 */
-  --color-tomato-300: oklch(0.82 0.075 28); /* #F1B2A9 */
-  --color-clay-100: oklch(0.94 0.032 50); /* #FEE6D9 */
-  --color-clay-600: oklch(0.52 0.095 50); /* #945733 */
-  --color-clay-850: oklch(0.31 0.04 50); /* #412A1E */
-  --color-clay-300: oklch(0.82 0.075 50); /* #EDB799 */
-  --color-apricot-100: oklch(0.94 0.032 70); /* #FAE8D5 */
-  --color-apricot-600: oklch(0.52 0.095 70); /* #8B5E22 */
-  --color-apricot-850: oklch(0.31 0.04 70); /* #3D2D19 */
-  --color-apricot-300: oklch(0.82 0.075 70); /* #E4BC8F */
-  --color-honey-100: oklch(0.94 0.032 92); /* #F3EBD4 */
-  --color-honey-600: oklch(0.52 0.095 92); /* #7D671B */
-  --color-honey-850: oklch(0.31 0.04 92); /* #383018 */
-  --color-honey-300: oklch(0.82 0.075 92); /* #D5C38C */
-  --color-olive-100: oklch(0.94 0.032 115); /* #EAEED6 */
-  --color-olive-600: oklch(0.52 0.095 115); /* #676F28 */
-  --color-olive-850: oklch(0.31 0.04 115); /* #30331B */
-  --color-olive-300: oklch(0.82 0.075 115); /* #C2CA92 */
-  --color-sage-100: oklch(0.94 0.032 145); /* #DFF1DE */
-  --color-sage-600: oklch(0.52 0.095 145); /* #437746 */
-  --color-sage-850: oklch(0.31 0.04 145); /* #233624 */
-  --color-sage-300: oklch(0.82 0.075 145); /* #A6D2A7 */
-  --color-teal-100: oklch(0.94 0.03 192); /* #D5F2F0 */
-  --color-teal-600: oklch(0.52 0.085 192); /* #137875 */
-  --color-teal-850: oklch(0.31 0.04 192); /* #143735 */
-  --color-teal-300: oklch(0.82 0.075 192); /* #89D4D0 */
-  --color-sky-100: oklch(0.94 0.03 232); /* #D8EFFC */
-  --color-sky-600: oklch(0.52 0.09 232); /* #267194 */
-  --color-sky-850: oklch(0.31 0.04 232); /* #1A3441 */
-  --color-sky-300: oklch(0.82 0.075 232); /* #92CDED */
-  --color-iris-100: oklch(0.94 0.028 272); /* #E4EBFF */
-  --color-iris-600: oklch(0.52 0.095 272); /* #5665A0 */
-  --color-iris-850: oklch(0.31 0.04 272); /* #292F45 */
-  --color-iris-300: oklch(0.82 0.075 272); /* #B3C2F6 */
-  --color-plum-100: oklch(0.94 0.032 325); /* #F7E4F7 */
-  --color-plum-600: oklch(0.52 0.095 325); /* #845587 */
-  --color-plum-850: oklch(0.31 0.04 325); /* #3B293C */
-  --color-plum-300: oklch(0.82 0.075 325); /* #DEB4DF */
-  --color-rose-100: oklch(0.94 0.032 358); /* #FEE3EB */
-  --color-rose-600: oklch(0.52 0.095 358); /* #945069 */
-  --color-rose-850: oklch(0.31 0.04 358); /* #412830 */
-  --color-rose-300: oklch(0.82 0.075 358); /* #EDB0C4 */
-  --color-pebble-100: oklch(0.94 0.008 80); /* #EEEBE5 */
-  --color-pebble-600: oklch(0.52 0.012 80); /* #6D6861 */
-  --color-pebble-850: oklch(0.31 0.008 80); /* #32302C */
-  --color-pebble-300: oklch(0.82 0.0096 80); /* #C7C3BD */
+  /* Category hues: near-monochrome tints, same lightness and chroma for every hue (tile 100 = L 0.948 C 0.014,
+     glyph 600 = L 0.50 C 0.05, dark tile 850 = L 0.29 C 0.016, dark glyph 300 = L 0.80 C 0.045). Pebble is the fog hue. */
+  --color-tomato-100: oklch(0.948 0.014 28); /* #F7EBE9 */
+  --color-tomato-600: oklch(0.5 0.05 28); /* #7D5953 */
+  --color-tomato-850: oklch(0.29 0.016 28); /* #332827 */
+  --color-tomato-300: oklch(0.8 0.045 28); /* #D9B3AE */
+  --color-clay-100: oklch(0.948 0.014 50); /* #F6EBE6 */
+  --color-clay-600: oklch(0.5 0.05 50); /* #7B5B4A */
+  --color-clay-850: oklch(0.29 0.016 50); /* #322924 */
+  --color-clay-300: oklch(0.8 0.045 50); /* #D7B6A4 */
+  --color-apricot-100: oklch(0.948 0.014 70); /* #F4ECE4 */
+  --color-apricot-600: oklch(0.5 0.05 70); /* #765E44 */
+  --color-apricot-850: oklch(0.29 0.016 70); /* #312A23 */
+  --color-apricot-300: oklch(0.8 0.045 70); /* #D1B99F */
+  --color-honey-100: oklch(0.948 0.014 92); /* #F1EEE4 */
+  --color-honey-600: oklch(0.5 0.05 92); /* #6D6342 */
+  --color-honey-850: oklch(0.29 0.016 92); /* #2E2B22 */
+  --color-honey-300: oklch(0.8 0.045 92); /* #C8BD9D */
+  --color-olive-100: oklch(0.948 0.014 115); /* #EDEFE5 */
+  --color-olive-600: oklch(0.5 0.05 115); /* #626746 */
+  --color-olive-850: oklch(0.29 0.016 115); /* #2B2C23 */
+  --color-olive-300: oklch(0.8 0.045 115); /* #BCC2A1 */
+  --color-sage-100: oklch(0.948 0.014 145); /* #E8F0E8 */
+  --color-sage-600: oklch(0.5 0.05 145); /* #516B52 */
+  --color-sage-850: oklch(0.29 0.016 145); /* #272E26 */
+  --color-sage-300: oklch(0.8 0.045 145); /* #ACC6AC */
+  --color-teal-100: oklch(0.948 0.014 192); /* #E4F1F0 */
+  --color-teal-600: oklch(0.5 0.05 192); /* #3F6D6B */
+  --color-teal-850: oklch(0.29 0.016 192); /* #222E2D */
+  --color-teal-300: oklch(0.8 0.045 192); /* #9DC7C5 */
+  --color-sky-100: oklch(0.948 0.014 232); /* #E5F0F6 */
+  --color-sky-600: oklch(0.5 0.05 232); /* #45697B */
+  --color-sky-850: oklch(0.29 0.016 232); /* #242D32 */
+  --color-sky-300: oklch(0.8 0.045 232); /* #A2C4D6 */
+  --color-iris-100: oklch(0.948 0.014 272); /* #EAEDF8 */
+  --color-iris-600: oklch(0.5 0.05 272); /* #596280 */
+  --color-iris-850: oklch(0.29 0.016 272); /* #282B34 */
+  --color-iris-300: oklch(0.8 0.045 272); /* #B3BDDC */
+  --color-plum-100: oklch(0.948 0.014 325); /* #F3EBF3 */
+  --color-plum-600: oklch(0.5 0.05 325); /* #725A73 */
+  --color-plum-850: oklch(0.29 0.016 325); /* #302930 */
+  --color-plum-300: oklch(0.8 0.045 325); /* #CDB4CE */
+  --color-rose-100: oklch(0.948 0.014 358); /* #F6EAEE */
+  --color-rose-600: oklch(0.5 0.05 358); /* #7B5763 */
+  --color-rose-850: oklch(0.29 0.016 358); /* #32282B */
+  --color-rose-300: oklch(0.8 0.045 358); /* #D7B2BD */
+  --color-pebble-100: oklch(0.948 0.004 200); /* #EBEFEF */
+  --color-pebble-600: oklch(0.5 0.008 200); /* #5E6565 */
+  --color-pebble-850: oklch(0.29 0.006 200); /* #282C2C */
+  --color-pebble-300: oklch(0.8 0.007 200); /* #B9BFBF */
 
-  /* Fonts. */
+  /* Fonts. Display = Schibsted Grotesk (self-hosted, OFL, public/fonts/), titles of 28 px and up and the wordmark
+     only. The fallback face is Helvetica Neue metric-matched to it (size-adjust), so a late swap barely moves the title.
+     UI text stays SF Pro (system). `--font-rounded` keeps its name for the components that use `font-rounded`, but it
+     is now SF Pro with tabular figures: rounded read as too playful for the quiet direction (01 §3.1). */
   --font-sans:
     -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-serif-display: ui-serif, "New York", Georgia, "Noto Serif", "Times New Roman", serif;
-  --font-rounded: ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-display:
+    "Schibsted Grotesk", "Schibsted Grotesk Fallback", -apple-system, BlinkMacSystemFont, system-ui, "Helvetica Neue",
+    Arial, sans-serif;
+  --font-rounded:
+    -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
   /* Type scale: iOS "Large" sizes, 1rem = 16px. --dt is the Dynamic Type ratio (body px / 17) set by the
      app at boot, never below 1. The last factor per role mimics Apple's non-linear growth (small text grows
-     faster than titles). Letter-spacing = Apple SF Pro tracking table converted to em. */
+     faster than titles). System-font roles keep `normal` tracking: WebKit already applies SF's size-specific
+     tracking. The three display roles use Schibsted Grotesk, which gets no automatic tracking, so theirs is
+     explicit and tightens with size (-0.014em at 28, -0.018em at 34, -0.022em at 40). */
   --text-display: calc(2.5rem * (1 + (var(--dt) - 1) * 0.45));
   --text-display--line-height: calc(46 / 40);
-  --text-display--letter-spacing: normal;
+  --text-display--letter-spacing: -0.022em;
   --text-display--font-weight: 600;
   --text-large-title: calc(2.125rem * (1 + (var(--dt) - 1) * 0.5));
   --text-large-title--line-height: calc(41 / 34);
-  --text-large-title--letter-spacing: normal;
+  --text-large-title--letter-spacing: -0.018em;
   --text-large-title--font-weight: 600;
   --text-title-1: calc(1.75rem * (1 + (var(--dt) - 1) * 0.6));
   --text-title-1--line-height: calc(34 / 28);
-  --text-title-1--letter-spacing: normal;
+  --text-title-1--letter-spacing: -0.014em;
   --text-title-1--font-weight: 600;
   --text-title-2: calc(1.375rem * (1 + (var(--dt) - 1) * 0.78));
   --text-title-2--line-height: calc(28 / 22);
@@ -201,7 +237,7 @@
   --text-tab-label--line-height: calc(12 / 10);
   --text-tab-label--letter-spacing: normal;
   --text-tab-label--font-weight: 500;
-  /* Numeric roles (rounded, tabular). Tracking 0: the SF Pro Rounded table was not verified. */
+  /* Numeric roles (SF Pro, tabular figures). Tracking normal: WebKit applies SF's size-specific tracking. */
   --text-quantity-xl: calc(3rem * (1 + (var(--dt) - 1) * 0.5));
   --text-quantity-xl--line-height: calc(52 / 48);
   --text-quantity-xl--letter-spacing: normal;
@@ -261,13 +297,13 @@
   --label-quaternary: var(--color-stone-400); /* disabled text and decorative glyphs only */
 
   /* Fills (translucent, for controls on any surface) */
-  --fill-primary: oklch(0.55 0.012 80 / 0.2);
-  --fill-secondary: oklch(0.55 0.012 80 / 0.16);
-  --fill-tertiary: oklch(0.55 0.012 80 / 0.12);
-  --fill-quaternary: oklch(0.55 0.012 80 / 0.07);
+  --fill-primary: oklch(0.55 0.01 200 / 0.2);
+  --fill-secondary: oklch(0.55 0.01 200 / 0.16);
+  --fill-tertiary: oklch(0.55 0.01 200 / 0.12);
+  --fill-quaternary: oklch(0.55 0.01 200 / 0.07);
 
   /* Lines */
-  --separator: oklch(0.33 0.008 80 / 0.17); /* hairline between rows; #DCDBDA on surface */
+  --separator: oklch(0.33 0.008 200 / 0.17); /* hairline between rows; #DADCDC on surface */
   --separator-opaque: var(--color-stone-200);
   --edge: transparent; /* control/cell outline, visible only with increased contrast */
   --hairline: 0.5px;
@@ -294,19 +330,19 @@
 
   /* Materials and overlays */
   --material-alpha: 0.86;
-  --material-bar: oklch(0.982 0.003 80 / var(--material-alpha)); /* stone-25 */
+  --material-bar: oklch(0.982 0.002 200 / var(--material-alpha)); /* stone-25 */
   --material-filter: blur(20px) saturate(180%);
-  --scrim: oklch(0.185 0.005 80 / 0.3);
+  --scrim: oklch(0.185 0.008 200 / 0.3);
   --scanner-bg: var(--color-black);
-  --scanner-material: oklch(0.215 0.0055 80 / 0.72); /* scanner chrome is always dark */
+  --scanner-material: oklch(0.205 0.008 200 / 0.72); /* scanner chrome is always dark */
 
-  /* Shadows (warm-tinted, light mode) */
-  --shadow-thumb: 0 1px 2px oklch(0.2 0.01 80 / 0.1), 0 2px 6px oklch(0.2 0.01 80 / 0.06);
+  /* Shadows (tinted toward the fog hue, light mode) */
+  --shadow-thumb: 0 1px 2px oklch(0.2 0.01 200 / 0.1), 0 2px 6px oklch(0.2 0.01 200 / 0.06);
   --shadow-float:
-    0 1px 1px oklch(0.2 0.01 80 / 0.04), 0 6px 16px oklch(0.2 0.01 80 / 0.08), 0 16px 40px oklch(0.2 0.01 80 / 0.08);
-  --shadow-accent: 0 1px 2px oklch(0.3 0.06 160 / 0.2), 0 8px 20px oklch(0.4 0.08 160 / 0.22);
-  --shadow-sheet: 0 -1px 0 oklch(0.2 0.01 80 / 0.04), 0 -12px 40px oklch(0.2 0.01 80 / 0.1);
-  --shadow-menu: 0 2px 8px oklch(0.2 0.01 80 / 0.06), 0 12px 40px oklch(0.2 0.01 80 / 0.16);
+    0 1px 1px oklch(0.2 0.01 200 / 0.04), 0 6px 16px oklch(0.2 0.01 200 / 0.08), 0 16px 40px oklch(0.2 0.01 200 / 0.08);
+  --shadow-accent: 0 1px 2px oklch(0.3 0.04 165 / 0.2), 0 8px 20px oklch(0.37 0.05 165 / 0.22);
+  --shadow-sheet: 0 -1px 0 oklch(0.2 0.01 200 / 0.04), 0 -12px 40px oklch(0.2 0.01 200 / 0.1);
+  --shadow-menu: 0 2px 8px oklch(0.2 0.01 200 / 0.06), 0 12px 40px oklch(0.2 0.01 200 / 0.16);
 
   /* Category tiles: glyph (fg) on tile; dots use fg. */
   --cat-tomato-tile: var(--color-tomato-100);
@@ -385,11 +421,11 @@
     --label-secondary: var(--color-stone-350);
     --label-tertiary: var(--color-stone-450);
     --label-quaternary: var(--color-stone-600);
-    --fill-primary: oklch(0.55 0.012 80 / 0.32);
-    --fill-secondary: oklch(0.55 0.012 80 / 0.26);
-    --fill-tertiary: oklch(0.55 0.012 80 / 0.2);
-    --fill-quaternary: oklch(0.55 0.012 80 / 0.14);
-    --separator: oklch(0.85 0.006 80 / 0.15);
+    --fill-primary: oklch(0.55 0.01 200 / 0.32);
+    --fill-secondary: oklch(0.55 0.01 200 / 0.26);
+    --fill-tertiary: oklch(0.55 0.01 200 / 0.2);
+    --fill-quaternary: oklch(0.55 0.01 200 / 0.14);
+    --separator: oklch(0.85 0.006 200 / 0.15);
     --separator-opaque: var(--color-stone-800);
     --accent: var(--color-green-550);
     --accent-pressed: var(--color-green-600);
@@ -402,7 +438,7 @@
     --danger-pressed: var(--color-brick-600);
     --danger-fg: var(--color-brick-300);
     --danger-tint: var(--color-brick-900);
-    --material-bar: oklch(0.215 0.0055 80 / var(--material-alpha)); /* stone-925 */
+    --material-bar: oklch(0.205 0.008 200 / var(--material-alpha)); /* stone-925 */
     --scrim: oklch(0 0 0 / 0.55);
     --shadow-thumb: 0 1px 2px oklch(0 0 0 / 0.4);
     --shadow-float: inset 0 0.5px 0 oklch(1 0 0 / 0.08), 0 8px 24px oklch(0 0 0 / 0.45);
@@ -447,11 +483,11 @@
   --label-secondary: var(--color-stone-350);
   --label-tertiary: var(--color-stone-450);
   --label-quaternary: var(--color-stone-600);
-  --fill-primary: oklch(0.55 0.012 80 / 0.32);
-  --fill-secondary: oklch(0.55 0.012 80 / 0.26);
-  --fill-tertiary: oklch(0.55 0.012 80 / 0.2);
-  --fill-quaternary: oklch(0.55 0.012 80 / 0.14);
-  --separator: oklch(0.85 0.006 80 / 0.15);
+  --fill-primary: oklch(0.55 0.01 200 / 0.32);
+  --fill-secondary: oklch(0.55 0.01 200 / 0.26);
+  --fill-tertiary: oklch(0.55 0.01 200 / 0.2);
+  --fill-quaternary: oklch(0.55 0.01 200 / 0.14);
+  --separator: oklch(0.85 0.006 200 / 0.15);
   --separator-opaque: var(--color-stone-800);
   --accent: var(--color-green-550);
   --accent-pressed: var(--color-green-600);
@@ -464,7 +500,7 @@
   --danger-pressed: var(--color-brick-600);
   --danger-fg: var(--color-brick-300);
   --danger-tint: var(--color-brick-900);
-  --material-bar: oklch(0.215 0.0055 80 / var(--material-alpha));
+  --material-bar: oklch(0.205 0.008 200 / var(--material-alpha));
   --scrim: oklch(0 0 0 / 0.55);
   --shadow-thumb: 0 1px 2px oklch(0 0 0 / 0.4);
   --shadow-float: inset 0 0.5px 0 oklch(1 0 0 / 0.08), 0 8px 24px oklch(0 0 0 / 0.45);
@@ -511,9 +547,9 @@
     --label-primary: var(--color-stone-990);
     --label-secondary: var(--color-stone-700);
     --label-tertiary: var(--color-stone-600);
-    --fill-primary: oklch(0.55 0.012 80 / 0.28);
-    --fill-secondary: oklch(0.55 0.012 80 / 0.22);
-    --fill-tertiary: oklch(0.55 0.012 80 / 0.18);
+    --fill-primary: oklch(0.55 0.01 200 / 0.28);
+    --fill-secondary: oklch(0.55 0.01 200 / 0.22);
+    --fill-tertiary: oklch(0.55 0.01 200 / 0.18);
     --separator: var(--color-stone-500);
     --edge: var(--color-stone-500);
     --hairline: 1px;
@@ -697,21 +733,21 @@
 
 /* Type roles: family + size + leading + tracking + weight in one class. */
 @utility type-display {
-  font-family: var(--font-serif-display);
+  font-family: var(--font-display);
   font-size: var(--text-display);
   line-height: var(--text-display--line-height);
   letter-spacing: var(--text-display--letter-spacing);
   font-weight: var(--text-display--font-weight);
 }
 @utility type-large-title {
-  font-family: var(--font-serif-display);
+  font-family: var(--font-display);
   font-size: var(--text-large-title);
   line-height: var(--text-large-title--line-height);
   letter-spacing: var(--text-large-title--letter-spacing);
   font-weight: var(--text-large-title--font-weight);
 }
 @utility type-title-1 {
-  font-family: var(--font-serif-display);
+  font-family: var(--font-display);
   font-size: var(--text-title-1);
   line-height: var(--text-title-1--line-height);
   letter-spacing: var(--text-title-1--letter-spacing);

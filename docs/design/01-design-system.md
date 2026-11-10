@@ -7,26 +7,27 @@ the shared design brief (merged into `README.md`). Wherever this file departs fr
 Legend: **UNVERIFIED** marks a platform behaviour that was not confirmed in this session. Test it on a real
 iPhone before relying on it.
 
-Mood: a cool, quiet stone cellar with good light. Warm limestone neutrals, one deep bottle-green accent,
-editorial serif titles, rounded numerals for counts.
+Mood: a cool, quiet Nordic pantry with good light. Paper-white and fog neutrals, near-black ink with a cool
+undertone, one deep spruce accent, a Scandinavian grotesk for titles, SF Pro tabular figures for counts.
 
 ---
 
 ## 1. Principles
 
-1. **One green.** Bottle green marks only the things you can act on or have just done: the primary action,
+1. **One green.** Spruce green marks only the things you can act on or have just done: the primary action,
    the scan button, selection, links, progress and success. In practice, a screen whose green elements were
    all removed should leave you unable to act, and a screen with green on decoration is a bug.
 2. **The list is the product.** Most of the time is spent scanning inset grouped lists, so rows get the craft
-   budget: exact heights, tabular rounded numerals, hairline separators and no card shadows. Category colour
-   appears only as a 36 px tile and a dot. It never colours text or large areas.
-3. **Counts feel physical.** Quantities use the rounded face and tabular figures, and they are the only
+   budget: exact heights, tabular numerals, hairline separators and no card shadows. Category colour
+   appears only as a 36 px tile and a dot, in near-monochrome tints. It never colours text or large areas.
+3. **Counts feel physical.** Quantities use semibold SF Pro tabular figures, and they are the only
    text that animates (the `pop` spring). Every other piece of text changes instantly.
 4. **Quiet by default, loud only for state.** Amber says "running low" and brick says "something went wrong".
    Offline and pending sync use neutral grey, because waiting is not an error.
-5. **Editorial, not decorative.** New York appears only at 28 px and above (screen titles, the item name on
-   its detail page, onboarding). That single serif move is what makes Cellier look like a wine label rather
-   than a template. Cellier has no illustrations, gradients or emoji.
+5. **One display voice.** Schibsted Grotesk (a grotesk drawn in Oslo) appears only at 28 px and above
+   (screen titles, the item name on its detail page, onboarding, the wordmark). Everything else is SF Pro, so
+   the app feels native and the display face stays a signature, not a theme. Cellier has no illustrations,
+   gradients or emoji.
 6. **The system's settings are the user's settings.** Light and dark mode, Dynamic Type, Increase Contrast,
    Reduce Transparency and Reduce Motion all change the tokens. Components never handle these cases themselves.
 7. **Every number can be defended.** Each spacing, radius, colour and size below has a one-line reason.
@@ -43,62 +44,67 @@ editorial serif titles, rounded numerals for counts.
   platform needs it (`theme-color`, the manifest, splash screens).
 - Every value below was computed from OKLCH to sRGB to WCAG relative luminance by a throwaway script, and every
   pair in 2.6 was recomputed after the final adjustments.
-- Neutrals are warm stone at hue 80 with chroma 0.0015 to 0.01. That is enough warmth to read as limestone
-  without turning into cream.
+- Neutrals are a cool fog at hue 200 with chroma 0.001 to 0.008: paper white for cells, fog for the canvas,
+  mist for separators, and an ink near-black with a faint blue-green undertone. No beige. The ramp keeps the
+  `stone-` token prefix so no component had to change.
+- The accent is spruce (hue 165): deeper, darker and less saturated than the old bottle green (light fill
+  L 0.44, C 0.06). Green was kept over a new hue because it still means "stock, fresh, done" in a pantry, and
+  a dark conifer green reads Nordic and premium where a blue would read as a generic link colour.
+- Semantics are restrained: amber and brick were desaturated by about a third and stay clearly readable.
 - Text colours are opaque. Apple's labels are translucent, but an opaque label has one exact contrast ratio
   per background, so AA can be guaranteed. Fills, separators, materials and the scrim stay translucent
   because they have to sit on any surface.
 
 ### 2.2 Ramps
 
-**Stone (neutral).**
+**Fog (neutral; token prefix `stone-` kept).**
 
 | Token | OKLCH | Hex | Main use |
 |---|---|---|---|
-| `stone-0` | `oklch(0.995 0.0015 80)` | `#FEFDFC` | Light cells (`surface`), `on-accent` |
-| `stone-25` | `oklch(0.982 0.003 80)` | `#FAF9F7` | Light plain background, material tint |
-| `stone-50` | `oklch(0.968 0.0045 80)` | `#F6F4F1` | Light grouped canvas, `theme-color` light |
-| `stone-100` | `oklch(0.944 0.006 80)` | `#EFECE8` | Spare |
-| `stone-150` | `oklch(0.918 0.007 80)` | `#E6E3DF` | Spare |
-| `stone-200` | `oklch(0.885 0.008 80)` | `#DCD9D3` | Opaque separator (light) |
-| `stone-300` | `oklch(0.81 0.009 80)` | `#C4C0BB` | Dark label-secondary (increased contrast) |
-| `stone-350` | `oklch(0.745 0.0095 80)` | `#AFACA6` | Dark label-secondary |
-| `stone-400` | `oklch(0.7 0.01 80)` | `#A29E98` | Light label-quaternary (disabled) |
-| `stone-450` | `oklch(0.66 0.01 80)` | `#95928B` | Dark label-tertiary |
-| `stone-500` | `oklch(0.595 0.01 80)` | `#827E78` | Edges with increased contrast |
-| `stone-550` | `oklch(0.535 0.01 80)` | `#706D67` | Light label-tertiary |
-| `stone-600` | `oklch(0.48 0.01 80)` | `#615D57` | Light label-secondary, dark label-quaternary |
-| `stone-700` | `oklch(0.415 0.009 80)` | `#4E4B46` | Light label-secondary (increased contrast) |
-| `stone-800` | `oklch(0.33 0.008 80)` | `#383531` | Opaque separator (dark) |
-| `stone-850` | `oklch(0.285 0.007 80)` | `#2C2A26` | Dark cells inside sheets |
-| `stone-900` | `oklch(0.245 0.006 80)` | `#22201D` | Dark cells (`surface`) |
-| `stone-925` | `oklch(0.215 0.0055 80)` | `#1B1917` | Dark sheet canvas, dark material tint |
-| `stone-950` | `oklch(0.185 0.005 80)` | `#141210` | Light label-primary |
-| `stone-975` | `oklch(0.165 0.0045 80)` | `#0F0E0C` | Dark canvas, `theme-color` dark |
-| `stone-990` | `oklch(0.13 0.004 80)` | `#080706` | Light label-primary (increased contrast) |
+| `stone-0` | `oklch(0.995 0.001 200)` | `#FDFEFE` | Light cells (`surface`), `on-accent` |
+| `stone-25` | `oklch(0.982 0.002 200)` | `#F8F9FA` | Light plain background, material tint |
+| `stone-50` | `oklch(0.966 0.003 200)` | `#F2F4F4` | Light grouped canvas, `theme-color` light, manifest |
+| `stone-100` | `oklch(0.942 0.004 200)` | `#E9EDED` | Spare |
+| `stone-150` | `oklch(0.915 0.005 200)` | `#DFE4E4` | Spare |
+| `stone-200` | `oklch(0.882 0.006 200)` | `#D4D9DA` | Opaque separator (light) |
+| `stone-300` | `oklch(0.81 0.007 200)` | `#BCC2C3` | Dark label-secondary (increased contrast) |
+| `stone-350` | `oklch(0.745 0.008 200)` | `#A7AEAE` | Dark label-secondary |
+| `stone-400` | `oklch(0.7 0.008 200)` | `#99A0A0` | Light label-quaternary (disabled) |
+| `stone-450` | `oklch(0.66 0.008 200)` | `#8D9494` | Dark label-tertiary |
+| `stone-500` | `oklch(0.595 0.008 200)` | `#7A8080` | Edges with increased contrast |
+| `stone-550` | `oklch(0.535 0.008 200)` | `#686F6F` | Light label-tertiary |
+| `stone-600` | `oklch(0.472 0.008 200)` | `#565D5D` | Light label-secondary, dark label-quaternary |
+| `stone-700` | `oklch(0.415 0.008 200)` | `#474D4D` | Light label-secondary (increased contrast) |
+| `stone-800` | `oklch(0.33 0.008 200)` | `#313737` | Opaque separator (dark) |
+| `stone-850` | `oklch(0.27 0.008 200)` | `#222828` | Dark cells inside sheets |
+| `stone-900` | `oklch(0.232 0.008 200)` | `#191F1F` | Dark cells (`surface`), charcoal |
+| `stone-925` | `oklch(0.205 0.008 200)` | `#131819` | Dark sheet canvas, dark material tint |
+| `stone-950` | `oklch(0.185 0.008 200)` | `#0F1414` | Light label-primary (ink) |
+| `stone-975` | `oklch(0.155 0.007 200)` | `#090D0D` | Dark canvas (deep ink), `theme-color` dark |
+| `stone-990` | `oklch(0.125 0.006 200)` | `#050707` | Light label-primary (increased contrast) |
 | `black` | `oklch(0 0 0)` | `#000000` | The scanner only |
 
-**Bottle green (accent).**
+**Spruce (accent; token prefix `green-` kept).**
 
 | Token | OKLCH | Hex | Use |
 |---|---|---|---|
-| `green-50` | `oklch(0.962 0.022 160)` | `#E7F7ED` | Light `accent-tint` (selected background) |
-| `green-100` | `oklch(0.93 0.04 160)` | `#D2F1DF` | Spare |
-| `green-300` | `oklch(0.8 0.1 160)` | `#82D2A8` | Dark `accent-fg`, dark focus ring |
-| `green-400` | `oklch(0.72 0.115 160)` | `#5BBB8C` | Spare |
-| `green-500` | `oklch(0.6 0.11 160)` | `#389469` | Spare |
-| `green-550` | `oklch(0.545 0.1 160)` | `#30825C` | Dark `accent` (fill) |
-| `green-600` | `oklch(0.49 0.09 160)` | `#28704E` | Light `accent` (fill), dark `accent-pressed` |
-| `green-650` | `oklch(0.455 0.085 160)` | `#226546` | Light `accent-fg`, light focus ring |
-| `green-700` | `oklch(0.41 0.075 160)` | `#1D573C` | Light `accent-pressed`, accent with increased contrast |
-| `green-800` | `oklch(0.33 0.055 160)` | `#183E2B` | Pressed with increased contrast |
-| `green-900` | `oklch(0.27 0.04 160)` | `#132C20` | Spare |
-| `green-950` | `oklch(0.235 0.03 160)` | `#112219` | Dark `accent-tint` |
+| `green-50` | `oklch(0.962 0.014 165)` | `#EAF6F0` | Light `accent-tint` (selected background) |
+| `green-100` | `oklch(0.93 0.025 165)` | `#D9EEE4` | Spare |
+| `green-300` | `oklch(0.8 0.06 165)` | `#9ACBB4` | Dark `accent-fg`, dark focus ring |
+| `green-400` | `oklch(0.7 0.068 165)` | `#76AC94` | Spare |
+| `green-500` | `oklch(0.6 0.07 165)` | `#568E76` | Spare |
+| `green-550` | `oklch(0.52 0.066 165)` | `#42755F` | Dark `accent` (fill) |
+| `green-600` | `oklch(0.44 0.06 165)` | `#2F5D4A` | Light `accent` (fill), dark `accent-pressed` |
+| `green-650` | `oklch(0.42 0.058 165)` | `#2B5745` | Light `accent-fg`, light focus ring |
+| `green-700` | `oklch(0.37 0.052 165)` | `#224839` | Light `accent-pressed`, accent with increased contrast |
+| `green-800` | `oklch(0.31 0.042 165)` | `#1A372B` | Pressed with increased contrast |
+| `green-900` | `oklch(0.26 0.032 165)` | `#142920` | Spare |
+| `green-950` | `oklch(0.235 0.022 165)` | `#14211B` | Dark `accent-tint` |
 
-The light fill (`green-600`) is a little brighter than the light text green (`green-650`). A large filled
+The light fill (`green-600`) is a step lighter than the light text green (`green-650`). A large filled
 shape reads darker than the same colour in thin text, so the two values look like the same green in use.
-In dark mode the accent is lifted (`green-550` fill, `green-300` text) so it glows slightly against near-black
-instead of sinking into it.
+In dark mode the accent is lifted (`green-550` fill, `green-300` text) so it stays visible against the deep
+ink canvas (3.67:1 boundary) without glowing.
 
 **States: accent pressed and disabled.** Pressed means `accent-pressed`, together with the `press` spring
 scale defined in 02. Disabled means the button's fill becomes `fill-secondary` and its label becomes
@@ -109,17 +115,17 @@ something you can act on.
 
 | Token | OKLCH | Hex | Use |
 |---|---|---|---|
-| `amber-100` | `oklch(0.945 0.045 82)` | `#FCEBCC` | Light `warning-tint` |
-| `amber-300` | `oklch(0.84 0.12 80)` | `#F4C26A` | Dark `warning-fg` |
-| `amber-600` | `oklch(0.525 0.11 68)` | `#935C0F` | Light `warning-fg` |
-| `amber-700` | `oklch(0.47 0.1 66)` | `#804E0B` | Light `warning-fg` with increased contrast |
-| `amber-900` | `oklch(0.29 0.05 75)` | `#3A270B` | Dark `warning-tint` |
-| `brick-100` | `oklch(0.94 0.03 30)` | `#FFE4DF` | Light `danger-tint` |
-| `brick-300` | `oklch(0.76 0.12 28)` | `#F49286` | Dark `danger-fg` |
-| `brick-500` | `oklch(0.58 0.16 30)` | `#C74C3D` | Dark `danger` (fill) |
-| `brick-600` | `oklch(0.51 0.15 31)` | `#AB3B2B` | Light `danger` and `danger-fg`, dark `danger-pressed` |
-| `brick-700` | `oklch(0.45 0.135 31)` | `#912F21` | Light `danger-pressed`, danger with increased contrast |
-| `brick-900` | `oklch(0.29 0.06 28)` | `#451E1A` | Dark `danger-tint` |
+| `amber-100` | `oklch(0.952 0.024 85)` | `#F7EEDD` | Light `warning-tint` |
+| `amber-300` | `oklch(0.83 0.075 80)` | `#E1C390` | Dark `warning-fg` |
+| `amber-600` | `oklch(0.52 0.085 70)` | `#88602D` | Light `warning-fg` |
+| `amber-700` | `oklch(0.465 0.075 68)` | `#755127` | Light `warning-fg` with increased contrast |
+| `amber-900` | `oklch(0.28 0.03 75)` | `#322718` | Dark `warning-tint` |
+| `brick-100` | `oklch(0.952 0.017 28)` | `#FAEBE9` | Light `danger-tint` |
+| `brick-300` | `oklch(0.77 0.085 28)` | `#E5A096` | Dark `danger-fg` |
+| `brick-500` | `oklch(0.555 0.125 28)` | `#B05248` | Dark `danger` (fill) |
+| `brick-600` | `oklch(0.5 0.12 28)` | `#9C443B` | Light `danger` and `danger-fg`, dark `danger-pressed` |
+| `brick-700` | `oklch(0.44 0.105 28)` | `#833830` | Light `danger-pressed`, danger with increased contrast |
+| `brick-900` | `oklch(0.28 0.04 28)` | `#3A211E` | Dark `danger-tint` |
 
 Semantic mapping: **success reuses the accent** (`success-fg = accent-fg`, `success-tint = accent-tint`),
 so the app has exactly one green. **Info and neutral** use `label-secondary` on `fill-tertiary`. Offline and
@@ -131,37 +137,37 @@ Components use only these names. The ramps are private to `tokens.css`.
 
 | Token | Light | Dark | Role |
 |---|---|---|---|
-| `bg` | stone-25 `#FAF9F7` | stone-975 `#0F0E0C` | Plain (non-grouped) screens |
-| `bg-grouped` | stone-50 `#F6F4F1` | stone-975 `#0F0E0C` | Canvas behind inset groups (Accueil, Stock, Courses) |
-| `bg-elevated` | stone-50 `#F6F4F1` | stone-925 `#1B1917` | Sheet canvas |
-| `surface` | stone-0 `#FEFDFC` | stone-900 `#22201D` | Cells and cards in a group |
-| `surface-elevated` | stone-0 `#FEFDFC` | stone-850 `#2C2A26` | Cells inside a sheet |
-| `label-primary` | stone-950 `#141210` | stone-50 `#F6F4F1` | Titles, row names, values |
-| `label-secondary` | stone-600 `#615D57` | stone-350 `#AFACA6` | Subtitles, inactive tab items, section headers |
-| `label-tertiary` | stone-550 `#706D67` | stone-450 `#95928B` | Placeholders, units, timestamps, chevrons |
-| `label-quaternary` | stone-400 `#A29E98` | stone-600 `#615D57` | Disabled text only (exempt from contrast) |
-| `fill-primary` | `oklch(0.55 0.012 80 / 0.2)` | `/ 0.32` | Stepper buttons, the switch track if custom |
+| `bg` | stone-25 `#F8F9FA` | stone-975 `#090D0D` | Plain (non-grouped) screens |
+| `bg-grouped` | stone-50 `#F2F4F4` | stone-975 `#090D0D` | Canvas behind inset groups (Accueil, Stock, Courses) |
+| `bg-elevated` | stone-50 `#F2F4F4` | stone-925 `#131819` | Sheet canvas |
+| `surface` | stone-0 `#FDFEFE` | stone-900 `#191F1F` | Cells and cards in a group |
+| `surface-elevated` | stone-0 `#FDFEFE` | stone-850 `#222828` | Cells inside a sheet |
+| `label-primary` | stone-950 `#0F1414` | stone-50 `#F2F4F4` | Titles, row names, values |
+| `label-secondary` | stone-600 `#565D5D` | stone-350 `#A7AEAE` | Subtitles, inactive tab items, section headers |
+| `label-tertiary` | stone-550 `#686F6F` | stone-450 `#8D9494` | Placeholders, units, timestamps, chevrons |
+| `label-quaternary` | stone-400 `#99A0A0` | stone-600 `#565D5D` | Disabled text only (exempt from contrast) |
+| `fill-primary` | `oklch(0.55 0.01 200 / 0.2)` | `/ 0.32` | Stepper buttons, the switch track if custom |
 | `fill-secondary` | `/ 0.16` | `/ 0.26` | Secondary buttons, disabled fills |
 | `fill-tertiary` | `/ 0.12` | `/ 0.2` | Search field, segmented control track, info tint |
 | `fill-quaternary` | `/ 0.07` | `/ 0.14` | Pressed row highlight |
-| `separator` | `oklch(0.33 0.008 80 / 0.17)` ≈ `#DCDBDA` on a cell | `oklch(0.85 0.006 80 / 0.15)` ≈ `#3C3A37` | Hairline between rows (0.5 px) |
-| `separator-opaque` | stone-200 `#DCD9D3` | stone-800 `#383531` | Separators over material |
+| `separator` | `oklch(0.33 0.008 200 / 0.17)` ≈ `#DADCDC` on a cell | `oklch(0.85 0.006 200 / 0.15)` ≈ `#333939` | Hairline between rows (0.5 px) |
+| `separator-opaque` | stone-200 `#D4D9DA` | stone-800 `#313737` | Separators over material |
 | `edge` | transparent | transparent | Cell and control outline. Becomes stone-500 with Increase Contrast |
-| `accent` | green-600 `#28704E` | green-550 `#30825C` | Filled primary button, scan button, progress |
-| `accent-pressed` | green-700 `#1D573C` | green-600 `#28704E` | Pressed fill |
-| `accent-fg` | green-650 `#226546` | green-300 `#82D2A8` | Links, text buttons, checkmarks, the active tab |
-| `accent-tint` | green-50 `#E7F7ED` | green-950 `#112219` | Selected row, selected chip |
-| `on-accent` | stone-0 `#FEFDFC` | stone-0 `#FEFDFC` | Text and glyph on `accent` and `danger` |
+| `accent` | green-600 `#2F5D4A` | green-550 `#42755F` | Filled primary button, scan button, progress |
+| `accent-pressed` | green-700 `#224839` | green-600 `#2F5D4A` | Pressed fill |
+| `accent-fg` | green-650 `#2B5745` | green-300 `#9ACBB4` | Links, text buttons, checkmarks, the active tab |
+| `accent-tint` | green-50 `#EAF6F0` | green-950 `#14211B` | Selected row, selected chip |
+| `on-accent` | stone-0 `#FDFEFE` | stone-0 `#FDFEFE` | Text and glyph on `accent` and `danger` |
 | `focus-ring` | green-650 | green-300 | Keyboard focus outline |
 | `warning-fg` / `warning-tint` | amber-600 / amber-100 | amber-300 / amber-900 | "Bientôt épuisé", running-low badge |
 | `danger` / `danger-pressed` | brick-600 / brick-700 | brick-500 / brick-600 | Destructive filled button |
 | `danger-fg` / `danger-tint` | brick-600 / brick-100 | brick-300 / brick-900 | Error text, error banner |
-| `material` | `oklch(0.982 0.003 80 / 0.86)` + `blur(20px) saturate(180%)` | `oklch(0.215 0.0055 80 / 0.86)` + same | Tab bar, scrolled nav bar, toasts |
-| `scrim` | `oklch(0.185 0.005 80 / 0.3)` | `oklch(0 0 0 / 0.55)` | Behind sheets and menus |
-| `scanner-bg` / `scanner-material` | `#000` / `oklch(0.215 0.0055 80 / 0.72)` | same | The scanner is always dark |
+| `material` | `oklch(0.982 0.002 200 / 0.86)` + `blur(20px) saturate(180%)` | `oklch(0.205 0.008 200 / 0.86)` + same | Tab bar, scrolled nav bar, toasts |
+| `scrim` | `oklch(0.185 0.008 200 / 0.3)` | `oklch(0 0 0 / 0.55)` | Behind sheets and menus |
+| `scanner-bg` / `scanner-material` | `#000` / `oklch(0.205 0.008 200 / 0.72)` | same | The scanner is always dark |
 
-`theme-color` metas: light `#F6F4F1`, dark `#0F0E0C`. These replace the provisional `#F7F5F0` / `#121210`
-in `research/21`. The manifest `theme_color` and `background_color` use `#F6F4F1`.
+`theme-color` metas: light `#F2F4F4`, dark `#090D0D` (the grouped canvas of each theme, so the status
+bar area blends into the screen). The manifest `theme_color` and `background_color` use `#F2F4F4`.
 
 ### 2.4 Materials
 
@@ -177,9 +183,9 @@ add a 0.5 px inner top highlight (`inset 0 0.5px 0 oklch(1 0 0 / 0.08)`) so thei
 - `prefers-contrast: more` (iOS Increase Contrast). Light labels move one or two steps darker (primary becomes
   stone-990, secondary stone-700, tertiary stone-600). The accent goes to green-700, warning to amber-700 and
   danger to brick-700. Fills get stronger, `separator` becomes opaque stone-500 at 1 px, and `edge` shows a
-  1 px stone-500 outline on cells, fields and buttons (3.97:1 on a light cell and 4.03:1 on a dark one, which
+  1 px stone-500 outline on cells, fields and buttons (3.98:1 on a light cell and 4.16:1 on a dark one, which
   passes the 3:1 non-text rule). Materials become solid. In dark mode, labels go lighter (stone-0, stone-300,
-  stone-350). The accent fill stays green-550, because green-650 would drop to 2.77:1 against the canvas.
+  stone-350). The accent fill stays green-550, because a darker spruce would fall under 3:1 against the canvas.
   Verified in the iOS 26.3 simulator: Safari parses the query and it matches when Increase Contrast is on.
 - `prefers-reduced-transparency: reduce`. `--material-alpha` becomes 1 and `--material-filter` becomes
   `none`. Only these two variables change, so the rule works with every theme. `research/20` reported that
@@ -191,56 +197,66 @@ add a 0.5 px inner top highlight (`inset 0 0.5px 0 oklch(1 0 0 / 0.08)`) so thei
 
 ### 2.6 Contrast table
 
-Ratios are WCAG 2.x, computed from the exact sRGB values. Translucent tokens were composited onto their real
-background first. "Worst of 3 bases" means the lowest ratio over `surface`, `bg-grouped` and `surface-elevated`.
-All pairs pass.
+Ratios are WCAG 2.x, computed from the exact sRGB values (OKLCH converted to 8-bit sRGB, then relative
+luminance), recomputed for the Nordic palette. Translucent tokens were composited onto their real background
+first. "Worst of 3 bases" means the lowest ratio over `surface`, `bg-grouped` and `surface-elevated`. All pairs
+pass in light, dark and both increased-contrast variants.
 
 | Pair | Where | Light | Dark | Needed | Result |
 |---|---|---|---|---|---|
-| `label-primary` on `bg-grouped` | Large titles, section text | 16.99 | 17.56 | 4.5 | Pass |
-| `label-primary` on `surface` | Row titles | 18.38 | 14.79 | 4.5 | Pass |
-| `label-primary` on `surface-elevated` | Rows in sheets | 18.38 | 13.09 | 4.5 | Pass |
-| `label-secondary` on `bg-grouped` | Section headers and footers | 5.96 | 8.50 | 4.5 | Pass |
-| `label-secondary` on `surface` | Row subtitles | 6.45 | 7.16 | 4.5 | Pass |
-| `label-secondary` on `surface-elevated` | Subtitles in sheets | 6.45 | 6.34 | 4.5 | Pass |
-| `label-tertiary` on `surface` | Placeholders, units, chevrons | 5.10 | 5.21 | 4.5 | Pass |
-| `label-tertiary` on `surface-elevated` | Placeholders in sheets | 5.10 | 4.61 | 4.5 | Pass |
-| `label-tertiary` on `bg-grouped` | Meta on canvas | 4.71 | 6.19 | 4.5 | Pass |
-| `accent-fg` on `bg-grouped` | Links, text buttons | 6.35 | 10.75 | 4.5 | Pass |
-| `accent-fg` on `surface` | Checkmarks, selected values | 6.87 | 9.05 | 4.5 | Pass |
-| `accent-fg` on `surface-elevated` | Sheet toolbar buttons | 6.87 | 8.01 | 4.5 | Pass |
-| `on-accent` on `accent` | Primary button label, scan glyph | 5.89 | 4.65 | 4.5 | Pass |
-| `on-accent` on `accent-pressed` | Same, pressed | 8.38 | 5.89 | 4.5 | Pass |
-| `accent-fg` on `accent-tint` | Selected chip text | 6.29 | 9.21 | 4.5 | Pass |
-| `label-primary` on `accent-tint` | Text on a selected row | 16.83 | 15.05 | 4.5 | Pass |
-| `accent` on `bg-grouped` | Button and scan button boundary | 5.45 | 4.09 | 3 | Pass |
-| `focus-ring` on `bg-grouped` | Focus outline | 6.35 | 10.75 | 3 | Pass |
-| `warning-fg` on `surface` | "Bientôt épuisé" text and icon | 5.46 | 9.84 | 4.5 | Pass |
-| `warning-fg` on `warning-tint` | Running-low badge | 4.71 | 8.61 | 4.5 | Pass |
-| `danger-fg` on `surface` | Destructive text, errors | 6.10 | 7.20 | 4.5 | Pass |
-| `danger-fg` on `danger-tint` | Error banner | 5.14 | 6.41 | 4.5 | Pass |
-| `on-accent` on `danger` | Destructive filled button | 6.10 | 4.56 | 4.5 | Pass |
-| `label-primary` on `fill-primary` (worst of 3 bases) | Stepper, segmented label | 13.35 | 9.33 | 4.5 | Pass |
-| `label-secondary` on `fill-primary` (worst of 3 bases) | Search placeholder on strongest fill | 4.68 | 4.52 | 4.5 | Pass |
-| `label-secondary` on `fill-tertiary` (worst of 3 bases) | Search field placeholder | 5.17 | 5.15 | 4.5 | Pass |
-| `accent-fg` on `fill-primary` (worst of 3 bases) | Accent glyph on a fill button | 4.99 | 5.71 | 4.5 | Pass |
-| `label-primary` on `material` (pure white or black behind) | Tab labels, nav title | 12.84 | 10.45 | 4.5 | Pass |
-| `label-secondary` on `material` (pure white or black behind) | Inactive tabs | 4.51 | 5.06 | 4.5 | Pass |
-| `accent-fg` on `material` (pure white or black behind) | Active tab | 4.80 | 6.39 | 4.5 | Pass |
-| Category glyph on its tile (12 hues) | Category tiles | 4.47 to 4.81 | 7.43 to 7.63 | 3 | Pass |
-| White on `black` / `green-300` on `black` | Scanner text, scanner accent | 21.0 / 11.71 | same | 4.5 | Pass |
+| `label-primary` on `bg-grouped` | Large titles, section text | 16.83 | 17.69 | 4.5 | Pass |
+| `label-primary` on `surface` | Row titles | 18.39 | 15.13 | 4.5 | Pass |
+| `label-primary` on `surface-elevated` | Rows in sheets | 18.39 | 13.57 | 4.5 | Pass |
+| `label-primary` on `bg-elevated` | Sheet titles | 16.83 | 16.23 | 4.5 | Pass |
+| `label-secondary` on `bg-grouped` | Section headers and footers | 6.10 | 8.66 | 4.5 | Pass |
+| `label-secondary` on `surface` | Row subtitles | 6.66 | 7.40 | 4.5 | Pass |
+| `label-secondary` on `surface-elevated` | Subtitles in sheets | 6.66 | 6.64 | 4.5 | Pass |
+| `label-secondary` on `bg-elevated` | Footers in sheets | 6.10 | 7.94 | 4.5 | Pass |
+| `label-tertiary` on `surface` | Placeholders, units, chevrons | 5.08 | 5.41 | 4.5 | Pass |
+| `label-tertiary` on `surface-elevated` | Placeholders in sheets | 5.08 | 4.85 | 4.5 | Pass |
+| `label-tertiary` on `bg-grouped` | Meta on canvas | 4.65 | 6.32 | 4.5 | Pass |
+| `label-tertiary` on `bg-elevated` | Meta on a sheet canvas | 4.65 | 5.80 | 4.5 | Pass |
+| `accent-fg` on `bg-grouped` | Links, text buttons | 7.45 | 10.77 | 4.5 | Pass |
+| `accent-fg` on `surface` | Checkmarks, selected values | 8.14 | 9.21 | 4.5 | Pass |
+| `accent-fg` on `surface-elevated` | Sheet toolbar buttons | 8.14 | 8.26 | 4.5 | Pass |
+| `accent-fg` on `bg-elevated` | Sheet header buttons | 7.45 | 9.87 | 4.5 | Pass |
+| `on-accent` on `accent` | Primary button label, scan glyph | 7.46 | 5.27 | 4.5 | Pass |
+| `on-accent` on `accent-pressed` | Same, pressed | 10.12 | 7.46 | 4.5 | Pass |
+| `accent-fg` on `accent-tint` | Selected chip text | 7.42 | 9.16 | 4.5 | Pass |
+| `label-primary` on `accent-tint` | Text on a selected row | 16.75 | 15.06 | 4.5 | Pass |
+| `accent` on `bg-grouped` | Button and scan button boundary | 6.83 | 3.67 | 3 | Pass |
+| `accent` on `bg-elevated` | Primary button in a sheet | 6.83 | 3.36 | 3 | Pass |
+| `focus-ring` on `bg-grouped` | Focus outline | 7.45 | 10.77 | 3 | Pass |
+| `focus-ring` on `surface` | Inset focus ring on a row | 8.14 | 9.21 | 3 | Pass |
+| `warning-fg` on `surface` | "Bientôt épuisé" text and icon, low dot | 5.53 | 9.87 | 4.5 | Pass |
+| `warning-fg` on `bg-grouped` | Warning text on canvas | 5.06 | 11.54 | 4.5 | Pass |
+| `warning-fg` on `warning-tint` | Running-low badge | 4.85 | 8.62 | 4.5 | Pass |
+| `danger-fg` on `surface` | Destructive text, errors | 6.29 | 7.80 | 4.5 | Pass |
+| `danger-fg` on `surface-elevated` | Destructive rows in sheets | 6.29 | 6.99 | 4.5 | Pass |
+| `danger-fg` on `danger-tint` | Error banner | 5.49 | 6.92 | 4.5 | Pass |
+| `on-accent` on `danger` | Destructive filled button | 6.29 | 5.01 | 4.5 | Pass |
+| `on-accent` on `danger-pressed` | Same, pressed | 8.08 | 6.29 | 4.5 | Pass |
+| `label-primary` on `fill-primary` (worst of 3 bases) | Stepper, segmented label | 13.23 | 9.59 | 4.5 | Pass |
+| `label-primary` on `fill-tertiary` (worst of 3 bases) | Search text, join code | 14.60 | 10.99 | 4.5 | Pass |
+| `label-secondary` on `fill-primary` (worst of 3 bases) | Placeholder on the strongest fill | 4.79 | 4.69 | 4.5 | Pass |
+| `label-secondary` on `fill-tertiary` (worst of 3 bases) | Search field placeholder | 5.29 | 5.38 | 4.5 | Pass |
+| `accent-fg` on `fill-primary` (worst of 3 bases) | Accent glyph on a fill button | 5.86 | 5.83 | 4.5 | Pass |
+| `accent-fg` on `fill-tertiary` (worst of 3 bases) | Selected tab on its pill | 6.47 | 6.69 | 4.5 | Pass |
+| `label-primary` on `material` (pure white or black behind) | Tab labels, nav title | 12.78 | 10.70 | 4.5 | Pass |
+| `label-secondary` on `material` (pure white or black behind) | Inactive tabs | 4.63 | 5.24 | 4.5 | Pass |
+| `accent-fg` on `material` (pure white or black behind) | Active tab | 5.66 | 6.51 | 4.5 | Pass |
+| Category glyph on its tile (12 hues) | Category tiles | 5.02 to 5.29 | 7.42 to 7.64 | 3 | Pass |
+| Category glyph on `surface` (12 hues) | Category dots | 5.76 to 6.14 | 8.74 to 9.09 | 3 | Pass |
+| White on `black` / `green-300` on `black` | Scanner text, scanner accent | 21.0 / 11.58 | same | 4.5 | Pass |
 | `label-quaternary` on `surface` | Disabled text (exempt) | 2.63 | 2.48 | none | Exempt |
 
-Pairs checked with increased contrast (light / dark): label-secondary on bg-grouped 7.88 / 10.67;
-label-tertiary on surface 6.45 / 7.16; accent-fg on surface 8.38 / 9.05; warning-fg on surface 6.91 / 9.84;
-danger-fg on surface 7.84 / 7.20; on-accent on accent 8.38 / 4.65; warning-fg on warning-tint 5.96 (light);
-`edge` on surface 3.97 / 4.03. All pass.
+Pairs checked with increased contrast (light / dark): label-primary on bg-grouped 18.29 / 19.33; label-secondary on bg-grouped 7.81 / 10.83; label-secondary on material 8.18 / 9.93; label-tertiary on surface 6.66 / 7.40; label-tertiary on surface-elevated 6.66 / 6.64; accent-fg on surface 10.12 / 9.21; on-accent on accent 10.12 / 5.27; accent on bg-grouped 9.26 / 3.67; warning-fg on surface 7.02 / 9.87; warning-fg on warning-tint 6.15 / 8.62; danger-fg on surface 8.08 / 7.80; on-accent on danger 8.08 / 5.01; label-secondary on fill-primary 5.54 / 5.87; `edge` on surface 3.98 / 4.16 and on bg-grouped 3.64 / 4.86. All pass.
 
 Rules that keep the table true:
 
 - Text on a material is only `label-primary`, `label-secondary` or `accent-fg`.
 - `label-quaternary` never carries information. Use it for disabled controls only.
-- Text on fills is `label-primary`. `label-secondary` is allowed on any fill (worst case 4.52), but `label-tertiary` is not.
+- Text on fills is `label-primary`. `label-secondary` is allowed on any fill (worst case 4.69), but `label-tertiary` is not.
 - Category colours never colour text.
 
 ---
@@ -252,27 +268,51 @@ Rules that keep the table true:
 | Token | Stack | Used for | Why |
 |---|---|---|---|
 | `font-sans` | `-apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif` | All UI text | SF Pro on iOS: optical sizes and native metrics, no licence, no download. Off Apple devices it falls back to each platform's UI font. |
-| `font-serif-display` | `ui-serif, "New York", Georgia, "Noto Serif", "Times New Roman", serif` | `display`, `large-title`, `title-1` only (28 px and above) | New York gives a wine-label, editorial tone that no template has. It is free and part of the system. Georgia (Windows, macOS) and Noto Serif (Android) are close substitutes elsewhere. |
-| `font-rounded` | `ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, system-ui, sans-serif` | Quantities, stepper, badges, "dans 4 j" | Counting objects should feel tactile. Rounded is used only for numerals and short count labels. |
+| `font-display` | `"Schibsted Grotesk", "Schibsted Grotesk Fallback", -apple-system, …, sans-serif` | `display`, `large-title`, `title-1` only (28 px and above), the wordmark | A Scandinavian grotesk with a quiet, compact build: it gives Cellier its own voice in titles while SF Pro keeps everything else native. |
+| `font-rounded` | Same stack as `font-sans` | Quantities, stepper, badges, "dans 4 j", join code | Name kept so the components that use `font-rounded` did not change. Every numeric role adds `tabular-nums`. |
 | `font-mono` | `ui-monospace, "SF Mono", Menlo, Consolas, monospace` | The GTIN on item detail, debug only | Barcode digits must not be mistaken for a quantity. |
 
-Every numeric role sets `font-variant-numeric: tabular-nums`, so steppers and right-aligned columns do not jitter.
-`ui-serif` and `ui-rounded` resolve to New York and SF Pro Rounded in Safari (verified in the iOS 26.3 simulator:
-both measure differently from the sans and from Georgia, and `tabular-nums` makes "11111" and "00000" the same
-width in `ui-rounded`). If they are missing on another platform, the stack falls back to the regular sans, which is acceptable. No web font is loaded: the app
-downloads zero font bytes.
+**Choosing the display face.** Four free fonts were rendered in the iOS 26.3 simulator ("Cave", "Créer le
+foyer", "Bientôt épuisé", "samedi 14 nov." and «Cellier» at 34, 28 and 22 px, light and dark):
+
+| Candidate | Origin, licence | French glyphs | Tabular figures | Verdict |
+|---|---|---|---|---|
+| Schibsted Grotesk | Oslo (Bakken & Bæck for Schibsted), SIL OFL 1.1, weight 400 to 900 | All (é è ê à ç œ « » ’) | `tnum` feature, verified in Safari | **Chosen** |
+| Albert Sans | Copenhagen-inspired geometric, SIL OFL 1.1 | All | None (no `tnum`, proportional digits) | Calm, but fails the tabular requirement |
+| Instrument Sans | SIL OFL 1.1, width and weight axes | All | `tnum` | Clean, but so close to SF Pro that titles lose their own voice |
+| Familjen Grotesk | Stockholm, SIL OFL 1.1 | All | Tabular by default | Too much character (ink traps, heavy at 600) for a minimal brief |
+
+Schibsted Grotesk was chosen because it is the only candidate that is both genuinely Scandinavian in origin
+and drawing, and complete for the job: full French coverage, a `tnum` feature, and a slightly narrow build that
+keeps long French titles («Accès au foyer retiré», «Tous les celliers») on one line at 34 px.
+
+**Numerals.** Quantities moved from SF Pro Rounded to SF Pro (semibold, `tabular-nums`). Rounded read as
+playful next to the new grotesk; SF Pro's tabular figures match the row text they sit beside, are tuned for
+every size, and cost nothing to load. Schibsted's own tabular figures were not used for counts: its tabular
+comma is as wide as a digit, so prices such as «1,89 €» look gapped.
+
+**Self-hosting.** `public/fonts/schibsted-grotesk-latin.woff2` is the official Google Fonts "latin" subset of
+the variable font (Basic Latin, Latin-1 Supplement, œ Œ, general punctuation including ’ … « » and the narrow
+no-break space, €): 46 KB. The licence is `public/fonts/OFL.txt`. `@font-face` (in `tokens.css`) uses
+`font-display: swap`; a second face, "Schibsted Grotesk Fallback", maps Helvetica Neue Medium with
+`size-adjust: 104.4%`, `ascent-override: 93.6%`, `descent-override: 24.7%`, `line-gap-override: 0%` (computed
+from both fonts' advance widths and Schibsted's vertical metrics at weight 600), so a title barely moves when
+the web font arrives. `index.html` preloads the file, and the service worker precaches it (`woff2` is in the
+Workbox `globPatterns`), so the installed app never waits for it after the first visit. The file was not
+re-subset locally: `pyftsubset` is present but cannot write WOFF2 without the `brotli` module, and the Google
+subset already contains exactly the ranges needed.
 
 ### 3.2 Type scale
 
-Sizes are the iOS Dynamic Type "Large" defaults (`research/20`). Tracking comes from Apple's SF Pro table,
-converted to em so it scales with the size. "Serif" means `font-serif-display` and "Rnd" means
-`font-rounded` + tabular. The utility `type-<role>` sets family, size, leading, tracking and weight together.
+Sizes are the iOS Dynamic Type "Large" defaults (`research/20`). "Display" means `font-display` (Schibsted
+Grotesk) and "Num" means `font-rounded` (SF Pro) + tabular. Tracking for SF Pro roles is the Apple table, for
+reference only (see below); tracking for the display roles is explicit and applied. The utility `type-<role>` sets family, size, leading, tracking and weight together.
 
 | Role | Size / leading (px) | rem | Weight | Tracking | Family | Use |
 |---|---|---|---|---|---|---|
-| `display` | 40 / 46 | 2.5 | 600 | −0.015em | Serif | "Cellier" wordmark, onboarding headline |
-| `large-title` | 34 / 41 | 2.125 | 600 | −0.01em | Serif | Collapsing screen titles, pantry name |
-| `title-1` | 28 / 34 | 1.75 | 600 | −0.005em | Serif | Item name on item detail, sheet hero title |
+| `display` | 40 / 46 | 2.5 | 600 | −0.022em (applied) | Display | "Cellier" wordmark, onboarding headline |
+| `large-title` | 34 / 41 | 2.125 | 600 | −0.018em (applied) | Display | Collapsing screen titles, pantry name |
+| `title-1` | 28 / 34 | 1.75 | 600 | −0.014em (applied) | Display | Item name on item detail, sheet hero title |
 | `title-2` | 22 / 28 | 1.375 | 600 | −0.0118em (−0.26 pt) | Sans | Rare: an empty-state title in a full screen |
 | `title-3` | 20 / 25 | 1.25 | 600 | −0.0225em (−0.45 pt) | Sans | Home section titles ("Bientôt épuisé", "Prochaines courses") |
 | `headline` | 17 / 22 | 1.0625 | 600 | −0.0253em (−0.43 pt) | Sans | Compact nav title, emphasised row title, button labels |
@@ -283,22 +323,25 @@ converted to em so it scales with the size. "Serif" means `font-serif-display` a
 | `caption-1` | 12 / 16 | 0.75 | 400 | 0 | Sans | Photo credit (Open Food Facts), hints |
 | `caption-2` | 11 / 13 | 0.6875 | 400 | +0.0055em (+0.06 pt) | Sans | Smallest allowed text |
 | `tab-label` | 10 / 12 | 0.625 | 500 | +0.012em (+0.12 pt) | Sans | Tab bar labels (iOS uses 10 pt medium) |
-| `quantity-xl` | 48 / 52 | 3 | 600 | 0 | Rnd | Stepper value in the scanner tray and quantity sheet |
-| `quantity-l` | 34 / 41 | 2.125 | 600 | 0 | Rnd | Stock count on item detail |
-| `quantity` | 17 / 22 | 1.0625 | 600 | 0 | Rnd | Trailing count in item rows |
-| `badge` | 13 / 16 | 0.8125 | 600 | 0 | Rnd | "dans 4 j", "× 3", counts in pills |
-| `badge-s` | 11 / 13 | 0.6875 | 700 | +0.01em | Rnd | Tab badge, tray counter |
+| `quantity-xl` | 48 / 52 | 3 | 600 | 0 | Num | Stepper value in the scanner tray and quantity sheet |
+| `quantity-l` | 34 / 41 | 2.125 | 600 | 0 | Num | Stock count on item detail |
+| `quantity` | 17 / 22 | 1.0625 | 600 | 0 | Num | Trailing count in item rows |
+| `badge` | 13 / 16 | 0.8125 | 600 | 0 | Num | "dans 4 j", "× 3", counts in pills |
+| `badge-s` | 11 / 13 | 0.6875 | 700 | +0.01em | Num | Tab badge, tray counter |
 
 Decisions:
 
-- Titles use weight 600 instead of Apple's Regular. The serif needs the weight to hold up at 34 px, and the
-  sans titles match it so the hierarchy stays consistent.
-- **Tracking is left to the system (verified).** In the iOS 26.3 simulator, `-apple-system`, `ui-rounded` and
-  `ui-serif` text gets wider per em as the size drops (about +4 at 11 px down to +0.8 at 34 px, in thousandths of
+- Titles use weight 600 instead of Apple's Regular. The grotesk needs the weight to hold up at 34 px, and the
+  SF Pro titles match it so the hierarchy stays consistent.
+- **Tracking is left to the system for SF Pro (verified).** In the iOS 26.3 simulator, `-apple-system`, `ui-rounded` and
+  `ui-serif` text (measured before the display font changed) gets wider per em as the size drops (about +4 at 11 px down to +0.8 at 34 px, in thousandths of
   an em per character, against 0 for Helvetica at every size). So WebKit already applies the fonts' size-specific
   tracking and optical sizes, and an explicit `letter-spacing` is added on top (−1 px gave exactly −1 px per
-  character). Every `--text-*--letter-spacing` token is therefore `normal`, and the Apple tracking values in the
-  table above are for reference only. Do not add letter-spacing to system-font text.
+  character). Every SF Pro `--text-*--letter-spacing` token is therefore `normal`, and the Apple tracking values in
+  the table above are for reference only. Do not add letter-spacing to system-font text.
+- **Display tracking is explicit.** Schibsted Grotesk is a web font, so WebKit applies no size-specific
+  tracking to it. Its three roles carry their own, tightening with size like Apple's display tracking:
+  −0.014em at 28 px, −0.018em at 34 px, −0.022em at 40 px. Being in em, the values scale with Dynamic Type.
 - Headings use `text-wrap: balance` and paragraphs use `text-wrap: pretty`.
 - Product names are clamped to two lines in rows (`line-clamp: 2`) and never truncated on item detail.
 
@@ -430,7 +473,7 @@ enhancement. Safari 26.3 does not support it (verified), so plain `border-radius
 | 3 | Menus (pantry menu, context menu) | `surface-elevated` | none | `shadow-menu` | `shadow-menu` |
 
 The segmented control thumb uses `surface` + `shadow-thumb`. Exact shadow values are in `tokens.css`. Light
-shadows are tinted toward the stone hue, never pure black. Cards in lists never cast a shadow (from the brief).
+shadows are tinted toward the fog hue (200), never pure black. Cards in lists never cast a shadow (from the brief).
 At most two blurred layers may be on screen at once (tab bar and nav bar). Toasts appear only when one of
 them is hidden, or accept the cost briefly.
 
@@ -568,32 +611,33 @@ precedence over food type (a frozen pea is Surgelés), as research/06 specifies.
 
 ### 6.1 Category colours
 
-Twelve muted hues share the same OKLCH lightness, so no category looks more important than another. The tile
-is L 0.94 (light) / 0.31 (dark) and the glyph is L 0.52 / 0.82. Each glyph passes 3:1 on its tile
-(4.47 to 4.81 in light, 7.43 to 7.63 in dark). The glyph also passes 3:1 on `surface` when used as a dot
-(5.20 to 5.72 light, 9.00 to 9.58 dark). Hues are shared deliberately by neighbours in the shop: wine shares
-with chocolate (plum), and water shares with frozen (sky).
+Twelve near-monochrome tints share the same OKLCH lightness and chroma, so no category looks more important
+than another and a long list reads calm: the hue is a whisper on a fog-grey tile, not a colour block. The tile
+is L 0.948 C 0.014 (light) / L 0.29 C 0.016 (dark) and the glyph is L 0.50 C 0.05 / L 0.80 C 0.045. `pebble` uses
+the neutral fog hue. Each glyph passes 3:1 on its tile (5.02 to 5.29 in light, 7.42 to 7.64 in dark), and on
+`surface` when used as a dot (5.76 to 6.14 light, 8.74 to 9.09 dark). Hues are shared deliberately by
+neighbours in the shop: wine shares with chocolate (plum), and water shares with frozen (sky).
 
-| Hue token | Light tile / glyph | Dark tile / glyph | Shared by |
-|---|---|---|---|
-| `tomato` | `#FFE4E0` / `#98524A` | `#422825` / `#F1B2A9` | viande, conserves |
-| `clay` | `#FEE6D9` / `#945733` | `#412A1E` / `#EDB799` | epicerie_sucree, plats, cafe |
-| `apricot` | `#FAE8D5` / `#8B5E22` | `#3D2D19` / `#E4BC8F` | pain, petit_dej, jus |
-| `honey` | `#F3EBD4` / `#7D671B` | `#383018` / `#D5C38C` | feculents, biere |
-| `olive` | `#EAEED6` / `#676F28` | `#30331B` / `#C2CA92` | apero, condiments |
-| `sage` | `#DFF1DE` / `#437746` | `#233624` / `#A6D2A7` | legumes, animaux |
-| `teal` | `#D5F2F0` / `#137875` | `#143735` / `#89D4D0` | poisson, entretien |
-| `sky` | `#D8EFFC` / `#267194` | `#1A3441` / `#92CDED` | surgeles, eau |
-| `iris` | `#E4EBFF` / `#5665A0` | `#292F45` / `#B3C2F6` | laitier, soft, bebe |
-| `plum` | `#F7E4F7` / `#845587` | `#3B293C` / `#DEB4DF` | chocolat, vin |
-| `rose` | `#FEE3EB` / `#945069` | `#412830` / `#EDB0C4` | fruits, hygiene |
-| `pebble` | `#EEEBE5` / `#6D6861` | `#32302C` / `#C7C3BD` | papier, pharmacie, autre |
+| Hue token | Hue | Light tile / glyph | Dark tile / glyph | Shared by |
+|---|---|---|---|---|
+| `tomato` | 28 | `#F7EBE9` / `#7D5953` | `#332827` / `#D9B3AE` | viande, conserves |
+| `clay` | 50 | `#F6EBE6` / `#7B5B4A` | `#322924` / `#D7B6A4` | epicerie_sucree, plats, cafe |
+| `apricot` | 70 | `#F4ECE4` / `#765E44` | `#312A23` / `#D1B99F` | pain, petit_dej, jus |
+| `honey` | 92 | `#F1EEE4` / `#6D6342` | `#2E2B22` / `#C8BD9D` | feculents, biere |
+| `olive` | 115 | `#EDEFE5` / `#626746` | `#2B2C23` / `#BCC2A1` | apero, condiments |
+| `sage` | 145 | `#E8F0E8` / `#516B52` | `#272E26` / `#ACC6AC` | legumes, animaux |
+| `teal` | 192 | `#E4F1F0` / `#3F6D6B` | `#222E2D` / `#9DC7C5` | poisson, entretien |
+| `sky` | 232 | `#E5F0F6` / `#45697B` | `#242D32` / `#A2C4D6` | surgeles, eau |
+| `iris` | 272 | `#EAEDF8` / `#596280` | `#282B34` / `#B3BDDC` | laitier, soft, bebe |
+| `plum` | 325 | `#F3EBF3` / `#725A73` | `#302930` / `#CDB4CE` | chocolat, vin |
+| `rose` | 358 | `#F6EAEE` / `#7B5763` | `#32282B` / `#D7B2BD` | fruits, hygiene |
+| `pebble` | 200 | `#EBEFEF` / `#5E6565` | `#282C2C` / `#B9BFBF` | papier, pharmacie, autre |
 
 The OKLCH values are in 2.2 and `tokens.css` (`--color-<hue>-100/600/850/300`). Components use
 `--cat-<hue>-tile` / `--cat-<hue>-fg`, or `bg-cat-<hue>-tile` / `text-cat-<hue>-fg`. Because the hue is
 stored as data on the category, set it with an inline style (`background: var(--cat-${hue}-tile)`), since
-Tailwind cannot see class names built at runtime. `sage` (hue 145, low chroma, used only as a tile) is
-yellower and much quieter than the bottle-green accent (hue 160) and is never used for text or fills.
+Tailwind cannot see class names built at runtime. `sage` (hue 145, chroma 0.014 to 0.05, used only as a tile)
+is yellower and far quieter than the spruce accent (hue 165, chroma 0.06) and is never used for text or fills.
 This keeps the "one green" rule.
 
 ### 6.2 The 28 categories
@@ -668,8 +712,10 @@ slug never changes.
 - **Loading:** a `fill-tertiary` block with no shimmer, and the photo fades in over 150ms (opacity only).
 - **Credit:** "Photo : Open Food Facts" in `caption-1` `label-tertiary` under the detail photo, as ODbL and
   CC BY-SA require.
-- **App icon and splash:** a bottle-green (`#28704E`) square holding a stone-0 serif "C" in New York semibold.
-  Splash screens are flat `#F6F4F1` (light) and `#0F0E0C` (dark), with the same mark centred.
+- **App icon and splash:** a spruce (`#2F5D4A`) square holding a stone-0 "C" in Schibsted Grotesk SemiBold.
+  Splash screens are flat `#F2F4F4` (light) and `#090D0D` (dark), with the same mark centred. The shipped PNGs in
+  `public/icons/` still carry the previous bottle-green serif mark and must be regenerated (`pnpm icons`) with
+  these values; this restyle did not touch them.
 
 ---
 
@@ -714,7 +760,7 @@ Tailwind utility = the namespace + the token name after the prefix, for example 
 - `--color-green-{50,100,300,400,500,550,600,650,700,800,900,950}`
 - `--color-amber-{100,300,600,700,900}`, `--color-brick-{100,300,500,600,700,900}`
 - `--color-{tomato,clay,apricot,honey,olive,sage,teal,sky,iris,plum,rose,pebble}-{100,600,850,300}`
-- `--font-sans`, `--font-serif-display`, `--font-rounded`, `--font-mono`
+- `--font-sans`, `--font-display`, `--font-rounded` (SF Pro, numeric roles), `--font-mono`
 - `--text-{display,large-title,title-1,title-2,title-3,headline,body,callout,subhead,footnote,caption-1,caption-2,tab-label,quantity-xl,quantity-l,quantity,badge,badge-s}`,
   each with `--line-height`, `--letter-spacing` and `--font-weight` sub-keys (for example `--text-body--line-height`)
 - `--spacing` (0.25rem)
@@ -770,12 +816,19 @@ changes use 150ms `--ease-out`, and the reduced-motion cross-fade lasts 180ms.
 
 1. **Categories follow research/06 (28 categories, snake_case slugs).** The coordinator asked for this
    after the brief was written. See 6.3.
-2. **`title-1` (28px) uses the serif.** The brief lists screen titles, onboarding and the wordmark for New
-   York at 28pt and above. This file also applies it to the item name on item detail and to sheet hero titles,
-   which are 28px. That stays within the brief's 28pt-and-above limit, and is listed here only for visibility.
+2. **`title-1` (28px) uses the display font.** The brief lists screen titles, onboarding and the wordmark for
+   the display face at 28pt and above. This file also applies it to the item name on item detail and to sheet
+   hero titles, which are 28px. That stays within the 28pt-and-above limit, and is listed here only for visibility.
 3. **Title weights are 600** across the sans titles, not Apple's Regular. The reason is in 3.2.
 4. **The type scale adds `display` (40px), `tab-label` (10px) and five numeric roles** to the brief's eleven
    Apple roles. The Apple sizes are unchanged.
 5. **Dynamic Type works through a `--dt` multiplier on type only.** The brief says sizes are in rem "so the
    user's text size scales the layout". Here, type tokens are in rem and also scale with Dynamic Type, but
    spacing and radii do not grow with Dynamic Type, matching iOS behaviour. The reason is in 3.3.
+6. **Restyle (November 2026): Schibsted Grotesk replaces New York, and a Nordic palette replaces warm stone.**
+   The owner asked to drop the serif for a minimalist, Scandinavian display font and to move the colours toward
+   premium. The brief's New York serif and SF Pro Rounded numerals are therefore superseded (3.1), the display
+   font is a self-hosted web font (46 KB, precached) instead of a zero-byte system font, and the neutrals, accent,
+   semantics and category tints were re-tuned (2.1, 2.2, 6.1). Token names are unchanged, except
+   `--font-serif-display`, renamed `--font-display` because no component referenced it. The ramp prefixes
+   `stone-` and `green-` and the `--font-rounded` name were kept on purpose so no component had to change.

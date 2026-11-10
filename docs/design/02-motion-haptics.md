@@ -20,7 +20,7 @@ Legend used below:
 
 ## 0. Motion thesis
 
-Cellier's mood is "a cool, quiet stone cellar with good light". Motion follows the same restraint: everything that moves
+Cellier's mood is "a cool, quiet Nordic pantry with good light". Motion follows the same restraint: everything that moves
 is a critically damped spring, nothing bounces unless the finger threw it, and the app has exactly one authored moment.
 
 - **Focal moment: scan success.** A barcode is recognised, the reticle tightens, the product drops into the tray, the

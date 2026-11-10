@@ -22,7 +22,8 @@ tiles, touch targets) do not scale. Side margin is 16 px everywhere.
 
 **Type names** follow the brief's Dynamic Type table: Large Title 34/41, Title 1 28/34, Title 2 22/28, Title 3 20/25,
 Headline 17/22 semibold, Body 17/22, Callout 16/21, Subhead 15/20, Footnote 13/18, Caption 1 12/16, Caption 2 11/13.
-"Serif" means the New York stack (only at 28 px and above). "Rounded" means SF Pro Rounded with tabular numerals.
+"Display" means the display font, Schibsted Grotesk (only at 28 px and above; `01` §3.1). "Tabular" means SF Pro with
+tabular numerals (it replaced SF Pro Rounded in the November 2026 restyle).
 
 **Copy.** Every user-visible string appears in this document with its catalogue key in backticks, for example
 «Bientôt épuisé» `home.low.title`. The full table is in section 7. Copy rules for the `fr.ts` catalogue:
@@ -343,7 +344,7 @@ never flashes it. Text changes cross-fade (`smooth`; `reduced` with reduced moti
 #### 2.5.1 Loading from local store
 
 Boot order (`research/14` §3.6): open IndexedDB → build the store → render the last route → pull → flush →
-subscribe. The splash (`apple-touch-startup-image`, limestone background, centred wordmark) is visible only during the
+subscribe. The splash (`apple-touch-startup-image`, fog background, centred wordmark) is visible only during the
 OS launch. React renders the last visited tab route from the restored per-tab stack. Data present in the store
 renders at once; there is no spinner and no skeleton in this state. Forecasts are computed synchronously from the
 local ledger (`research/24` §8).
@@ -487,10 +488,10 @@ sheet has unsaved edits; it waits.
 - Navigation row: 44 px high under the top inset. Leading: `BackButton` on pushed screens (Lucide `chevron-left`
   22 px + previous title in Body, accent colour). Trailing: up to two `IconButton`s (44 × 44 hit, 22 px icon) or one
   text button (Body, accent).
-- Large title block: 52 px (title line 41 px + 11 px bottom padding), x = 16. Serif, 34 px, semibold, tight
+- Large title block: 52 px (title line 41 px + 11 px bottom padding), x = 16. Display, 34 px, semibold, tight
   tracking (values in `01`). Below it, the SyncIndicator line (20 px, when visible).
 - On scroll, the large title collapses into an inline title centred in the navigation row: Headline 17 px, system
-  font (serif is only for 28 px and up). The navigation row gains its translucent material only once content
+  font (the display font is only for 28 px and up). The navigation row gains its translucent material only once content
   scrolls under it.
 - `PantrySwitcher` (Accueil and Stock only): the large title text is the current cellier name followed by a Lucide
   `chevron-down` 20 px in secondary colour, 6 px after the text, baseline-aligned. With one cellier, no chevron and
@@ -517,7 +518,7 @@ Used by Stock, Accueil (low variant), Activity drill-down and search results. Mi
 - Secondary line: Subhead, secondary, single line: «{brand} · {size}» (`item.row.brandSize`), «{size}» alone, or the
   category name if neither exists. In «Tous les celliers» mode: «{pantryA} {qtyA} · {pantryB} {qtyB}»
   (`item.row.split`), at most two celliers then «+{n}». Unresolved products: «À compléter» `item.row.incomplete`.
-- Quantity: Title 3 (20 px) rounded, tabular, right-aligned in a column at least 32 px wide. Changes play `pop`.
+- Quantity: Title 3 (20 px), tabular, right-aligned in a column at least 32 px wide. Changes play `pop`.
 - Running-low marker: a 6 px amber dot, 6 px before the quantity, vertically centred. Colour is never the only
   signal: the accessible name of the row includes «bientôt épuisé» `a11y.item.lowSuffix`. A product at 0 shows «0» in
   the tertiary text colour with the amber dot.
@@ -533,7 +534,7 @@ when one cellier holds it).
 
 ### 3.4 ForecastBadge and the honesty rules
 
-`ForecastBadge`: a capsule, height 24, horizontal padding 8, Footnote rounded semibold tabular, amber tint
+`ForecastBadge`: a capsule, height 24, horizontal padding 8, Footnote semibold tabular, amber tint
 background with amber deep text (`01` ensures 4.5:1). Content by state, using `research/24` outputs (`cover`,
 `runOut`, `confidence`):
 
@@ -607,13 +608,13 @@ item. Install guidance comes before sign-in in Safari, because Safari storage do
 
 Purpose: say what Cellier is in one line and get the user signed in, or installed first when in Safari.
 
-Layout (limestone background, no navigation bar):
+Layout (fog `bg` background, no navigation bar):
 
 | Order | Element | Spec |
 |---|---|---|
-| 1 | Category motif | Three `CategoryTile`s 56 px (Vins `wine`, Épicerie `wheat`, Produits laitiers `milk`), 12 px apart, centred, top at 26 % of the viewport. Static. Hidden from VoiceOver. |
-| 2 | `Wordmark` | «Cellier» `app.name`, serif semibold 48/52, centred, 24 px below the motif. |
-| 3 | Tagline | «Ce qu’il y a à la maison, et ce qu’il faudra racheter.» `welcome.tagline`, Body, secondary, centred, max width 280 px, 10 px below. |
+| 1 | Category motif | Three `CategoryTile`s 44 px (Vins `wine` plum, Épicerie `wheat` honey, Produits laitiers `milk` iris), 8 px apart, centred; the motif, wordmark and tagline are centred as one block in the space above the actions. Static. Hidden from VoiceOver. |
+| 2 | `Wordmark` | «Cellier» `app.name`, display semibold 40/46 (`display` role, −0.022em), centred, 28 px below the motif. |
+| 3 | Tagline | «Ce qu’il y a à la maison, et ce qu’il faudra racheter.» `welcome.tagline`, Body, secondary, centred, max width 320 px, 8 px below. |
 | 4 | Bottom action area | Anchored to bottom inset + 24 px, side margins 16. Content depends on context (below). |
 
 Bottom action area:
@@ -657,7 +658,7 @@ States:
 Purpose: get the app onto the Home Screen without `beforeinstallprompt` (unsupported on iOS).
 
 `SheetContainer` auto. Header: title «Ajouter à l’écran d’accueil» `install.title`, trailing «OK». Then three
-`InstallStep` rows (number in a 28 px accent-tinted circle, rounded; title Body semibold; detail Subhead secondary;
+`InstallStep` rows (number in a 28 px accent-tinted circle, tabular; title Body semibold; detail Subhead secondary;
 right side a 44 px illustration of the glyph):
 
 | Step | Title | Detail | Glyph |
@@ -680,7 +681,7 @@ Expired code: «Le lien de connexion a expiré.» `auth.callback.expired`, butto
 
 #### 4.1.4 Household choice `/onboarding/household`
 
-Purpose: create or join. Layout: navigation row empty; large serif title «Votre foyer» `onboarding.household.title`
+Purpose: create or join. Layout: navigation row empty; large display title «Votre foyer» `onboarding.household.title`
 (34 px, x = 16, top inset + 44); body «Le foyer réunit les personnes qui partagent le même stock.»
 `onboarding.household.body` (Body, secondary, 8 px below); 32 px; two `OptionCard`s (inset list rows of 76 px: 36 px
 accent-tinted icon tile, title Headline, detail Subhead secondary, trailing `chevron-right`):
@@ -700,7 +701,7 @@ Purpose: create the household and its first cellier in one step.
 | Order | Element | Spec / copy |
 |---|---|---|
 | 1 | Nav | `BackButton`; trailing «Créer» `common.create` (disabled while a field is empty) |
-| 2 | Title | Serif 34 «Créer le foyer» `onboarding.create.title` |
+| 2 | Title | Display 34 «Créer le foyer» `onboarding.create.title` |
 | 3 | Inset list, 2 `TextField` rows (52 px) | Label «Nom du foyer» `onboarding.create.householdLabel`, value prefilled «Chez {firstName}» `onboarding.create.householdDefault` (fallback «Mon foyer» `onboarding.create.householdFallback`), placeholder «Ex. : Chez les Martin» `onboarding.create.householdPlaceholder`. Label «Premier cellier» `onboarding.create.pantryLabel`, prefilled «Cave» `pantry.defaultName`, text selected on focus. |
 | 4 | `ChipGroup` under the second field | «Cave», «Cuisine», «Cellier», «Garage», «Placard» (`pantry.suggestions`); tapping replaces the field value (`snappy`). |
 | 5 | Footer | «Un cellier est un lieu de rangement. D’autres pourront être ajoutés plus tard.» `onboarding.create.footer` |
@@ -713,10 +714,10 @@ Validation: «Donner un nom au foyer.» `onboarding.create.householdRequired`, �
 
 #### 4.1.6 Join with a code `/onboarding/join`
 
-Layout: `BackButton`; serif title «Rejoindre un foyer» `onboarding.join.title`; body «Saisir le code reçu du
+Layout: `BackButton`; display title «Rejoindre un foyer» `onboarding.join.title`; body «Saisir le code reçu du
 propriétaire du foyer.» `onboarding.join.body`; inset `TextField` (52 px), label «Code d’invitation»
 `onboarding.join.codeLabel`, placeholder «XXXX-XXXX» `onboarding.join.codePlaceholder`, monospace-free: SF Pro
-Rounded tabular 20 px, uppercase, auto-inserted hyphen after 4 characters, ambiguous letters normalised
+Tabular 20 px, uppercase, auto-inserted hyphen after 4 characters, ambiguous letters normalised
 (O→0, I/L→1; Crockford alphabet), `autocapitalize="characters"`, `autocomplete="one-time-code"`; prefilled from
 `?code=`. Button «Rejoindre» `onboarding.join.cta` enabled at 8 characters.
 
@@ -732,8 +733,8 @@ On success → `/onboarding/joined`.
 
 #### 4.1.7 Joined `/onboarding/joined`
 
-Centred: Wordmark-sized serif line «Bienvenue dans « {household} » !» `onboarding.joined.title` (one of the two
-allowed exclamations; Title 1 serif 28, centred, balance), body «Le stock du foyer arrive sur cet iPhone.»
+Centred: Wordmark-sized display line «Bienvenue dans « {household} » !» `onboarding.joined.title` (one of the two
+allowed exclamations; Title 1 display 28, centred, balance), body «Le stock du foyer arrive sur cet iPhone.»
 `onboarding.joined.body`. No button: `replace` to `/` once the first pull has returned the pantries, or after 1.5 s,
 whichever is later (then 2.5.2 applies).
 
@@ -743,12 +744,12 @@ Purpose: an invite link usually opens in Safari, not in the installed app. The p
 Safari (membership is server-side), then install and sign in with the same account in the app, which then skips
 onboarding. The code is shown as a fallback.
 
-Layout: Wordmark 34 serif at top inset + 32; card (inset, radius 20, padding 20):
+Layout: Wordmark 34 display at top inset + 32; card (inset, radius 20, padding 20):
 - Title (Title 2) «Invitation» `join.title`
 - Body «{inviter} vous invite à rejoindre « {household} » sur Cellier.» `join.body` (from a pre-auth RPC that returns
   only the household name and the inviter's first name; when it fails: «Invitation à rejoindre un foyer sur
   Cellier.» `join.bodyFallback`)
-- `InviteCodeDisplay`: «K7PM-4QXD» rounded tabular 28, letter-spaced, with «Copier le code» `invite.copyCode`
+- `InviteCodeDisplay`: «K7PM-4QXD» tabular 28, letter-spaced, with «Copier le code» `invite.copyCode`
 
 Then by context:
 
@@ -882,7 +883,7 @@ household has no movements.
 
 Purpose: who changed what, including server adjustments; the household's audit trail.
 
-Layout: `LargeTitleHeader` title «Activité» `activity.title` (serif), back to Accueil. Sections per day, header
+Layout: `LargeTitleHeader` title «Activité» `activity.title` (display), back to Accueil. Sections per day, header
 «Aujourd’hui» / «Hier» / «{weekday} {d} {month}» (Headline). Rows: `ActivityRow` (min 60 px): 36 px stone tile with
 Lucide `plus` (additions), `minus` (withdrawals), `arrow-left-right` (moves), `pencil` (edits), `scale` (adjusted);
 title Body; secondary Subhead «{member} · {time}» (`activity.row.meta`; the current user shows as «Vous»
@@ -940,7 +941,7 @@ Header (56 px, padding 16):
 
 `ScannerTrayRow` (64 px, newest on top, insert with `smooth`, the product tile enters with `pop`): 36 px tile (photo
 if known, else CategoryTile, else a stone tile with Lucide `barcode`); name (Subhead semibold, white); status line
-(Footnote, white 60 %); trailing compact `QuantityStepper` (32 px visual buttons, 44 px hit, value rounded 17 px,
+(Footnote, white 60 %); trailing compact `QuantityStepper` (32 px visual buttons, 44 px hit, value tabular 17 px,
 default 1). At quantity 1 the minus becomes Lucide `trash-2` (label «Enlever de la liste» `scanner.row.remove`).
 Swipe left reveals «Enlever» `scanner.row.removeShort` (H2 at the threshold). Tapping the value opens QuantityKeypad
 (bulk, e.g. a case of 12).
@@ -951,7 +952,7 @@ Order of lookup: local store → `catalog_products` → Open Food Facts → manu
 
 | State | Name line | Status line | Committable | Key(s) |
 |---|---|---|---|---|
-| Recognising (code read, lookup running) | Digits of the code, rounded tabular | «Recherche…» | No (waits) | `scanner.row.searching` |
+| Recognising (code read, lookup running) | Digits of the code, tabular | «Recherche…» | No (waits) | `scanner.row.searching` |
 | Found in household (local) | Product name | Add: «En stock : {n}» · Withdraw: «En stock dans {pantry} : {n}» | Yes | `scanner.row.inStock`, `scanner.row.inStockPantry` |
 | Found in catalogue | Name | «{brand} · {size} · nouveau dans le stock» | Yes | `scanner.row.newCatalog` |
 | Found online (OFF) | Name | «Open Food Facts · nouveau dans le stock» | Yes | `scanner.row.newOff` |
@@ -1009,7 +1010,7 @@ Counts are units. Rows that are not committable are skipped and named in the toa
 | UnknownProductSheet (large, dark) | Header «Annuler» / «Nouveau produit» `scanner.unknown.title` / «OK» `common.done`. Footnote «Code {digits}». `TextField` «Nom» `field.name`, placeholder «Ex. : Lessive Le Chat 2 L» `scanner.unknown.placeholder`, autofocus. `CategoryPicker` grid (4 columns of 72 px cells: 44 px tile + Caption 1 label), default «Autres». OK enabled when a name is entered. |
 | StoreCodeSheet (large, dark) | Title «Code magasin» `scanner.storeCode.title`; body «Ce code est imprimé par le magasin pour un produit pesé ou à la coupe. Il n’identifie pas le produit : choisir l’article correspondant.» `scanner.storeCode.body`; `SearchField` «Rechercher un article» `scanner.storeCode.search`; results as ItemRows; last row «Créer « {query} »» `common.createNamed`. The code is never stored as the product's barcode. |
 | ManualEntrySheet (auto, dark) | Title «Saisir un code» `scanner.manualEntry.title`; field placeholder «Code-barres ou nom de l’article» `scanner.manualEntry.placeholder` (`inputmode="text"`); digits are validated as a GTIN on submit, text searches the household's products; button «Valider» `common.confirm`. Invalid code: «Ce code n’est pas valide. Vérifier les chiffres.» `scanner.manualEntry.invalid`. |
-| QuantityKeypad (auto, dark) | Title = product name; native numeric input (`inputmode="numeric"`), rounded 34; «OK». In withdraw, values above the maximum are refused: «Il n’y en a que {n} dans {pantry}.» `scanner.keypad.max`. |
+| QuantityKeypad (auto, dark) | Title = product name; native numeric input (`inputmode="numeric"`), tabular 34; «OK». In withdraw, values above the maximum are refused: «Il n’y en a que {n} dans {pantry}.» `scanner.keypad.max`. |
 | Close ConfirmDialog | Title «Enregistrer les {n} articles ?» `scanner.close.title`; buttons «Enregistrer» `common.save`, «Abandonner» `scanner.close.discard` (destructive, H4), «Continuer le scan» `scanner.close.continue` (cancel). |
 
 #### 4.4.9 Draft persistence
@@ -1044,7 +1045,7 @@ Purpose: everything the household has, findable in two seconds.
 |---|---|---|
 | 1 | `LargeTitleHeader` | Title `PantrySwitcher`. Trailing `IconButton`s: `arrow-up-down` «Trier et grouper» `a11y.stock.view` → `?sheet=stock-view`; `plus` «Ajouter un article» `a11y.stock.add` → `?sheet=new-item`. |
 | 2 | `SearchField` | 36 px, radius 10, x = 16, 8 px below the title, Lucide `search` 17 px, placeholder «Rechercher dans {pantry}» `stock.search.placeholder` / «Rechercher» `stock.search.placeholderAll`. On focus: «Annuler» `common.cancel` slides in at the trailing edge (`snappy`); the large title collapses. Value in `?q=`. |
-| 3 | Sections | Inset list sections per group (4.5.3), virtualised (TanStack Virtual). Section header Headline + trailing count (Subhead secondary, rounded). |
+| 3 | Sections | Inset list sections per group (4.5.3), virtualised (TanStack Virtual). Section header Headline + trailing count (Subhead secondary, tabular). |
 | 4 | Footer | Footnote secondary, centred: «{n} articles · {u} unités» `stock.footer` |
 
 #### 4.5.2 Search
@@ -1128,7 +1129,7 @@ Purpose: everything about one product, and the place to correct it.
 | Order | Element | Spec |
 |---|---|---|
 | 1 | Nav | `BackButton` (previous title); trailing «Modifier» `common.edit` → `?sheet=item-edit&id=…`. Inline title (product name) appears once the header scrolls away. SyncIndicator icon in the nav row when not synced. |
-| 2 | `ProductHeader` | Centred. Photo 112 × 112 radius 20 with a 1 px inset neutral outline (OFF image), or `CategoryTile` 112 (icon 56). 16 px. Name: serif Title 1 28/34, centred, max 3 lines, balance. 4 px. «{brand} · {size}» Subhead secondary. |
+| 2 | `ProductHeader` | Centred. Photo 112 × 112 radius 20 with a 1 px inset neutral outline (OFF image), or `CategoryTile` 112 (icon 56). 16 px. Name: display Title 1 28/34, centred, max 3 lines, balance. 4 px. «{brand} · {size}» Subhead secondary. |
 | 3 | Quantity block | 4.6.2. 24 px top. |
 | 4 | «Par cellier» | 4.6.3 (only with stock rows in ≥ 2 celliers). |
 | 5 | «Prévision» | 4.6.4. |
@@ -1142,7 +1143,7 @@ Purpose: everything about one product, and the place to correct it.
 #### 4.6.2 Quantity block
 
 - Product stocked in one cellier: `QuantityStepper` large: minus and plus 44 px circles (stone fill, Lucide `minus` /
-  `plus` 22 px), value between them rounded Large Title 34 tabular (min width 72, `pop` on change). Caption below:
+  `plus` 22 px), value between them Large Title 34 tabular (min width 72, `pop` on change). Caption below:
   «en stock · {pantry}» `item.qty.caption`. Minus records consume, plus records purchase; minus disabled at 0.
   Tapping the value opens RecountSheet. Labels «Retirer 1» / «Ajouter 1», value «{n} en stock» `a11y.item.qtyValue`,
   hint «Toucher pour recompter» `a11y.item.recountHint`.
@@ -1151,7 +1152,7 @@ Purpose: everything about one product, and the place to correct it.
 - Not stocked anywhere (0 after withdrawals): the single-cellier variant with value 0 and the last cellier.
 
 RecountSheet (`?sheet=recount&id=…&pantry=…`, auto): header «Annuler» / «Recompter» `recount.title` /
-«Enregistrer»; body «Combien en reste-t-il dans {pantry} ?» `recount.body`; centred numeric input rounded 34, current
+«Enregistrer»; body «Combien en reste-t-il dans {pantry} ?» `recount.body`; centred numeric input tabular 34, current
 value selected. Saves a recount movement (absolute, not demand).
 
 #### 4.6.3 «Par cellier» `item.pantries.title`
@@ -1180,7 +1181,7 @@ end. Accessibility: «Épuisement probable entre le {earliest} et le {latest}, p
 | Row | Spec |
 |---|---|
 | «Seuil d’alerte» `item.alert.threshold` | Trailing compact stepper (min 0). Below the value, when a suggestion differs: chip «Suggéré : {n}» `item.alert.suggested` (tap applies, `snappy`). Suggestion = `max(1, ceil(25 % of stock habituel))` (`research/24` §4). |
-| «Stock habituel» `item.alert.usual` | Value rounded + caption «Calculé» `source.computed` or «Saisi à la main» `source.manual`. Tap → edit sheet focused on this field. |
+| «Stock habituel» `item.alert.usual` | Value tabular + caption «Calculé» `source.computed` or «Saisi à la main» `source.manual`. Tap → edit sheet focused on this field. |
 | «Recevoir les alertes sur cet iPhone» `item.alert.enablePush` | Only when standalone and permission is `default`. → NotificationPrimerSheet. |
 
 Footer: «Signalé quand il en reste {n} ou moins. Le stock habituel sert à proposer la quantité à racheter.»
@@ -1188,7 +1189,7 @@ Footer: «Signalé quand il en reste {n} ou moins. Le stock habituel sert à pro
 
 #### 4.6.6 «Prix» `item.price.title`
 
-Row: price (Body rounded, e.g. «1,89 €») with `SourceCaption`: «Open Prices · {store} · {date}» `source.openPrices`
+Row: price (Body tabular, e.g. «1,89 €») with `SourceCaption`: «Open Prices · {store} · {date}» `source.openPrices`
 or «Saisi à la main · {date}» `source.manualDated`. Unknown: «Prix inconnu» `item.price.unknown` + trailing
 «Ajouter» `common.add` → edit sheet focused on price.
 
@@ -1196,13 +1197,13 @@ or «Saisi à la main · {date}» `source.manualDated`. Unknown: «Prix inconnu�
 
 `PropertyRow`s (label left Body, value right Body secondary, `SourceCaption` Caption 1 under the value):
 «Catégorie» `field.category`, «Contenance» `field.size`, «Marque» `field.brand`, «Code-barres» `field.barcode`
-(rounded tabular digits). Sources: «Open Food Facts» `source.off`, «Saisi à la main» `source.manual`, «Modifié»
+(tabular digits). Sources: «Open Food Facts» `source.off`, «Saisi à la main» `source.manual`, «Modifié»
 `source.overridden` (the value differs from the reference). Missing value: «—» in tertiary colour.
 
 #### 4.6.8 «Historique» `item.history.title`
 
 Last 5 `HistoryRow`s, then «Tout l’historique» `item.history.all` → `…/history` (same rows, grouped by day,
-virtualised). `HistoryRow`: 28 px icon tile; title + trailing delta (rounded tabular); secondary «{member} ·
+virtualised). `HistoryRow`: 28 px icon tile; title + trailing delta (tabular); secondary «{member} ·
 {pantry} · {time}».
 
 | Entry | Title | Trailing | Key |
@@ -1284,7 +1285,7 @@ Decisions:
 
 | Order | Element | Spec |
 |---|---|---|
-| 1 | `LargeTitleHeader` | Serif «Courses» `groceries.title`. Trailing `IconButton` `share` «Partager la liste» `a11y.groceries.share`. |
+| 1 | `LargeTitleHeader` | Display «Courses» `groceries.title`. Trailing `IconButton` `share` «Partager la liste» `a11y.groceries.share`. |
 | 2 | Trip header | Like NextTripCard content (4.2.4) without the summary row, not tappable, inset card. |
 | 3 | Category sections | Header = category name with a 8 px category-hue dot; `GroceryRow`s. |
 | 4 | Add row | Inset row «Ajouter un article» `groceries.add` (Lucide `plus`, accent). |
@@ -1292,7 +1293,7 @@ Decisions:
 | 6 | Footer note | Footnote secondary, only while forecasts are thin: «Les dates et quantités s’affinent au fil des semaines.» `groceries.thinFooter` |
 
 `GroceryRow` (min 56 px): leading `CheckCircle` 24 px (44 px hit; check `snappy`; no haptic); name Body; reason line
-Subhead secondary; trailing «× {n}» rounded tabular (Body). Tap on the quantity expands an inline compact
+Subhead secondary; trailing «× {n}» tabular (Body). Tap on the quantity expands an inline compact
 `QuantityStepper` in place (`smooth`); tap elsewhere collapses it. Tap on the name → item detail in the Courses stack.
 Trailing swipe «Masquer» `common.hide` (H2): hides until the next purchase of that product; toast «Masqué jusqu’au
 prochain achat» `toast.dismissed` with «Annuler».
@@ -1458,7 +1459,7 @@ accès au stock. Ses modifications passées restent dans l’historique.» `memb
 #### 4.12.3 Invite page (`page=invite`, owner only)
 
 On open, creates a code (online only; offline: 2.5.3 text and a «Réessayer» button). Layout: body «Partager ce code
-avec la personne à inviter. Il sert une seule fois, pendant 7 jours.» `invite.body`; `InviteCodeDisplay` (rounded
+avec la personne à inviter. Il sert une seule fois, pendant 7 jours.» `invite.body`; `InviteCodeDisplay` (tabular
 34, centred, letter-spaced, selectable); «Expire le {date}» `invite.expiresOn` (Footnote secondary); primary button
 «Partager le lien» `invite.share` (Web Share API, text «Rejoindre « {household} » sur Cellier : {url} (code {code})»
 `invite.shareText`); secondary button «Copier le code» `invite.copyCode` → toast «Code copié» `toast.codeCopied`.
@@ -1543,7 +1544,7 @@ Title «Sources des données» `about.sources`. Sections:
 Purpose: the account lost access (removed by the owner, or the household was deleted); nothing queued is lost
 silently (`research/15` §6.4).
 
-Layout: serif title «Accès au foyer retiré» `removed.title` (Title 1, x = 16); body «Ce compte ne fait plus partie de
+Layout: display title «Accès au foyer retiré» `removed.title` (Title 1, x = 16); body «Ce compte ne fait plus partie de
 « {household} ».» `removed.body`. If the quarantine is not empty: inset card with `circle-exclamation-point` amber, «{n}
 modifications faites sur cet iPhone n’ont pas pu être envoyées.» `removed.quarantine` and two buttons «Exporter
 (CSV)» `removed.export` (Web Share a CSV file: date, cellier, article, code, mouvement, quantité) and «Supprimer ces

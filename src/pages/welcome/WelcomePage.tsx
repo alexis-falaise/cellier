@@ -38,20 +38,21 @@ export function WelcomePage() {
   return (
     <main className="flex min-h-dvh flex-col px-6 pt-[calc(var(--safe-top)+48px)] pb-[calc(var(--safe-bottom)+16px)]">
       <m.div
-        className="flex flex-1 flex-col items-center justify-center gap-5 text-center"
+        className="flex flex-1 flex-col items-center justify-center text-center"
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={transition}
       >
-        <div className="flex gap-3" aria-hidden="true">
-          <CategoryTile icon={Wine} hue="plum" size={56} />
-          <CategoryTile icon={Wheat} hue="honey" size={56} />
-          <CategoryTile icon={Milk} hue="sage" size={56} />
+        {/* Motif: wine, grain and milk tiles, set close together so they read as one mark above the wordmark. */}
+        <div className="flex gap-2" aria-hidden="true">
+          <CategoryTile icon={Wine} hue="plum" size={44} />
+          <CategoryTile icon={Wheat} hue="honey" size={44} />
+          <CategoryTile icon={Milk} hue="iris" size={44} />
         </div>
-        <h1>
+        <h1 className="mt-7">
           <Wordmark>{t('app.name')}</Wordmark>
         </h1>
-        <p className="max-w-[320px] type-body text-label-secondary">{t('welcome.tagline')}</p>
+        <p className="mt-2 max-w-[320px] type-body text-label-secondary">{t('welcome.tagline')}</p>
       </m.div>
 
       <div className="flex flex-col items-center gap-3">

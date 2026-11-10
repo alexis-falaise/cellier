@@ -279,7 +279,7 @@ function StackLayerView({ layer, active, hidden, aboveX, width }: StackLayerView
         'absolute inset-0 isolate bg-bg-grouped',
         hidden && 'invisible',
         // Static soft shadow on the leading edge of the incoming screen.
-        'shadow-[-8px_0_24px_-12px_oklch(0.2_0.01_80/0.25)]',
+        'shadow-[-8px_0_24px_-12px_oklch(0.2_0.01_200/0.25)]',
       )}
       style={{ x: layer.x, opacity: layer.opacity }}
       inert={!active || undefined}

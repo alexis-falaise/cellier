@@ -191,7 +191,7 @@ function ItemDetail({ view, active }: { view: ProductView; active: boolean }) {
       <div className={deleted ? 'pointer-events-none flex flex-col gap-8 opacity-50' : 'flex flex-col gap-8'}>
         <header className="flex flex-col items-center px-8 pt-4 text-center">
           <ProductImage src={product.imageUrl} visual={visual} size={112} />
-          <h1 className="mt-4 line-clamp-3 font-serif type-title-1 text-balance text-label-primary">{product.name}</h1>
+          <h1 className="mt-4 line-clamp-3 type-title-1 text-balance text-label-primary">{product.name}</h1>
           {subtitle ? <p className="mt-1 type-subhead text-label-secondary">{subtitle}</p> : null}
         </header>
 

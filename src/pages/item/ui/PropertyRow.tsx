@@ -7,7 +7,7 @@ export interface PropertyRowProps {
   value: ReactNode | null;
   /** `SourceCaption`: «Open Food Facts», «Saisi à la main», «Calculé». */
   caption?: string | null | undefined;
-  /** Rounded tabular digits (barcode, prices, counts). */
+  /** Tabular digits (barcode, prices, counts). */
   numeric?: boolean | undefined;
   missing: string;
 }

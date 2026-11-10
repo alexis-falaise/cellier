@@ -12,7 +12,7 @@ export interface WordmarkProps {
   className?: string | undefined;
 }
 
-/** «Cellier» in the display serif (04 §10). */
+/** «Cellier» in the display font, Schibsted Grotesk (04 §10). */
 export function Wordmark({ children, size = 'display', className }: WordmarkProps) {
   return (
     <span className={cx(size === 'display' ? 'type-display' : 'type-large-title', 'text-label-primary', className)}>
@@ -34,7 +34,7 @@ export interface OnboardingPageProps {
   animateIn?: boolean | undefined;
 }
 
-/** Full-screen onboarding step (04 §8): hero, serif title, one paragraph, primary button at the bottom. */
+/** Full-screen onboarding step (04 §8): hero, display-font title, one paragraph, primary button at the bottom. */
 export function OnboardingPage({
   hero,
   title,

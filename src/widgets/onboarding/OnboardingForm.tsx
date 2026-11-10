@@ -18,7 +18,7 @@ export interface OnboardingFormProps {
   backTitle: string;
 }
 
-/** Onboarding step with fields (design 03 §4.1.5–6): back, serif title, grouped fields, one button. */
+/** Onboarding step with fields (design 03 §4.1.5–6): back, display-font title, grouped fields, one button. */
 export function OnboardingForm({
   title,
   body,

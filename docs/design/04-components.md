@@ -64,7 +64,7 @@ Conventions that apply to every component:
 
 ### LargeTitleHeader
 - **Purpose**: iOS-style large title that collapses into a compact inline title on scroll.
-- **Content**: title in the display serif (Large Title, 34 px), optional `PantrySwitcher` as the title, trailing
+- **Content**: title in the display font, Schibsted Grotesk (Large Title, 34 px), optional `PantrySwitcher` as the title, trailing
   accessory slot (avatar, sort menu, add button), optional search field below the title.
 - **States**: expanded, collapsed (compact 17 px semibold title in the sans, translucent bar material appears with a
   scroll-edge fade instead of a hard divider).
@@ -165,7 +165,7 @@ Conventions that apply to every component:
 - **Purpose**: one product in a pantry, used in Stock, search results and Accueil's running-low list.
 - **Anatomy (60 px minimum)**: `CategoryTile` 36 px · name (Body, one line, truncated) over a secondary line
   (Subhead `label-secondary`: brand · size, or "≈ 4 j" forecast in the running-low variant) · trailing quantity
-  (rounded tabular, Title 3) with unit if not "pièce" · `RunningLowMarker` dot before the quantity when low.
+  (SF Pro tabular, Title 3) with unit if not "pièce" · `RunningLowMarker` dot before the quantity when low.
 - **Variants**: `stock` (default), `low` (forecast secondary line, amber marker), `compact` (search results,
   52 px, no tile).
 - **States**: default, pressed, pending sync (quantity shows normally; a small `SyncDot` appears only if the change
@@ -192,7 +192,7 @@ Conventions that apply to every component:
 - **Accessibility**: `alt=""` (the name is adjacent).
 
 ### QuantityNumber
-- **Purpose**: renders a quantity in rounded tabular numerals and animates changes.
+- **Purpose**: renders a quantity in SF Pro tabular numerals and animates changes.
 - **Motion**: on change, the new value replaces the old with `pop` (scale 0.85→1, opacity 0→1 for the incoming
   digits, outgoing digits move y −6 px and fade); direction of travel follows the sign of the change (up for
   additions, down for withdrawals). Reduced motion: cross-fade.
@@ -408,7 +408,7 @@ Conventions that apply to every component:
 ## 8. Onboarding and permissions
 
 ### OnboardingPage
-- **Purpose**: full-screen step with the wordmark or a large glyph, a serif title, one paragraph, a primary button.
+- **Purpose**: full-screen step with the wordmark or a large glyph, a display-font title, one paragraph, a primary button.
 - **Motion**: steps advance with `push`; content within a step enters with `smooth`, staggered 40 ms.
 
 ### InstallGuide
@@ -462,9 +462,9 @@ These follow the same conventions; their layout, copy and states are specified w
 | `CheckCircle` | The check control of `GroceryRow`. | `snappy` |
 | `ChipGroup` | Tappable suggestions (pantry names «Cave», «Cuisine»…). | `press` |
 | `ForecastBand` | The 80 % run-out range on item detail. | none (functional data does not animate) |
-| `InviteCodeDisplay` | 8-character invite code in rounded tabular numerals, with copy and share. | `snappy` on copy |
-| `Wordmark` | «Cellier» in the display serif. | `smooth` in onboarding |
-| `ProductHeader` | Item detail hero: 112 px photo or tile, serif name, brand and size. | moves with the screen (`push`) |
+| `InviteCodeDisplay` | 8-character invite code in SF Pro tabular numerals, with copy and share. | `snappy` on copy |
+| `Wordmark` | «Cellier» in the display font (Schibsted Grotesk SemiBold, `display` role). | `smooth` in onboarding |
+| `ProductHeader` | Item detail hero: 112 px photo or tile, display-font name, brand and size. | moves with the screen (`push`) |
 | `NotificationPromptCard` | Inline Accueil card asking for notifications after the first scan session. | `smooth` |
 | `InstallStep` | One numbered step of `InstallGuide`. | `smooth`, 40 ms stagger |
 | `PantryPicker` | Choose a target pantry (scanner, move, put-away). | `snappy` |
