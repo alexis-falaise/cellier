@@ -1,0 +1,6 @@
+{
+  "code": "abc",
+  "status": "failure",
+  "result": { "id": "product_not_found" },
+  "errors": [{ "message": { "id": "invalid_code", "name": "Invalid code" }, "field": { "id": "code", "value": "abc" }, "impact": { "id": "failure" } }]
+}

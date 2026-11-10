@@ -1,0 +1,11 @@
+{
+  "items": [
+    { "type": "PRODUCT", "price": 3.84, "price_is_discounted": false, "price_per": null, "currency": "EUR", "date": "2026-11-05", "duplicate_of": null, "location": { "osm_brand": "Carrefour", "osm_name": "Carrefour Market", "osm_address_country_code": "FR" } },
+    { "type": "PRODUCT", "price": "3.790", "price_is_discounted": false, "price_per": "UNIT", "currency": "EUR", "date": "2026-11-01", "duplicate_of": null, "location": { "osm_brand": "E.Leclerc", "osm_name": "E.Leclerc Drive", "osm_address_country_code": "FR" } },
+    { "type": "PRODUCT", "price": 4.10, "price_is_discounted": false, "price_per": null, "currency": "EUR", "date": "2026-10-20", "duplicate_of": null, "location": { "osm_brand": "Intermarché", "osm_name": "Intermarché", "osm_address_country_code": "FR" } },
+    { "type": "PRODUCT", "price": 39.0, "price_is_discounted": false, "price_per": null, "currency": "EUR", "date": "2026-11-08", "duplicate_of": null, "location": { "osm_brand": "Lidl", "osm_name": "Lidl", "osm_address_country_code": "FR" } },
+    { "type": "PRODUCT", "price": 2.50, "price_is_discounted": true, "price_per": null, "currency": "EUR", "date": "2026-11-09", "duplicate_of": null, "location": { "osm_brand": "Auchan", "osm_address_country_code": "FR" } },
+    { "type": "PRODUCT", "price": 3.20, "price_is_discounted": false, "price_per": null, "currency": "EUR", "date": "2026-11-09", "duplicate_of": null, "location": { "osm_brand": "Delhaize", "osm_address_country_code": "BE" } },
+    { "type": "PRODUCT", "price": 9.60, "price_is_discounted": false, "price_per": "KILOGRAM", "currency": "EUR", "date": "2026-11-09", "duplicate_of": null, "location": { "osm_brand": "Carrefour", "osm_address_country_code": "FR" } }
+  ]
+}

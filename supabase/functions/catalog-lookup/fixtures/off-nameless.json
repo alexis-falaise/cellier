@@ -1,0 +1,13 @@
+{
+  "code": "3560070000001",
+  "status": "success_with_warnings",
+  "result": { "id": "product_found" },
+  "warnings": [{ "message": { "id": "different_normalized_product_code" } }],
+  "product": {
+    "product_name": "   ",
+    "product_name_fr": "",
+    "brands": "Carrefour",
+    "quantity": "6 x 33 cl",
+    "image_front_small_url": "https://images.openfoodfacts.org/images/products/356/007/000/0001/front_fr.4.200.jpg"
+  }
+}

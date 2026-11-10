@@ -1,0 +1,10 @@
+project_id = "cellier"
+
+# Called every minute by pg_net (private.kick_notification_sender) with the x-cellier-secret header,
+# which the function checks through public.verify_internal_secret. No user JWT.
+[functions.send-push]
+verify_jwt = false
+
+# Called by signed-in clients through supabase.functions.invoke.
+[functions.catalog-lookup]
+verify_jwt = true

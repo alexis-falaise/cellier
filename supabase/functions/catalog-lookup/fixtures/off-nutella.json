@@ -1,0 +1,27 @@
+{
+  "code": "3017620422003",
+  "status": "success",
+  "result": { "id": "product_found", "name": "Product found", "lc_name": "Product found" },
+  "product": {
+    "code": "3017620422003",
+    "product_type": "food",
+    "product_name": "Nutella",
+    "product_name_fr": "Nutella",
+    "generic_name_fr": "Pâte à tartiner aux noisettes et au cacao",
+    "brands": "Ferrero, Nutella",
+    "brands_tags": ["ferrero", "nutella"],
+    "quantity": "400 g e",
+    "product_quantity": 400,
+    "product_quantity_unit": "g",
+    "categories_tags": ["en:breakfasts", "en:spreads", "en:sweet-spreads", "en:hazelnut-spreads", "en:cocoa-and-hazelnuts-spreads"],
+    "food_groups_tags": ["en:sugary-snacks", "en:sweets"],
+    "pnns_groups_1": "Sugary snacks",
+    "pnns_groups_2": "Sweets",
+    "stores_tags": ["bi1", "magasins-u", "carrefour", "e-leclerc"],
+    "countries_tags": ["en:france"],
+    "image_front_small_url": "https://images.openfoodfacts.org/images/products/301/762/042/2003/front_fr.633.200.jpg",
+    "unique_scans_n": 4312,
+    "last_modified_t": 1730000000,
+    "obsolete": ""
+  }
+}

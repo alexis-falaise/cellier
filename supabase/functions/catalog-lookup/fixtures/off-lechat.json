@@ -1,0 +1,19 @@
+{
+  "code": "3178041328290",
+  "status": "success",
+  "result": { "id": "product_found" },
+  "product": {
+    "code": "3178041328290",
+    "product_type": "product",
+    "product_name": "Le Chat Sensitive",
+    "brands": "Le Chat",
+    "brands_tags": ["le-chat"],
+    "quantity": "1.89l",
+    "product_quantity": 1890,
+    "product_quantity_unit": "ml",
+    "categories_tags": ["en:household-chemicals", "en:liquid-detergent"],
+    "stores_tags": [],
+    "image_front_small_url": "https://images.openproductsfacts.org/images/products/317/804/132/8290/front_fr.3.200.jpg",
+    "last_modified_t": "1729000000"
+  }
+}
