@@ -1,14 +1,27 @@
 @import "tailwindcss";
 @import "./tokens.css";
 
+/* `dark:` follows the system unless the app forces a theme with html[data-theme]. */
+@custom-variant dark {
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme="light"]) *) {
+      @slot;
+    }
+  }
+  &:where(:root[data-theme="dark"] *) {
+    @slot;
+  }
+}
+
 @layer base {
   html {
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
     overscroll-behavior: none;
-    background: var(--color-bg);
-    color: var(--color-fg);
+    background: var(--bg-grouped);
+    color: var(--label-primary);
     font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
   }
 
   html,
@@ -37,8 +50,19 @@
   }
 
   button,
-  [role="button"] {
+  [role="button"],
+  a {
     -webkit-touch-callout: none;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
   }
 }
 
@@ -60,4 +84,36 @@
   padding-right: env(safe-area-inset-right);
   padding-bottom: env(safe-area-inset-bottom);
   padding-left: env(safe-area-inset-left);
+}
+
+/* Expands the hit area of a small visual to 44 x 44 px, centred. */
+@utility hit-44 {
+  position: relative;
+  &::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: max(100%, var(--hit-min));
+    height: max(100%, var(--hit-min));
+    transform: translate(-50%, -50%);
+  }
+}
+
+/* Activity spinner: 8 steps per revolution, one revolution per second. Kept under reduced motion (status). */
+@keyframes cellier-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@utility animate-spinner {
+  animation: cellier-spin 1s steps(8, end) infinite;
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }

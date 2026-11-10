@@ -86,6 +86,6 @@ describe('catalogue typography', () => {
     const keys = Object.keys(fr) as MessageKey[];
     expect(keys).toContain('category.default.petit_dej');
     expect(keys).toContain('unit.l');
-    expect(keys).toHaveLength(597);
+    expect(keys).toHaveLength(599);
   });
 });
