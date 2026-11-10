@@ -667,6 +667,34 @@
   outline-offset: 2px;
 }
 
+/*
+ * Inset grouped corners. A grouped container (radius-md, 1px edge border, overflow hidden) clips its rows
+ * to a rounded shape, so a square inset focus ring on its first or last row loses its corners and most of
+ * its sides. `grouped-corners` on the container hands its inner radius (radius-md minus the border) to its
+ * first and last child; `row-corners` on a full-width row (or `row-corners-end` on a row that starts after a
+ * leading control) rounds the row by that radius, so the inset ring follows the clip. Elsewhere the
+ * variables are unset and the row stays square.
+ */
+@utility grouped-corners {
+  & > * {
+    --row-radius-top: 0px;
+    --row-radius-bottom: 0px;
+  }
+  & > :first-child {
+    --row-radius-top: calc(var(--radius-md) - 1px);
+  }
+  & > :last-child {
+    --row-radius-bottom: calc(var(--radius-md) - 1px);
+  }
+}
+@utility row-corners {
+  border-radius: var(--row-radius-top, 0px) var(--row-radius-top, 0px) var(--row-radius-bottom, 0px)
+    var(--row-radius-bottom, 0px);
+}
+@utility row-corners-end {
+  border-radius: 0 var(--row-radius-top, 0px) var(--row-radius-bottom, 0px) 0;
+}
+
 /* Type roles: family + size + leading + tracking + weight in one class. */
 @utility type-display {
   font-family: var(--font-serif-display);

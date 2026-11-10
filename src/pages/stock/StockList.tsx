@@ -107,8 +107,9 @@ export function StockList<T extends StockItem>({ rows, scrollRef, viewKey, rende
               <div
                 className={cx(
                   'mx-4 overflow-hidden border-x border-edge bg-surface',
-                  row.first && 'rounded-t-md border-t',
-                  row.last && 'rounded-b-md border-b [&_[data-separator]]:hidden',
+                  row.first && 'rounded-t-md border-t [--row-radius-top:calc(var(--radius-md)-1px)]',
+                  row.last &&
+                    'rounded-b-md border-b [--row-radius-bottom:calc(var(--radius-md)-1px)] [&_[data-separator]]:hidden',
                 )}
               >
                 {renderItem(row)}

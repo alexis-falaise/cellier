@@ -101,7 +101,7 @@ function ConfirmContent({
         animate={reduced ? { opacity: 1, transition: enter } : { y: 0, transition: enter }}
         exit={reduced ? { opacity: 0, transition: exit } : { y: offscreen, transition: exit }}
       >
-        <div className="overflow-hidden rounded-md border border-edge bg-surface-elevated shadow-menu">
+        <div className="grouped-corners overflow-hidden rounded-md border border-edge bg-surface-elevated shadow-menu">
           {title || message ? (
             <div className="flex flex-col gap-1 px-4 py-3.5 text-center">
               {title ? (
@@ -125,7 +125,7 @@ function ConfirmContent({
                 action.onPress();
               }}
               className={cx(
-                'relative flex h-14 w-full items-center justify-center type-body outline-none focus-visible:focus-ring focus-visible:-outline-offset-2',
+                'relative row-corners flex h-14 w-full items-center justify-center type-body outline-none focus-visible:focus-ring focus-visible:-outline-offset-2',
                 'before:absolute before:inset-x-0 before:top-0 before:h-(--hairline) before:bg-separator',
                 'transition-[background-color] duration-150 ease-out active:bg-fill-quaternary active:transition-none',
                 action.destructive ? 'text-danger-fg' : 'text-accent-fg',

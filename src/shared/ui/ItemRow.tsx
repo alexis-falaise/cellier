@@ -65,7 +65,7 @@ export function ItemRow({
           'relative flex w-full items-center gap-3 px-4 text-left',
           compact ? 'min-h-[52px] py-2' : 'min-h-[60px] py-3',
           'transition-[background-color] duration-150 ease-out data-pressed:bg-fill-quaternary data-pressed:transition-none',
-          'outline-none focus-visible:focus-ring focus-visible:-outline-offset-2',
+          'row-corners outline-none focus-visible:focus-ring focus-visible:-outline-offset-2',
         )}
       >
         {compact ? null : <CategoryTile visual={visual} size={36} />}
@@ -182,7 +182,7 @@ export function GroceryRow({
         className={cx(
           'flex min-h-[60px] min-w-0 flex-1 items-center gap-3 py-3 pr-4 pl-1.5 text-left',
           'transition-[background-color] duration-150 ease-out data-pressed:bg-fill-quaternary data-pressed:transition-none',
-          'outline-none focus-visible:focus-ring focus-visible:-outline-offset-2',
+          'row-corners-end outline-none focus-visible:focus-ring focus-visible:-outline-offset-2',
         )}
       >
         <CategoryTile visual={visual} size={36} />

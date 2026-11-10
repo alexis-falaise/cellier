@@ -28,7 +28,7 @@ export function ListSection({ header, footer, children, className, label }: List
       <div
         role="list"
         className={cx(
-          'overflow-hidden rounded-md border border-edge',
+          'grouped-corners overflow-hidden rounded-md border border-edge',
           elevated ? 'bg-surface-elevated' : 'bg-surface',
           '[&>*:last-child_[data-separator]]:hidden',
         )}
@@ -115,14 +115,14 @@ export function ListRow({
   const highlight = useRowHighlight(inScrollContainer, disabled || !interactive);
   const inset = leading ? 16 + (leadingWidth ?? 28) + 12 : 16;
 
-  const titleClass =
-    variant === 'destructive'
+  // Disabled wins: a dimmed destructive or button row must not read as tappable.
+  const titleClass = disabled
+    ? 'text-label-quaternary'
+    : variant === 'destructive'
       ? 'text-danger-fg'
       : variant === 'button'
         ? 'text-accent-fg'
-        : disabled
-          ? 'text-label-quaternary'
-          : 'text-label-primary';
+        : 'text-label-primary';
 
   const content = (
     <>
@@ -157,7 +157,7 @@ export function ListRow({
   const base = cx(
     'relative flex min-h-[52px] w-full items-center gap-3 px-4 text-left',
     'transition-[background-color] duration-150 ease-out data-pressed:bg-fill-quaternary data-pressed:transition-none',
-    'outline-none focus-visible:focus-ring focus-visible:-outline-offset-2',
+    'row-corners outline-none focus-visible:focus-ring focus-visible:-outline-offset-2',
     className,
   );
 

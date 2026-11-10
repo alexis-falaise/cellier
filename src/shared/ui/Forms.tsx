@@ -76,7 +76,15 @@ export function TextField({
   return (
     // biome-ignore lint/a11y/useSemanticElements: rows sit inside SwipeActions wrappers, so a native li would not be a direct child of the list
     <div role="listitem">
-      <div className="relative flex min-h-[52px] items-center gap-3 px-4 focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-focus-ring">
+      {/* Inset ring (text fields show it whenever focused, as on iOS). `row-corners` rounds it like the section's
+          clip so it is not cut at the corners; with an error line below, the row's bottom is not the section's. */}
+      <div
+        className={cx(
+          'relative row-corners flex min-h-[52px] items-center gap-3 px-4',
+          'focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-focus-ring',
+          error && '[--row-radius-bottom:0px]',
+        )}
+      >
         {layout === 'inline' ? (
           <label htmlFor={id} className="shrink-0 type-body text-label-primary">
             {label}

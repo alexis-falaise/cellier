@@ -95,7 +95,9 @@ export function ActivityRow({
   const rowClass = cx(
     'relative flex min-h-[60px] w-full items-center gap-3 px-4 py-3 text-left',
     'transition-[background-color] duration-150 ease-out data-pressed:bg-fill-quaternary data-pressed:transition-none',
-    'outline-none focus-visible:focus-ring focus-visible:-outline-offset-2',
+    'row-corners outline-none focus-visible:focus-ring focus-visible:-outline-offset-2',
+    // Expanded details sit below the row, so its bottom corners are not the section's.
+    session && expanded && '[--row-radius-bottom:0px]',
   );
 
   return (

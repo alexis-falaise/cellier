@@ -92,8 +92,9 @@ export function ActivityPage() {
         onOpenProduct={(productId) => pushItem(productId)}
         className={cx(
           'mx-4 border-x border-edge bg-surface',
-          item.first && 'rounded-t-md border-t',
-          item.last && 'rounded-b-md border-b [&>[data-separator]]:hidden',
+          item.first && 'rounded-t-md border-t [--row-radius-top:calc(var(--radius-md)-1px)]',
+          item.last &&
+            'rounded-b-md border-b [--row-radius-bottom:calc(var(--radius-md)-1px)] [&>[data-separator]]:hidden',
         )}
       />
     );
