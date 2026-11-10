@@ -24,10 +24,11 @@ Secret values are never written in this repository.
 | `rls_and_grants` | `…120600_rls_and_grants.sql` |
 | `apply_mutations` | `…120700_apply_mutations.sql` |
 | `pull_changes` | `…120800_pull_changes.sql` |
-| `household_notifications_catalogue` | `…120900_household_rpcs.sql` + `…121000_notifications_and_cron.sql` + `…121100_catalogue_service.sql`, applied as one migration |
-| `internal_secret_check` | `…121200_internal_secret_check.sql` |
+| (not recorded) | `…120900_household_rpcs.sql`, `…121000_notifications_and_cron.sql`, `…121100_catalogue_service.sql`, `…121200_internal_secret_check.sql`: run by hand in the SQL Editor on 2026-11-10, so they are in the database but absent from `supabase_migrations.schema_migrations` |
 
 Remote version numbers are the apply timestamps, not the file prefixes; the content is identical to the files.
+Verified 2026-11-10: all public RPCs of 01 §4 plus `verify_internal_secret` exist, the three running-low triggers
+exist, the four cron jobs are scheduled, `private.catalog_lookup_log` and `private.catalog_misses` exist.
 A new change is always a new file with a later prefix, applied once; never edit an applied file.
 
 ### 1.2 Vault secrets (database)
@@ -36,6 +37,15 @@ A new change is always a new file with a later prefix, applied once; never edit 
 |---|---|---|
 | `cellier_functions_url` | `https://oiorgvhxqgsmheucmtim.supabase.co/functions/v1` | SQL, once |
 | `cellier_internal_secret` | 32 random bytes in hex, generated inside the database | SQL, once |
+
+Creation (SQL Editor, once; returns only ids, the value is generated in the database and never shown):
+
+```sql
+select vault.create_secret('https://oiorgvhxqgsmheucmtim.supabase.co/functions/v1', 'cellier_functions_url');
+select vault.create_secret(encode(extensions.gen_random_bytes(32), 'hex'), 'cellier_internal_secret');
+```
+
+Until both exist, `cellier-notify` logs a warning every minute and sends nothing.
 
 The internal secret never leaves the database except in the `x-cellier-secret` header that `pg_net` sends to
 `send-push`, which checks it with `public.verify_internal_secret` (service role only). No copy is stored as an Edge
@@ -71,6 +81,16 @@ Edge Function secrets (Dashboard → Edge Functions → Secrets), names only:
 
 The VAPID public key (base64url, uncompressed point) goes to Vercel as `VITE_VAPID_PUBLIC_KEY`. It must match the
 private JWK; changing the pair invalidates every existing push subscription (04 §1.6).
+
+Generating the pair locally (Node 20+, nothing installed, nothing written to disk; the private JWK is printed
+once to the terminal — paste it straight into the dashboard secret and clear the terminal):
+
+```sh
+node -e 'const {generateKeyPairSync}=require("crypto");const {privateKey,publicKey}=generateKeyPairSync("ec",{namedCurve:"P-256"});const j=privateKey.export({format:"jwk"});const pub=Buffer.concat([Buffer.from([4]),Buffer.from(j.x,"base64url"),Buffer.from(j.y,"base64url")]).toString("base64url");console.log("VAPID_PRIVATE_JWK="+JSON.stringify({kty:j.kty,crv:j.crv,x:j.x,y:j.y,d:j.d}));console.log("VITE_VAPID_PUBLIC_KEY="+pub)'
+```
+
+The deployed `send-push` copy was uploaded through the Supabase connector with shortened comments; the code is the
+same as the repository. Redeploying from the repository with the CLI (§2) is always safe.
 
 ### 1.4 Cron jobs (pg_cron, UTC)
 

@@ -14,7 +14,7 @@ import type {
   PushPayload,
 } from './contract.ts';
 
-export const NBSP = ' ';
+export const NBSP = '\u00a0';
 export const MAX_NAME = 40;
 export const MAX_TITLE = 60;
 export const MAX_BODY = 180;
