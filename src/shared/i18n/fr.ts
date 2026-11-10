@@ -109,6 +109,8 @@ const source = {
     'Ce compte Google ne fait pas partie de « {household} ». Se reconnecter avec {email}.',
   'update.available': 'Nouvelle version disponible',
   'update.reload': 'Recharger',
+  'push.fallback.title': 'Cellier',
+  'push.fallback.body': 'Du nouveau dans votre cellier.',
   'toast.clamp.single': {
     one: '{product} : {applied} retiré sur {requested}. Il n’en restait que {applied}.',
     other: '{product} : {applied} retirés sur {requested}. Il n’en restait que {applied}.',
