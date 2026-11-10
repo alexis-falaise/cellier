@@ -1,0 +1,747 @@
+/*
+ * Cellier design tokens, Tailwind CSS v4.
+ * Spec and rationale: docs/design/01-design-system.md (section 9 lists every name below).
+ *
+ * The app's main CSS imports Tailwind FIRST, then this file:
+ *   @import "tailwindcss";
+ *   @import "./tokens.css";
+ *
+ * Architecture (three layers):
+ *   1. Ramp      `@theme static`  raw OKLCH values (sRGB hex in comments). Never used directly in components.
+ *   2. Semantic  plain `:root` custom properties (--bg, --label-primary...) that point at the ramp.
+ *                Dark mode, increased contrast and reduced transparency override ONLY this layer.
+ *   3. Bridge    `@theme inline` exposes the semantic layer as Tailwind utilities (bg-surface, text-label-secondary...).
+ *
+ * Why `@theme inline` for layer 3: a theme variable that references another variable must be inlined,
+ * otherwise Tailwind emits `--color-bg: var(--bg)` on :root, where it resolves once, and a
+ * `[data-theme="dark"]` override on a subtree would never reach the utility. Inline puts `var(--bg)`
+ * straight into the utility, so it resolves on the element (Tailwind v4 docs, "Referencing other variables").
+ * Why `@theme static` for layer 1: the semantic layer references ramp variables from plain CSS, so they
+ * must always be emitted even when no utility uses them. Verify `static` exists in the installed Tailwind
+ * version; if not, copy the ramp into a plain `:root` block.
+ *
+ * Target: iOS 16.4+ Safari, which supports oklch() and color-mix(); no hex fallback is needed at runtime.
+ */
+
+/* ------------------------------------------------------------------ */
+/* 1. Ramp                                                            */
+/* ------------------------------------------------------------------ */
+@theme static {
+  /* Drop Tailwind's default palettes, fonts, sizes, radii, shadows and easings: only Cellier tokens exist. */
+  --color-*: initial;
+  --font-*: initial;
+  --text-*: initial;
+  --radius-*: initial;
+  --shadow-*: initial;
+  --ease-*: initial;
+
+  /* Stone ("pierre"): warm limestone neutral, hue 80. */
+  --color-stone-0: oklch(0.995 0.0015 80);   /* #FEFDFC */
+  --color-stone-25: oklch(0.982 0.003 80);   /* #FAF9F7 */
+  --color-stone-50: oklch(0.968 0.0045 80);  /* #F6F4F1 */
+  --color-stone-100: oklch(0.944 0.006 80);  /* #EFECE8 */
+  --color-stone-150: oklch(0.918 0.007 80);  /* #E6E3DF */
+  --color-stone-200: oklch(0.885 0.008 80);  /* #DCD9D3 */
+  --color-stone-300: oklch(0.81 0.009 80);   /* #C4C0BB */
+  --color-stone-350: oklch(0.745 0.0095 80); /* #AFACA6 */
+  --color-stone-400: oklch(0.7 0.01 80);     /* #A29E98 */
+  --color-stone-450: oklch(0.66 0.01 80);    /* #95928B */
+  --color-stone-500: oklch(0.595 0.01 80);   /* #827E78 */
+  --color-stone-550: oklch(0.535 0.01 80);   /* #706D67 */
+  --color-stone-600: oklch(0.48 0.01 80);    /* #615D57 */
+  --color-stone-700: oklch(0.415 0.009 80);  /* #4E4B46 */
+  --color-stone-800: oklch(0.33 0.008 80);   /* #383531 */
+  --color-stone-850: oklch(0.285 0.007 80);  /* #2C2A26 */
+  --color-stone-900: oklch(0.245 0.006 80);  /* #22201D */
+  --color-stone-925: oklch(0.215 0.0055 80); /* #1B1917 */
+  --color-stone-950: oklch(0.185 0.005 80);  /* #141210 */
+  --color-stone-975: oklch(0.165 0.0045 80); /* #0F0E0C */
+  --color-stone-990: oklch(0.13 0.004 80);   /* #080706  increased-contrast text only */
+  --color-black: oklch(0 0 0);               /* #000000  scanner only */
+
+  /* Bottle green ("vert bouteille"), hue 160: the only accent. */
+  --color-green-50: oklch(0.962 0.022 160);  /* #E7F7ED */
+  --color-green-100: oklch(0.93 0.04 160);   /* #D2F1DF */
+  --color-green-300: oklch(0.8 0.1 160);     /* #82D2A8 */
+  --color-green-400: oklch(0.72 0.115 160);  /* #5BBB8C */
+  --color-green-500: oklch(0.6 0.11 160);    /* #389469 */
+  --color-green-550: oklch(0.545 0.1 160);   /* #30825C */
+  --color-green-600: oklch(0.49 0.09 160);   /* #28704E */
+  --color-green-650: oklch(0.455 0.085 160); /* #226546 */
+  --color-green-700: oklch(0.41 0.075 160);  /* #1D573C */
+  --color-green-800: oklch(0.33 0.055 160);  /* #183E2B */
+  --color-green-900: oklch(0.27 0.04 160);   /* #132C20 */
+  --color-green-950: oklch(0.235 0.03 160);  /* #112219 */
+
+  /* Amber ("ambre"): running low / warning. */
+  --color-amber-100: oklch(0.945 0.045 82);  /* #FCEBCC */
+  --color-amber-300: oklch(0.84 0.12 80);    /* #F4C26A */
+  --color-amber-600: oklch(0.525 0.11 68);   /* #935C0F */
+  --color-amber-700: oklch(0.47 0.1 66);     /* #804E0B */
+  --color-amber-900: oklch(0.29 0.05 75);    /* #3A270B */
+
+  /* Brick ("brique"): danger / error. */
+  --color-brick-100: oklch(0.94 0.03 30);    /* #FFE4DF */
+  --color-brick-300: oklch(0.76 0.12 28);    /* #F49286 */
+  --color-brick-500: oklch(0.58 0.16 30);    /* #C74C3D */
+  --color-brick-600: oklch(0.51 0.15 31);    /* #AB3B2B */
+  --color-brick-700: oklch(0.45 0.135 31);   /* #912F21 */
+  --color-brick-900: oklch(0.29 0.06 28);    /* #451E1A */
+
+  /* Category hues: equal lightness per step (tile 100 = L 0.94, glyph 600 = L 0.52,
+     dark tile 850 = L 0.31, dark glyph 300 = L 0.82). Chroma trimmed per hue to stay in sRGB. */
+  --color-tomato-100: oklch(0.94 0.03 28);   /* #FFE4E0 */
+  --color-tomato-600: oklch(0.52 0.095 28);  /* #98524A */
+  --color-tomato-850: oklch(0.31 0.04 28);   /* #422825 */
+  --color-tomato-300: oklch(0.82 0.075 28);  /* #F1B2A9 */
+  --color-clay-100: oklch(0.94 0.032 50);    /* #FEE6D9 */
+  --color-clay-600: oklch(0.52 0.095 50);    /* #945733 */
+  --color-clay-850: oklch(0.31 0.04 50);     /* #412A1E */
+  --color-clay-300: oklch(0.82 0.075 50);    /* #EDB799 */
+  --color-apricot-100: oklch(0.94 0.032 70); /* #FAE8D5 */
+  --color-apricot-600: oklch(0.52 0.095 70); /* #8B5E22 */
+  --color-apricot-850: oklch(0.31 0.04 70);  /* #3D2D19 */
+  --color-apricot-300: oklch(0.82 0.075 70); /* #E4BC8F */
+  --color-honey-100: oklch(0.94 0.032 92);   /* #F3EBD4 */
+  --color-honey-600: oklch(0.52 0.095 92);   /* #7D671B */
+  --color-honey-850: oklch(0.31 0.04 92);    /* #383018 */
+  --color-honey-300: oklch(0.82 0.075 92);   /* #D5C38C */
+  --color-olive-100: oklch(0.94 0.032 115);  /* #EAEED6 */
+  --color-olive-600: oklch(0.52 0.095 115);  /* #676F28 */
+  --color-olive-850: oklch(0.31 0.04 115);   /* #30331B */
+  --color-olive-300: oklch(0.82 0.075 115);  /* #C2CA92 */
+  --color-sage-100: oklch(0.94 0.032 145);   /* #DFF1DE */
+  --color-sage-600: oklch(0.52 0.095 145);   /* #437746 */
+  --color-sage-850: oklch(0.31 0.04 145);    /* #233624 */
+  --color-sage-300: oklch(0.82 0.075 145);   /* #A6D2A7 */
+  --color-teal-100: oklch(0.94 0.03 192);    /* #D5F2F0 */
+  --color-teal-600: oklch(0.52 0.085 192);   /* #137875 */
+  --color-teal-850: oklch(0.31 0.04 192);    /* #143735 */
+  --color-teal-300: oklch(0.82 0.075 192);   /* #89D4D0 */
+  --color-sky-100: oklch(0.94 0.03 232);     /* #D8EFFC */
+  --color-sky-600: oklch(0.52 0.09 232);     /* #267194 */
+  --color-sky-850: oklch(0.31 0.04 232);     /* #1A3441 */
+  --color-sky-300: oklch(0.82 0.075 232);    /* #92CDED */
+  --color-iris-100: oklch(0.94 0.028 272);   /* #E4EBFF */
+  --color-iris-600: oklch(0.52 0.095 272);   /* #5665A0 */
+  --color-iris-850: oklch(0.31 0.04 272);    /* #292F45 */
+  --color-iris-300: oklch(0.82 0.075 272);   /* #B3C2F6 */
+  --color-plum-100: oklch(0.94 0.032 325);   /* #F7E4F7 */
+  --color-plum-600: oklch(0.52 0.095 325);   /* #845587 */
+  --color-plum-850: oklch(0.31 0.04 325);    /* #3B293C */
+  --color-plum-300: oklch(0.82 0.075 325);   /* #DEB4DF */
+  --color-rose-100: oklch(0.94 0.032 358);   /* #FEE3EB */
+  --color-rose-600: oklch(0.52 0.095 358);   /* #945069 */
+  --color-rose-850: oklch(0.31 0.04 358);    /* #412830 */
+  --color-rose-300: oklch(0.82 0.075 358);   /* #EDB0C4 */
+  --color-pebble-100: oklch(0.94 0.008 80);  /* #EEEBE5 */
+  --color-pebble-600: oklch(0.52 0.012 80);  /* #6D6861 */
+  --color-pebble-850: oklch(0.31 0.008 80);  /* #32302C */
+  --color-pebble-300: oklch(0.82 0.0096 80); /* #C7C3BD */
+
+  /* Fonts. */
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-serif-display: ui-serif, "New York", Georgia, "Noto Serif", "Times New Roman", serif;
+  --font-rounded: ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* Type scale: iOS "Large" sizes, 1rem = 16px. --dt is the Dynamic Type ratio (body px / 17) set by the
+     app at boot, never below 1. The last factor per role mimics Apple's non-linear growth (small text grows
+     faster than titles). Letter-spacing = Apple SF Pro tracking table converted to em. */
+  --text-display: calc(2.5rem * (1 + (var(--dt) - 1) * 0.45));
+  --text-display--line-height: calc(46 / 40);
+  --text-display--letter-spacing: -0.015em;
+  --text-display--font-weight: 600;
+  --text-large-title: calc(2.125rem * (1 + (var(--dt) - 1) * 0.5));
+  --text-large-title--line-height: calc(41 / 34);
+  --text-large-title--letter-spacing: -0.01em;
+  --text-large-title--font-weight: 600;
+  --text-title-1: calc(1.75rem * (1 + (var(--dt) - 1) * 0.6));
+  --text-title-1--line-height: calc(34 / 28);
+  --text-title-1--letter-spacing: -0.005em;
+  --text-title-1--font-weight: 600;
+  --text-title-2: calc(1.375rem * (1 + (var(--dt) - 1) * 0.78));
+  --text-title-2--line-height: calc(28 / 22);
+  --text-title-2--letter-spacing: -0.0118em;
+  --text-title-2--font-weight: 600;
+  --text-title-3: calc(1.25rem * (1 + (var(--dt) - 1) * 0.86));
+  --text-title-3--line-height: calc(25 / 20);
+  --text-title-3--letter-spacing: -0.0225em;
+  --text-title-3--font-weight: 600;
+  --text-headline: calc(1.0625rem * var(--dt));
+  --text-headline--line-height: calc(22 / 17);
+  --text-headline--letter-spacing: -0.0253em;
+  --text-headline--font-weight: 600;
+  --text-body: calc(1.0625rem * var(--dt));
+  --text-body--line-height: calc(22 / 17);
+  --text-body--letter-spacing: -0.0253em;
+  --text-body--font-weight: 400;
+  --text-callout: calc(1rem * var(--dt));
+  --text-callout--line-height: calc(21 / 16);
+  --text-callout--letter-spacing: -0.0194em;
+  --text-callout--font-weight: 400;
+  --text-subhead: calc(0.9375rem * (1 + (var(--dt) - 1) * 1.14));
+  --text-subhead--line-height: calc(20 / 15);
+  --text-subhead--letter-spacing: -0.0153em;
+  --text-subhead--font-weight: 400;
+  --text-footnote: calc(0.8125rem * (1 + (var(--dt) - 1) * 1.32));
+  --text-footnote--line-height: calc(18 / 13);
+  --text-footnote--letter-spacing: -0.0062em;
+  --text-footnote--font-weight: 400;
+  --text-caption-1: calc(0.75rem * (1 + (var(--dt) - 1) * 1.43));
+  --text-caption-1--line-height: calc(16 / 12);
+  --text-caption-1--letter-spacing: 0em;
+  --text-caption-1--font-weight: 400;
+  --text-caption-2: calc(0.6875rem * (1 + (var(--dt) - 1) * 1.56));
+  --text-caption-2--line-height: calc(13 / 11);
+  --text-caption-2--letter-spacing: 0.0055em;
+  --text-caption-2--font-weight: 400;
+  --text-tab-label: calc(0.625rem * (1 + (var(--dt) - 1) * 0.5));
+  --text-tab-label--line-height: calc(12 / 10);
+  --text-tab-label--letter-spacing: 0.012em;
+  --text-tab-label--font-weight: 500;
+  /* Numeric roles (rounded, tabular). Tracking 0: the SF Pro Rounded table was not verified. */
+  --text-quantity-xl: calc(3rem * (1 + (var(--dt) - 1) * 0.5));
+  --text-quantity-xl--line-height: calc(52 / 48);
+  --text-quantity-xl--letter-spacing: 0em;
+  --text-quantity-xl--font-weight: 600;
+  --text-quantity-l: calc(2.125rem * (1 + (var(--dt) - 1) * 0.5));
+  --text-quantity-l--line-height: calc(41 / 34);
+  --text-quantity-l--letter-spacing: 0em;
+  --text-quantity-l--font-weight: 600;
+  --text-quantity: calc(1.0625rem * var(--dt));
+  --text-quantity--line-height: calc(22 / 17);
+  --text-quantity--letter-spacing: 0em;
+  --text-quantity--font-weight: 600;
+  --text-badge: calc(0.8125rem * (1 + (var(--dt) - 1) * 1.32));
+  --text-badge--line-height: calc(16 / 13);
+  --text-badge--letter-spacing: 0em;
+  --text-badge--font-weight: 600;
+  --text-badge-s: calc(0.6875rem * (1 + (var(--dt) - 1) * 1.2));
+  --text-badge-s--line-height: calc(13 / 11);
+  --text-badge-s--letter-spacing: 0.01em;
+  --text-badge-s--font-weight: 700;
+
+  /* Spacing: 4 px base (1rem = 16px), so p-1 = 4, p-2 = 8, p-4 = 16. */
+  --spacing: 0.25rem;
+
+  /* Radii in px: shapes do not grow with text. rounded-full is built in. */
+  --radius-xs: 6px;   /* badges, chips, settings icon tiles */
+  --radius-sm: 10px;  /* fields, small buttons, category tile 36, tray thumbnail */
+  --radius-md: 14px;  /* inset grouped lists, primary buttons, toasts */
+  --radius-lg: 20px;  /* home cards, product photo frame */
+  --radius-xl: 28px;  /* sheet top corners, scanner tray */
+
+  /* Easing for CSS-only transitions (colour, opacity). Springs live in 02-motion-haptics.md. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1); /* CSS fallback only, Motion springs are the default */
+  --default-transition-duration: 150ms;
+  --default-transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* ------------------------------------------------------------------ */
+/* 2. Semantic layer, light (default)                                 */
+/* ------------------------------------------------------------------ */
+:root {
+  color-scheme: light;
+  --dt: 1; /* Dynamic Type ratio, overwritten inline on <html> by the app (see 01-design-system.md 3.4) */
+
+  /* Backgrounds */
+  --bg: var(--color-stone-25);               /* plain screens */
+  --bg-grouped: var(--color-stone-50);       /* canvas behind inset grouped lists (most screens) */
+  --bg-elevated: var(--color-stone-50);      /* sheet canvas */
+  --surface: var(--color-stone-0);           /* cells and cards in a group */
+  --surface-elevated: var(--color-stone-0);  /* cells inside a sheet */
+
+  /* Labels (opaque, so contrast is exact on every background) */
+  --label-primary: var(--color-stone-950);
+  --label-secondary: var(--color-stone-600);
+  --label-tertiary: var(--color-stone-550);   /* placeholders, units, timestamps: still passes 4.5:1 */
+  --label-quaternary: var(--color-stone-400); /* disabled text and decorative glyphs only */
+
+  /* Fills (translucent, for controls on any surface) */
+  --fill-primary: oklch(0.55 0.012 80 / 0.2);
+  --fill-secondary: oklch(0.55 0.012 80 / 0.16);
+  --fill-tertiary: oklch(0.55 0.012 80 / 0.12);
+  --fill-quaternary: oklch(0.55 0.012 80 / 0.07);
+
+  /* Lines */
+  --separator: oklch(0.33 0.008 80 / 0.17);  /* hairline between rows; #DCDBDA on surface */
+  --separator-opaque: var(--color-stone-200);
+  --edge: transparent;                        /* control/cell outline, visible only with increased contrast */
+  --hairline: 0.5px;
+
+  /* Accent */
+  --accent: var(--color-green-600);           /* fills: primary button, scan button, progress */
+  --accent-pressed: var(--color-green-700);
+  --accent-fg: var(--color-green-650);        /* text, links, icons, checkmarks in accent colour */
+  --accent-tint: var(--color-green-50);       /* selected row / chip background */
+  --on-accent: var(--color-stone-0);
+  --focus-ring: var(--color-green-650);
+
+  /* Semantic states */
+  --success-fg: var(--accent-fg);
+  --success-tint: var(--accent-tint);
+  --warning-fg: var(--color-amber-600);
+  --warning-tint: var(--color-amber-100);
+  --danger: var(--color-brick-600);
+  --danger-pressed: var(--color-brick-700);
+  --danger-fg: var(--color-brick-600);
+  --danger-tint: var(--color-brick-100);
+  --info-fg: var(--label-secondary);
+  --info-tint: var(--fill-tertiary);
+
+  /* Materials and overlays */
+  --material-alpha: 0.86;
+  --material-bar: oklch(0.982 0.003 80 / var(--material-alpha)); /* stone-25 */
+  --material-filter: blur(20px) saturate(180%);
+  --scrim: oklch(0.185 0.005 80 / 0.3);
+  --scanner-bg: var(--color-black);
+  --scanner-material: oklch(0.215 0.0055 80 / 0.72); /* scanner chrome is always dark */
+
+  /* Shadows (warm-tinted, light mode) */
+  --shadow-thumb: 0 1px 2px oklch(0.2 0.01 80 / 0.1), 0 2px 6px oklch(0.2 0.01 80 / 0.06);
+  --shadow-float: 0 1px 1px oklch(0.2 0.01 80 / 0.04), 0 6px 16px oklch(0.2 0.01 80 / 0.08), 0 16px 40px oklch(0.2 0.01 80 / 0.08);
+  --shadow-accent: 0 1px 2px oklch(0.3 0.06 160 / 0.2), 0 8px 20px oklch(0.4 0.08 160 / 0.22);
+  --shadow-sheet: 0 -1px 0 oklch(0.2 0.01 80 / 0.04), 0 -12px 40px oklch(0.2 0.01 80 / 0.1);
+  --shadow-menu: 0 2px 8px oklch(0.2 0.01 80 / 0.06), 0 12px 40px oklch(0.2 0.01 80 / 0.16);
+
+  /* Category tiles: glyph (fg) on tile; dots use fg. */
+  --cat-tomato-tile: var(--color-tomato-100);   --cat-tomato-fg: var(--color-tomato-600);
+  --cat-clay-tile: var(--color-clay-100);       --cat-clay-fg: var(--color-clay-600);
+  --cat-apricot-tile: var(--color-apricot-100); --cat-apricot-fg: var(--color-apricot-600);
+  --cat-honey-tile: var(--color-honey-100);     --cat-honey-fg: var(--color-honey-600);
+  --cat-olive-tile: var(--color-olive-100);     --cat-olive-fg: var(--color-olive-600);
+  --cat-sage-tile: var(--color-sage-100);       --cat-sage-fg: var(--color-sage-600);
+  --cat-teal-tile: var(--color-teal-100);       --cat-teal-fg: var(--color-teal-600);
+  --cat-sky-tile: var(--color-sky-100);         --cat-sky-fg: var(--color-sky-600);
+  --cat-iris-tile: var(--color-iris-100);       --cat-iris-fg: var(--color-iris-600);
+  --cat-plum-tile: var(--color-plum-100);       --cat-plum-fg: var(--color-plum-600);
+  --cat-rose-tile: var(--color-rose-100);       --cat-rose-fg: var(--color-rose-600);
+  --cat-pebble-tile: var(--color-pebble-100);   --cat-pebble-fg: var(--color-pebble-600);
+
+  /* Safe areas and shell geometry */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --margin: 16px;                 /* screen side margin, every width */
+  --nav-bar-height: 44px;
+  --large-title-height: 52px;
+  --tab-bar-height: 60px;         /* floating capsule; scan button is a 60 px circle */
+  --tab-bar-gap: 12px;            /* capsule to scan button */
+  --tab-bar-bottom: max(calc(var(--safe-bottom) - 12px), 12px); /* 22px on Face ID iPhones; tune on device */
+  --content-bottom: calc(var(--tab-bar-bottom) + var(--tab-bar-height) + 16px);
+  --hit-min: 44px;
+
+  /* Z-index layers (use as z-(--z-sheet)) */
+  --z-base: 0;
+  --z-sticky: 10;
+  --z-tab-bar: 20;
+  --z-scan-button: 21;
+  --z-banner: 25;
+  --z-toast: 30;
+  --z-scrim: 40;
+  --z-sheet: 41;   /* nested sheets: 41 + depth */
+  --z-menu: 50;
+  --z-scanner: 60;
+
+  /* CSS-only motion (springs are in 02-motion-haptics.md) */
+  --motion-color-duration: 150ms;
+  --motion-reduced-duration: 180ms;
+}
+
+/* ------------------------------------------------------------------ */
+/* 3. Dark mode (system, unless forced light) and manual override     */
+/*    The two blocks are identical: iOS 16.4 lacks light-dark().      */
+/* ------------------------------------------------------------------ */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: var(--color-stone-975);
+    --bg-grouped: var(--color-stone-975);
+    --bg-elevated: var(--color-stone-925);
+    --surface: var(--color-stone-900);
+    --surface-elevated: var(--color-stone-850);
+    --label-primary: var(--color-stone-50);
+    --label-secondary: var(--color-stone-350);
+    --label-tertiary: var(--color-stone-450);
+    --label-quaternary: var(--color-stone-600);
+    --fill-primary: oklch(0.55 0.012 80 / 0.32);
+    --fill-secondary: oklch(0.55 0.012 80 / 0.26);
+    --fill-tertiary: oklch(0.55 0.012 80 / 0.2);
+    --fill-quaternary: oklch(0.55 0.012 80 / 0.14);
+    --separator: oklch(0.85 0.006 80 / 0.15);
+    --separator-opaque: var(--color-stone-800);
+    --accent: var(--color-green-550);
+    --accent-pressed: var(--color-green-600);
+    --accent-fg: var(--color-green-300);
+    --accent-tint: var(--color-green-950);
+    --focus-ring: var(--color-green-300);
+    --warning-fg: var(--color-amber-300);
+    --warning-tint: var(--color-amber-900);
+    --danger: var(--color-brick-500);
+    --danger-pressed: var(--color-brick-600);
+    --danger-fg: var(--color-brick-300);
+    --danger-tint: var(--color-brick-900);
+    --material-bar: oklch(0.215 0.0055 80 / var(--material-alpha)); /* stone-925 */
+    --scrim: oklch(0 0 0 / 0.55);
+    --shadow-thumb: 0 1px 2px oklch(0 0 0 / 0.4);
+    --shadow-float: inset 0 0.5px 0 oklch(1 0 0 / 0.08), 0 8px 24px oklch(0 0 0 / 0.45);
+    --shadow-accent: 0 8px 24px oklch(0 0 0 / 0.5);
+    --shadow-sheet: inset 0 0.5px 0 oklch(1 0 0 / 0.08), 0 -12px 40px oklch(0 0 0 / 0.5);
+    --shadow-menu: inset 0 0.5px 0 oklch(1 0 0 / 0.08), 0 16px 48px oklch(0 0 0 / 0.55);
+    --cat-tomato-tile: var(--color-tomato-850);   --cat-tomato-fg: var(--color-tomato-300);
+    --cat-clay-tile: var(--color-clay-850);       --cat-clay-fg: var(--color-clay-300);
+    --cat-apricot-tile: var(--color-apricot-850); --cat-apricot-fg: var(--color-apricot-300);
+    --cat-honey-tile: var(--color-honey-850);     --cat-honey-fg: var(--color-honey-300);
+    --cat-olive-tile: var(--color-olive-850);     --cat-olive-fg: var(--color-olive-300);
+    --cat-sage-tile: var(--color-sage-850);       --cat-sage-fg: var(--color-sage-300);
+    --cat-teal-tile: var(--color-teal-850);       --cat-teal-fg: var(--color-teal-300);
+    --cat-sky-tile: var(--color-sky-850);         --cat-sky-fg: var(--color-sky-300);
+    --cat-iris-tile: var(--color-iris-850);       --cat-iris-fg: var(--color-iris-300);
+    --cat-plum-tile: var(--color-plum-850);       --cat-plum-fg: var(--color-plum-300);
+    --cat-rose-tile: var(--color-rose-850);       --cat-rose-fg: var(--color-rose-300);
+    --cat-pebble-tile: var(--color-pebble-850);   --cat-pebble-fg: var(--color-pebble-300);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: var(--color-stone-975);
+  --bg-grouped: var(--color-stone-975);
+  --bg-elevated: var(--color-stone-925);
+  --surface: var(--color-stone-900);
+  --surface-elevated: var(--color-stone-850);
+  --label-primary: var(--color-stone-50);
+  --label-secondary: var(--color-stone-350);
+  --label-tertiary: var(--color-stone-450);
+  --label-quaternary: var(--color-stone-600);
+  --fill-primary: oklch(0.55 0.012 80 / 0.32);
+  --fill-secondary: oklch(0.55 0.012 80 / 0.26);
+  --fill-tertiary: oklch(0.55 0.012 80 / 0.2);
+  --fill-quaternary: oklch(0.55 0.012 80 / 0.14);
+  --separator: oklch(0.85 0.006 80 / 0.15);
+  --separator-opaque: var(--color-stone-800);
+  --accent: var(--color-green-550);
+  --accent-pressed: var(--color-green-600);
+  --accent-fg: var(--color-green-300);
+  --accent-tint: var(--color-green-950);
+  --focus-ring: var(--color-green-300);
+  --warning-fg: var(--color-amber-300);
+  --warning-tint: var(--color-amber-900);
+  --danger: var(--color-brick-500);
+  --danger-pressed: var(--color-brick-600);
+  --danger-fg: var(--color-brick-300);
+  --danger-tint: var(--color-brick-900);
+  --material-bar: oklch(0.215 0.0055 80 / var(--material-alpha));
+  --scrim: oklch(0 0 0 / 0.55);
+  --shadow-thumb: 0 1px 2px oklch(0 0 0 / 0.4);
+  --shadow-float: inset 0 0.5px 0 oklch(1 0 0 / 0.08), 0 8px 24px oklch(0 0 0 / 0.45);
+  --shadow-accent: 0 8px 24px oklch(0 0 0 / 0.5);
+  --shadow-sheet: inset 0 0.5px 0 oklch(1 0 0 / 0.08), 0 -12px 40px oklch(0 0 0 / 0.5);
+  --shadow-menu: inset 0 0.5px 0 oklch(1 0 0 / 0.08), 0 16px 48px oklch(0 0 0 / 0.55);
+  --cat-tomato-tile: var(--color-tomato-850);   --cat-tomato-fg: var(--color-tomato-300);
+  --cat-clay-tile: var(--color-clay-850);       --cat-clay-fg: var(--color-clay-300);
+  --cat-apricot-tile: var(--color-apricot-850); --cat-apricot-fg: var(--color-apricot-300);
+  --cat-honey-tile: var(--color-honey-850);     --cat-honey-fg: var(--color-honey-300);
+  --cat-olive-tile: var(--color-olive-850);     --cat-olive-fg: var(--color-olive-300);
+  --cat-sage-tile: var(--color-sage-850);       --cat-sage-fg: var(--color-sage-300);
+  --cat-teal-tile: var(--color-teal-850);       --cat-teal-fg: var(--color-teal-300);
+  --cat-sky-tile: var(--color-sky-850);         --cat-sky-fg: var(--color-sky-300);
+  --cat-iris-tile: var(--color-iris-850);       --cat-iris-fg: var(--color-iris-300);
+  --cat-plum-tile: var(--color-plum-850);       --cat-plum-fg: var(--color-plum-300);
+  --cat-rose-tile: var(--color-rose-850);       --cat-rose-fg: var(--color-rose-300);
+  --cat-pebble-tile: var(--color-pebble-850);   --cat-pebble-fg: var(--color-pebble-300);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+/* ------------------------------------------------------------------ */
+/* 4. Increased contrast (iOS Settings > Accessibility > Increase     */
+/*    Contrast). Darker/lighter labels, opaque materials, visible     */
+/*    edges on cells and controls. Safari support: UNVERIFIED.        */
+/* ------------------------------------------------------------------ */
+@media (prefers-contrast: more) {
+  :root {
+    --label-primary: var(--color-stone-990);
+    --label-secondary: var(--color-stone-700);
+    --label-tertiary: var(--color-stone-600);
+    --fill-primary: oklch(0.55 0.012 80 / 0.28);
+    --fill-secondary: oklch(0.55 0.012 80 / 0.22);
+    --fill-tertiary: oklch(0.55 0.012 80 / 0.18);
+    --separator: var(--color-stone-500);
+    --edge: var(--color-stone-500);
+    --hairline: 1px;
+    --accent: var(--color-green-700);
+    --accent-fg: var(--color-green-700);
+    --accent-pressed: var(--color-green-800);
+    --focus-ring: var(--color-green-700);
+    --warning-fg: var(--color-amber-700);
+    --danger: var(--color-brick-700);
+    --danger-fg: var(--color-brick-700);
+    --material-alpha: 1;
+    --material-filter: none;
+  }
+}
+
+@media (prefers-contrast: more) and (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --label-primary: var(--color-stone-0);
+    --label-secondary: var(--color-stone-300);
+    --label-tertiary: var(--color-stone-350);
+    --separator: var(--color-stone-500);
+    --edge: var(--color-stone-500);
+    --accent: var(--color-green-550);
+    --accent-fg: var(--color-green-300);
+    --focus-ring: var(--color-green-300);
+    --warning-fg: var(--color-amber-300);
+    --danger-fg: var(--color-brick-300);
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root[data-theme="dark"] {
+    --label-primary: var(--color-stone-0);
+    --label-secondary: var(--color-stone-300);
+    --label-tertiary: var(--color-stone-350);
+    --separator: var(--color-stone-500);
+    --edge: var(--color-stone-500);
+    --accent: var(--color-green-550);
+    --accent-fg: var(--color-green-300);
+    --focus-ring: var(--color-green-300);
+    --warning-fg: var(--color-amber-300);
+    --danger-fg: var(--color-brick-300);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* 5. Reduced transparency: materials become solid. Only alpha and    */
+/*    filter change, so this composes with light/dark at any          */
+/*    specificity. The media query is not supported in Safari         */
+/*    (research/20); data-transparency="reduced" is the manual hook.  */
+/* ------------------------------------------------------------------ */
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --material-alpha: 1;
+    --material-filter: none;
+  }
+}
+
+:root[data-transparency="reduced"] {
+  --material-alpha: 1;
+  --material-filter: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* 6. Bridge: semantic layer as Tailwind utilities                    */
+/* ------------------------------------------------------------------ */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-grouped: var(--bg-grouped);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-label-primary: var(--label-primary);
+  --color-label-secondary: var(--label-secondary);
+  --color-label-tertiary: var(--label-tertiary);
+  --color-label-quaternary: var(--label-quaternary);
+  --color-fill-primary: var(--fill-primary);
+  --color-fill-secondary: var(--fill-secondary);
+  --color-fill-tertiary: var(--fill-tertiary);
+  --color-fill-quaternary: var(--fill-quaternary);
+  --color-separator: var(--separator);
+  --color-separator-opaque: var(--separator-opaque);
+  --color-edge: var(--edge);
+  --color-accent: var(--accent);
+  --color-accent-pressed: var(--accent-pressed);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-tint: var(--accent-tint);
+  --color-on-accent: var(--on-accent);
+  --color-focus-ring: var(--focus-ring);
+  --color-success-fg: var(--success-fg);
+  --color-success-tint: var(--success-tint);
+  --color-warning-fg: var(--warning-fg);
+  --color-warning-tint: var(--warning-tint);
+  --color-danger: var(--danger);
+  --color-danger-pressed: var(--danger-pressed);
+  --color-danger-fg: var(--danger-fg);
+  --color-danger-tint: var(--danger-tint);
+  --color-info-fg: var(--info-fg);
+  --color-info-tint: var(--info-tint);
+  --color-material: var(--material-bar);
+  --color-scrim: var(--scrim);
+  --color-scanner-bg: var(--scanner-bg);
+  --color-scanner-material: var(--scanner-material);
+
+  --color-cat-tomato-tile: var(--cat-tomato-tile);   --color-cat-tomato-fg: var(--cat-tomato-fg);
+  --color-cat-clay-tile: var(--cat-clay-tile);       --color-cat-clay-fg: var(--cat-clay-fg);
+  --color-cat-apricot-tile: var(--cat-apricot-tile); --color-cat-apricot-fg: var(--cat-apricot-fg);
+  --color-cat-honey-tile: var(--cat-honey-tile);     --color-cat-honey-fg: var(--cat-honey-fg);
+  --color-cat-olive-tile: var(--cat-olive-tile);     --color-cat-olive-fg: var(--cat-olive-fg);
+  --color-cat-sage-tile: var(--cat-sage-tile);       --color-cat-sage-fg: var(--cat-sage-fg);
+  --color-cat-teal-tile: var(--cat-teal-tile);       --color-cat-teal-fg: var(--cat-teal-fg);
+  --color-cat-sky-tile: var(--cat-sky-tile);         --color-cat-sky-fg: var(--cat-sky-fg);
+  --color-cat-iris-tile: var(--cat-iris-tile);       --color-cat-iris-fg: var(--cat-iris-fg);
+  --color-cat-plum-tile: var(--cat-plum-tile);       --color-cat-plum-fg: var(--cat-plum-fg);
+  --color-cat-rose-tile: var(--cat-rose-tile);       --color-cat-rose-fg: var(--cat-rose-fg);
+  --color-cat-pebble-tile: var(--cat-pebble-tile);   --color-cat-pebble-fg: var(--cat-pebble-fg);
+
+  --shadow-thumb: var(--shadow-thumb);
+  --shadow-float: var(--shadow-float);
+  --shadow-accent: var(--shadow-accent);
+  --shadow-sheet: var(--shadow-sheet);
+  --shadow-menu: var(--shadow-menu);
+}
+
+/* ------------------------------------------------------------------ */
+/* 7. Composite utilities                                             */
+/* ------------------------------------------------------------------ */
+
+/* Translucent bar material (tab bar, scrolled nav bar, toasts, sheet grabber zone). */
+@utility material {
+  background-color: var(--material-bar);
+  -webkit-backdrop-filter: var(--material-filter);
+  backdrop-filter: var(--material-filter);
+}
+
+/* Focus ring: use as focus-visible:focus-ring. */
+@utility focus-ring {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* Type roles: family + size + leading + tracking + weight in one class. */
+@utility type-display {
+  font-family: var(--font-serif-display);
+  font-size: var(--text-display);
+  line-height: var(--text-display--line-height);
+  letter-spacing: var(--text-display--letter-spacing);
+  font-weight: var(--text-display--font-weight);
+}
+@utility type-large-title {
+  font-family: var(--font-serif-display);
+  font-size: var(--text-large-title);
+  line-height: var(--text-large-title--line-height);
+  letter-spacing: var(--text-large-title--letter-spacing);
+  font-weight: var(--text-large-title--font-weight);
+}
+@utility type-title-1 {
+  font-family: var(--font-serif-display);
+  font-size: var(--text-title-1);
+  line-height: var(--text-title-1--line-height);
+  letter-spacing: var(--text-title-1--letter-spacing);
+  font-weight: var(--text-title-1--font-weight);
+}
+@utility type-title-2 {
+  font-family: var(--font-sans);
+  font-size: var(--text-title-2);
+  line-height: var(--text-title-2--line-height);
+  letter-spacing: var(--text-title-2--letter-spacing);
+  font-weight: var(--text-title-2--font-weight);
+}
+@utility type-title-3 {
+  font-family: var(--font-sans);
+  font-size: var(--text-title-3);
+  line-height: var(--text-title-3--line-height);
+  letter-spacing: var(--text-title-3--letter-spacing);
+  font-weight: var(--text-title-3--font-weight);
+}
+@utility type-headline {
+  font-family: var(--font-sans);
+  font-size: var(--text-headline);
+  line-height: var(--text-headline--line-height);
+  letter-spacing: var(--text-headline--letter-spacing);
+  font-weight: var(--text-headline--font-weight);
+}
+@utility type-body {
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: var(--text-body--line-height);
+  letter-spacing: var(--text-body--letter-spacing);
+  font-weight: var(--text-body--font-weight);
+}
+@utility type-callout {
+  font-family: var(--font-sans);
+  font-size: var(--text-callout);
+  line-height: var(--text-callout--line-height);
+  letter-spacing: var(--text-callout--letter-spacing);
+  font-weight: var(--text-callout--font-weight);
+}
+@utility type-subhead {
+  font-family: var(--font-sans);
+  font-size: var(--text-subhead);
+  line-height: var(--text-subhead--line-height);
+  letter-spacing: var(--text-subhead--letter-spacing);
+  font-weight: var(--text-subhead--font-weight);
+}
+@utility type-footnote {
+  font-family: var(--font-sans);
+  font-size: var(--text-footnote);
+  line-height: var(--text-footnote--line-height);
+  letter-spacing: var(--text-footnote--letter-spacing);
+  font-weight: var(--text-footnote--font-weight);
+}
+@utility type-caption-1 {
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-1);
+  line-height: var(--text-caption-1--line-height);
+  letter-spacing: var(--text-caption-1--letter-spacing);
+  font-weight: var(--text-caption-1--font-weight);
+}
+@utility type-caption-2 {
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-2);
+  line-height: var(--text-caption-2--line-height);
+  letter-spacing: var(--text-caption-2--letter-spacing);
+  font-weight: var(--text-caption-2--font-weight);
+}
+@utility type-tab-label {
+  font-family: var(--font-sans);
+  font-size: var(--text-tab-label);
+  line-height: var(--text-tab-label--line-height);
+  letter-spacing: var(--text-tab-label--letter-spacing);
+  font-weight: var(--text-tab-label--font-weight);
+}
+@utility type-quantity-xl {
+  font-family: var(--font-rounded);
+  font-size: var(--text-quantity-xl);
+  line-height: var(--text-quantity-xl--line-height);
+  letter-spacing: var(--text-quantity-xl--letter-spacing);
+  font-weight: var(--text-quantity-xl--font-weight);
+  font-variant-numeric: tabular-nums;
+}
+@utility type-quantity-l {
+  font-family: var(--font-rounded);
+  font-size: var(--text-quantity-l);
+  line-height: var(--text-quantity-l--line-height);
+  letter-spacing: var(--text-quantity-l--letter-spacing);
+  font-weight: var(--text-quantity-l--font-weight);
+  font-variant-numeric: tabular-nums;
+}
+@utility type-quantity {
+  font-family: var(--font-rounded);
+  font-size: var(--text-quantity);
+  line-height: var(--text-quantity--line-height);
+  letter-spacing: var(--text-quantity--letter-spacing);
+  font-weight: var(--text-quantity--font-weight);
+  font-variant-numeric: tabular-nums;
+}
+@utility type-badge {
+  font-family: var(--font-rounded);
+  font-size: var(--text-badge);
+  line-height: var(--text-badge--line-height);
+  letter-spacing: var(--text-badge--letter-spacing);
+  font-weight: var(--text-badge--font-weight);
+  font-variant-numeric: tabular-nums;
+}
+@utility type-badge-s {
+  font-family: var(--font-rounded);
+  font-size: var(--text-badge-s);
+  line-height: var(--text-badge-s--line-height);
+  letter-spacing: var(--text-badge-s--letter-spacing);
+  font-weight: var(--text-badge-s--font-weight);
+  font-variant-numeric: tabular-nums;
+}
