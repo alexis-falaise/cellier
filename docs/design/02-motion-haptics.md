@@ -872,7 +872,11 @@ choreography table (for example, a pushed screen fades in over its parent instea
 
 ## 10. Items to verify on device
 
-| # | Item | Default if unverifiable |
+The owner decided to ship without waiting for a real-phone pass. Each item below ships with the value in the third
+column. The iOS 26.3 simulator cannot exercise haptics, the camera, Home Screen gestures or ProMotion, so items 1–8
+and 10 remain open for the first real-phone session.
+
+| # | Item | Ships with (until a real-phone test says otherwise) |
 |---|---|---|
 | 1 | Switch haptic in the installed web app on iOS 18.x, 26.x, 26.5+ | Haptics are best effort; UI complete without them |
 | 2 | Asynchronous haptic from a Worker message (5.5) | `scanHaptic` off |
@@ -882,7 +886,7 @@ choreography table (for example, a pushed screen fades in over its parent instea
 | 6 | `requestAnimationFrame` at 120 Hz in the installed app (7.4) | Design for 60 Hz |
 | 7 | `visualViewport` `resize` timing with the keyboard (3.2) | Reposition at the end with `snappy` |
 | 8 | Web Audio in `ambient` obeys the silent switch, and survives the camera session (6) | Sound stays off by default |
-| 9 | Motion's `{ bounce, visualDuration }` → stiffness / damping conversion in the installed version (2.2) | Visual parameters ship regardless |
+| 9 | Motion's `{ bounce, visualDuration }` → stiffness / damping conversion (2.2) | **Verified** against `motion` 14.12.0: each preset's derived stiffness/damping curve stays within 0.11 % of travel of the `{ bounce, visualDuration }` curve over 1.5 s (peaks: `fling` 1.011, `pop` 1.045). Author with `{ bounce, visualDuration }` |
 | 10 | Motion callbacks (`onDrag`) run outside event dispatch (5.3) | Own pointer handlers regardless |
 
 ---

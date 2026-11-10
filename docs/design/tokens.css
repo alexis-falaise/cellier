@@ -147,79 +147,80 @@
 
   /* Type scale: iOS "Large" sizes, 1rem = 16px. --dt is the Dynamic Type ratio (body px / 17) set by the
      app at boot, never below 1. The last factor per role mimics Apple's non-linear growth (small text grows
-     faster than titles). Letter-spacing = Apple SF Pro tracking table converted to em. */
+     faster than titles). Letter-spacing is `normal` for every role: measured in the iOS 26.3 simulator, WebKit already applies the
+     system fonts' size-specific tracking (SF Pro, SF Pro Rounded, New York), and explicit letter-spacing adds to it. */
   --text-display: calc(2.5rem * (1 + (var(--dt) - 1) * 0.45));
   --text-display--line-height: calc(46 / 40);
-  --text-display--letter-spacing: -0.015em;
+  --text-display--letter-spacing: normal;
   --text-display--font-weight: 600;
   --text-large-title: calc(2.125rem * (1 + (var(--dt) - 1) * 0.5));
   --text-large-title--line-height: calc(41 / 34);
-  --text-large-title--letter-spacing: -0.01em;
+  --text-large-title--letter-spacing: normal;
   --text-large-title--font-weight: 600;
   --text-title-1: calc(1.75rem * (1 + (var(--dt) - 1) * 0.6));
   --text-title-1--line-height: calc(34 / 28);
-  --text-title-1--letter-spacing: -0.005em;
+  --text-title-1--letter-spacing: normal;
   --text-title-1--font-weight: 600;
   --text-title-2: calc(1.375rem * (1 + (var(--dt) - 1) * 0.78));
   --text-title-2--line-height: calc(28 / 22);
-  --text-title-2--letter-spacing: -0.0118em;
+  --text-title-2--letter-spacing: normal;
   --text-title-2--font-weight: 600;
   --text-title-3: calc(1.25rem * (1 + (var(--dt) - 1) * 0.86));
   --text-title-3--line-height: calc(25 / 20);
-  --text-title-3--letter-spacing: -0.0225em;
+  --text-title-3--letter-spacing: normal;
   --text-title-3--font-weight: 600;
   --text-headline: calc(1.0625rem * var(--dt));
   --text-headline--line-height: calc(22 / 17);
-  --text-headline--letter-spacing: -0.0253em;
+  --text-headline--letter-spacing: normal;
   --text-headline--font-weight: 600;
   --text-body: calc(1.0625rem * var(--dt));
   --text-body--line-height: calc(22 / 17);
-  --text-body--letter-spacing: -0.0253em;
+  --text-body--letter-spacing: normal;
   --text-body--font-weight: 400;
   --text-callout: calc(1rem * var(--dt));
   --text-callout--line-height: calc(21 / 16);
-  --text-callout--letter-spacing: -0.0194em;
+  --text-callout--letter-spacing: normal;
   --text-callout--font-weight: 400;
   --text-subhead: calc(0.9375rem * (1 + (var(--dt) - 1) * 1.14));
   --text-subhead--line-height: calc(20 / 15);
-  --text-subhead--letter-spacing: -0.0153em;
+  --text-subhead--letter-spacing: normal;
   --text-subhead--font-weight: 400;
   --text-footnote: calc(0.8125rem * (1 + (var(--dt) - 1) * 1.32));
   --text-footnote--line-height: calc(18 / 13);
-  --text-footnote--letter-spacing: -0.0062em;
+  --text-footnote--letter-spacing: normal;
   --text-footnote--font-weight: 400;
   --text-caption-1: calc(0.75rem * (1 + (var(--dt) - 1) * 1.43));
   --text-caption-1--line-height: calc(16 / 12);
-  --text-caption-1--letter-spacing: 0em;
+  --text-caption-1--letter-spacing: normal;
   --text-caption-1--font-weight: 400;
   --text-caption-2: calc(0.6875rem * (1 + (var(--dt) - 1) * 1.56));
   --text-caption-2--line-height: calc(13 / 11);
-  --text-caption-2--letter-spacing: 0.0055em;
+  --text-caption-2--letter-spacing: normal;
   --text-caption-2--font-weight: 400;
   --text-tab-label: calc(0.625rem * (1 + (var(--dt) - 1) * 0.5));
   --text-tab-label--line-height: calc(12 / 10);
-  --text-tab-label--letter-spacing: 0.012em;
+  --text-tab-label--letter-spacing: normal;
   --text-tab-label--font-weight: 500;
   /* Numeric roles (rounded, tabular). Tracking 0: the SF Pro Rounded table was not verified. */
   --text-quantity-xl: calc(3rem * (1 + (var(--dt) - 1) * 0.5));
   --text-quantity-xl--line-height: calc(52 / 48);
-  --text-quantity-xl--letter-spacing: 0em;
+  --text-quantity-xl--letter-spacing: normal;
   --text-quantity-xl--font-weight: 600;
   --text-quantity-l: calc(2.125rem * (1 + (var(--dt) - 1) * 0.5));
   --text-quantity-l--line-height: calc(41 / 34);
-  --text-quantity-l--letter-spacing: 0em;
+  --text-quantity-l--letter-spacing: normal;
   --text-quantity-l--font-weight: 600;
   --text-quantity: calc(1.0625rem * var(--dt));
   --text-quantity--line-height: calc(22 / 17);
-  --text-quantity--letter-spacing: 0em;
+  --text-quantity--letter-spacing: normal;
   --text-quantity--font-weight: 600;
   --text-badge: calc(0.8125rem * (1 + (var(--dt) - 1) * 1.32));
   --text-badge--line-height: calc(16 / 13);
-  --text-badge--letter-spacing: 0em;
+  --text-badge--letter-spacing: normal;
   --text-badge--font-weight: 600;
   --text-badge-s: calc(0.6875rem * (1 + (var(--dt) - 1) * 1.2));
   --text-badge-s--line-height: calc(13 / 11);
-  --text-badge-s--letter-spacing: 0.01em;
+  --text-badge-s--letter-spacing: normal;
   --text-badge-s--font-weight: 700;
 
   /* Spacing: 4 px base (1rem = 16px), so p-1 = 4, p-2 = 8, p-4 = 16. */
@@ -462,7 +463,7 @@
 /* ------------------------------------------------------------------ */
 /* 4. Increased contrast (iOS Settings > Accessibility > Increase     */
 /*    Contrast). Darker/lighter labels, opaque materials, visible     */
-/*    edges on cells and controls. Safari support: UNVERIFIED.        */
+/*    edges on cells and controls. Verified: Safari 26.3 matches it.  */
 /* ------------------------------------------------------------------ */
 @media (prefers-contrast: more) {
   :root {

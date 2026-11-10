@@ -77,18 +77,35 @@ Where documents disagree, the order of precedence is: `tokens.css` for values, `
   `triangle-alert` → `triangle-exclamation-point`, `circle-help` → `circle-question-mark`, `history` →
   `rotate-ccw-clock`). Pin the `lucide-react` version and check names against it.
 
-## Open questions (to verify on device; none block implementation)
+## Verification status (2026-11-10): shipped without a real-phone pass
 
-1. Does the iOS switch haptic fire from an asynchronous worker result, 10 s and 30 s after the last touch? This decides
-   the scan haptic (`02` §5, §10).
-2. Does `getUserMedia` start after a timer-fired long-press? The spec already starts the camera on finger lift; if
-   that also fails, the withdraw cover opens with a «Démarrer» tap (`03` §8).
-3. Does Safari apply SF Pro's tracking automatically to `-apple-system`? If so, the explicit tracking tokens double it
-   (`01` §3.2).
-4. Does the `-apple-system-body` probe report the Dynamic Type size inside a Home Screen app (`01` §3.3)?
-5. Exact iOS 26 labels for the install guide («Partager», «Sur l'écran d'accueil», «Ouvrir comme app web») and the
-   camera settings path (`03` §8).
-6. Does iOS keep a system back-swipe in installed web apps? If it does, the custom edge swipe must not run (`02` §10).
-7. Tailwind v4 support for `@theme static`, and Safari support for `prefers-reduced-transparency` (a manual
-   `data-transparency="reduced"` hook is provided) (`01` §11).
-8. Product questions for later: one household per account in v1; members cannot invite (owner only) (`03` §8).
+The owner chose to ship the design without waiting for a real iPhone. What could be checked was checked locally:
+Safari in the iOS 26.3 simulator (iPhone 16e, 390 px wide, like the iPhone 13/14), Tailwind CSS 4.3.5 and
+Motion 14.12.0 installed in a scratch folder outside the project.
+
+**Verified**
+
+| Question | Result | Change made |
+|---|---|---|
+| Does Safari already apply SF's size-specific tracking? | Yes, for `-apple-system`, `ui-rounded` and `ui-serif`; explicit `letter-spacing` is added on top. | All `--text-*--letter-spacing` tokens set to `normal` (`tokens.css`, `01` §3.2). |
+| Do `ui-serif` and `ui-rounded` resolve, and do tabular figures work? | Yes (New York and SF Pro Rounded; "11111" = "00000" in width with `tabular-nums`). | Note in `01` §3.1. |
+| Does `font: -apple-system-body` follow Dynamic Type? | Yes in Safari: 17 px at default, 28 px at Accessibility Medium. | Note in `01` §3.3. |
+| `prefers-contrast: more`, `prefers-reduced-transparency` | Both parsed by Safari 26.3; contrast matches when Increase Contrast is on. | Notes in `01` §2.5 and `tokens.css`; the manual transparency hook stays for older iOS. |
+| `corner-shape: squircle` | Not supported in Safari 26.3. | Plain `border-radius` ships (`01` §4.4). |
+| French formats | Plural of 0 is "one"; dates "samedi 14 nov."; prices "1,89 €"; `RelativeTimeFormat` `short` gives "dans 4 j", while `narrow` gives "+4 j". | `01` §3.4 now uses `short`. |
+| `<input type="checkbox" switch>` | Renders as a native switch; `label.click()` from a timer toggles it without user activation (the haptic itself cannot be felt in a simulator). | None. |
+| Does `tokens.css` compile in Tailwind v4, including `@theme static` and `@theme inline`? | Yes, with no warnings; every sampled utility is generated (colours, categories, type roles, radii, shadows, fonts). | None. |
+| Do the derived spring physics match Motion? | Yes, within 0.11 % of travel for all seven presets. | `02` §10. |
+
+**Shipping with defaults (needs a real iPhone; the simulator has no haptics, camera or Home Screen gestures)**
+
+1. Scan-success haptic: off (`scanHaptic` false); scan success is visual, with an optional «Son au scan», off by default (`02` §5–6).
+2. Drag-threshold haptic: fires at `pointerup` on commit (`hapticAtCrossing` false) (`02` §5.3).
+3. Long-press to withdraw: the camera starts on finger lift. If it does not start, the cover shows a «Démarrer» button (`03` §8).
+4. Custom left-edge swipe back: on, in the installed app only (`02` §3.6).
+5. Pull to refresh: dropped if overscroll cannot be read in the installed app; the sync indicator stays tappable (`02` §10).
+6. Motion is designed for 60 Hz, and 120 Hz is a bonus.
+7. Install-guide labels follow the iOS 26 wording in `03` §4.1. The labels need checking once on a phone.
+8. Status bar and Dynamic Island clearance use `env(safe-area-inset-top)`; the tab bar offset (`--tab-bar-bottom`) is tuned on device.
+
+**Product questions for later:** one household per account in v1, and members cannot invite (owner only) (`03` §8).

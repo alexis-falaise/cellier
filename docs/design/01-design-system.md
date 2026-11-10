@@ -180,10 +180,11 @@ add a 0.5 px inner top highlight (`inset 0 0.5px 0 oklch(1 0 0 / 0.08)`) so thei
   1 px stone-500 outline on cells, fields and buttons (3.97:1 on a light cell and 4.03:1 on a dark one, which
   passes the 3:1 non-text rule). Materials become solid. In dark mode, labels go lighter (stone-0, stone-300,
   stone-350). The accent fill stays green-550, because green-650 would drop to 2.77:1 against the canvas.
-  Safari support for this query is UNVERIFIED.
+  Verified in the iOS 26.3 simulator: Safari parses the query and it matches when Increase Contrast is on.
 - `prefers-reduced-transparency: reduce`. `--material-alpha` becomes 1 and `--material-filter` becomes
-  `none`. Only these two variables change, so the rule works with every theme. `research/20` reports that
-  Safari does not support this media query. The manual hook `html[data-transparency="reduced"]` is therefore
+  `none`. Only these two variables change, so the rule works with every theme. `research/20` reported that
+  Safari does not support this media query; the iOS 26.3 simulator shows Safari now parses it, so it works on
+  current iOS. Older iOS versions may not support it. The manual hook `html[data-transparency="reduced"]` is therefore
   provided as well. A "Réduire la transparence" switch in Réglages is optional and not required for v1.
 - Manual theme: `html[data-theme="light" | "dark"]` overrides the system setting. With no attribute, the
   system setting applies.
@@ -256,8 +257,9 @@ Rules that keep the table true:
 | `font-mono` | `ui-monospace, "SF Mono", Menlo, Consolas, monospace` | The GTIN on item detail, debug only | Barcode digits must not be mistaken for a quantity. |
 
 Every numeric role sets `font-variant-numeric: tabular-nums`, so steppers and right-aligned columns do not jitter.
-`ui-serif` and `ui-rounded` are believed to be supported in Safari since 13.1 (UNVERIFIED in this session). If they
-are missing, the stack falls back to the regular sans, which is acceptable. No web font is loaded: the app
+`ui-serif` and `ui-rounded` resolve to New York and SF Pro Rounded in Safari (verified in the iOS 26.3 simulator:
+both measure differently from the sans and from Georgia, and `tabular-nums` makes "11111" and "00000" the same
+width in `ui-rounded`). If they are missing on another platform, the stack falls back to the regular sans, which is acceptable. No web font is loaded: the app
 downloads zero font bytes.
 
 ### 3.2 Type scale
@@ -291,12 +293,12 @@ Decisions:
 
 - Titles use weight 600 instead of Apple's Regular. The serif needs the weight to hold up at 34 px, and the
   sans titles match it so the hierarchy stays consistent.
-- Serif tracking (−0.005 to −0.015em) is a design choice: Apple's New York tracking table was not verified.
-- Rounded tracking is 0, because the SF Pro Rounded table was not verified either.
-- UNVERIFIED: whether WebKit already applies SF's built-in tracking (the `trak` table) to `-apple-system` text.
-  If it does, the explicit letter-spacing would double it. Test: on device, render "Bientôt épuisé" at 17 px
-  with `letter-spacing: 0` and with the token, and compare against the same string in Notes. If `0` matches
-  Notes, set every sans `--text-*--letter-spacing` to 0.
+- **Tracking is left to the system (verified).** In the iOS 26.3 simulator, `-apple-system`, `ui-rounded` and
+  `ui-serif` text gets wider per em as the size drops (about +4 at 11 px down to +0.8 at 34 px, in thousandths of
+  an em per character, against 0 for Helvetica at every size). So WebKit already applies the fonts' size-specific
+  tracking and optical sizes, and an explicit `letter-spacing` is added on top (−1 px gave exactly −1 px per
+  character). Every `--text-*--letter-spacing` token is therefore `normal`, and the Apple tracking values in the
+  table above are for reference only. Do not add letter-spacing to system-font text.
 - Headings use `text-wrap: balance` and paragraphs use `text-wrap: pretty`.
 - Product names are clamped to two lines in rows (`line-clamp: 2`) and never truncated on item detail.
 
@@ -317,7 +319,9 @@ Decisions:
   17 px helps nobody.
 - `-webkit-text-size-adjust: 100%` goes on `html` (in the app CSS) so iOS never inflates text on its own.
 - Known risk: the `-apple-system-body` keyword is a Safari behaviour reported to reflect Dynamic Type
-  (SECONDARY, `research/20`). Whether it does so in a Home Screen web app on iOS 16.4 to 26 is **UNVERIFIED**.
+  (SECONDARY, `research/20`). Verified in Safari in the iOS 26.3 simulator: `font: -apple-system-body` computes to
+  17 px at the default size and 28 px at Accessibility Medium (Headline 28 px, Caption 1 22 px), matching Apple's
+  tables. The Home Screen web app uses the same engine but was not tested separately.
   If the probe always returns 17, the app still works at the default size. A "Taille du texte" setting can
   then write `--dt` instead (not in v1).
 - Input font size is never below 16px, so iOS does not zoom on focus. Fields use `body` (17px).
@@ -335,9 +339,11 @@ Decisions:
   "75 cl", "2 kg". A pack size is written "6 × 1,5 L", with the real multiplication sign U+00D7. The unit
   stays in `label-tertiary` next to a `quantity` numeral.
 - Dates: `new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'short' })` gives
-  "jeudi 14 nov.". Relative dates use `new Intl.RelativeTimeFormat('fr', { numeric: 'auto', style: 'narrow' })`,
-  which gives "demain" and "dans 4 j". The output of `style: 'narrow'` is UNVERIFIED, so check it once and
-  fall back to `fr.ts` strings if it differs.
+  "jeudi 14 nov.". Relative dates use `new Intl.RelativeTimeFormat('fr', { numeric: 'auto', style: 'short' })`,
+  which gives "demain", "dans 4 j", "dans 2 sem.", "il y a 3 j" (verified in Safari 26.3). Do not use
+  `style: 'narrow'`: it gives "+4 j". Durations such as "≈ 4 j" use
+  `Intl.NumberFormat('fr-FR', { style: 'unit', unit: 'day', unitDisplay: 'short' })` → "4 j" (narrow gives "4j").
+  Numbers group thousands with U+202F (narrow no-break space) and prices read "1,89 €" with U+00A0.
 - Plurals: `new Intl.PluralRules('fr')`. Note that in French, 0 and 1 are both singular ("0 bouteille").
 - Sorting and search: `Intl.Collator('fr', { sensitivity: 'base' })`, so "Épicerie" sorts with E.
 - Ordinals: "1er", "2e". Quotes: « ». Apostrophe: ’ (U+2019).
@@ -410,7 +416,7 @@ Radii are concentric: an inner radius equals the outer radius minus the padding 
 | `rounded-full` | full | Scan button, tab bar capsule, avatar, stepper buttons, dots, segmented thumb |
 
 `corner-shape: squircle` may be added inside `@supports (corner-shape: squircle)` as progressive
-enhancement. Safari support is UNVERIFIED, and plain `border-radius` is the baseline.
+enhancement. Safari 26.3 does not support it (verified), so plain `border-radius` is what ships.
 
 ### 4.5 Elevation
 
