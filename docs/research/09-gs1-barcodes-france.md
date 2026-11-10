@@ -441,8 +441,8 @@ export function parseScan(
 }
 
 // Examples (expected):
-// parseScan('4006381333931', 'EAN-13')                -> { gtin:'00400638133931', kind:'product' }
-// parseScan('034000470693', 'UPC-A')                  -> { gtin:'00034000470693', kind:'product' }
+// parseScan('4006381333931', 'EAN-13')                -> { gtin:'04006381333931', kind:'product' }
+// parseScan('034000470693', 'UPC-A')                  -> { gtin:'00034000470693', kind:'product' } (13-digit EAN form is '0034000470693'; canonical 14 = '00034000470693')
 // parseScan('0210000012345', 'EAN-13')                 -> restricted: kind 'variable-measure' (check digit must be valid)
 // parseScan('https://id.gs1.org/01/09506000134352/17/261231', 'QR') -> product + expiry '2026-12-31'
 ```
