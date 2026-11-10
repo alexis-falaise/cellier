@@ -103,3 +103,45 @@ From the scaffold (package zero):
 - Three tsconfig projects (app, service worker, node); `typecheck` runs each.
 - Viewport height uses `100dvh` only (iOS 16.4+ supports it).
 - Production URL: `https://cellier-one.vercel.app` (Vercel project `cellier`, production branch `main`).
+
+From the architecture thread (`docs/architecture/01`–`05`, `supabase/migrations/`):
+
+- **Stock minimum lives on `products.min_quantity`** (household-wide «seuil», design `min_qty`), not on `stock`;
+  `products.usual_quantity` is the design's `usual_qty` override. `stock` holds only the quantity. Field names
+  keep the `_quantity` suffix used everywhere else.
+- **Categories are copied per household** from `category_templates` (28 slugs from research/06) when the
+  household is created. Icons and colours come from the design system by slug; the database holds key, name, order.
+- **Ownership is the `role` column** of `household_members` (one owner, partial unique index); `households`
+  has no `owner_id`.
+- **The change log stores no row content**; `pull_changes` returns current rows, which compacts repeated edits.
+- **Sync bookkeeping lives in the `private` schema** (change log, idempotency store, aliases, outbox, low-stock
+  state, invite attempts, catalogue lookup log), not exposed through the Data API.
+- **The PWA never calls Open Food Facts directly**: the `catalog-lookup` Edge Function proxies, caches into
+  `catalog_products` and enforces rate limits. The category mapping is a JSON artefact used by the seed
+  pipeline and the Edge Function, not a database table.
+- **Stock quantities are integers** (units or packs); weight and volume are product attributes only.
+- **Members are hard-deleted** when they leave or are removed; their ledger rows keep `actor_id` until the account
+  itself is deleted (then null).
+- **Household creation seeds one pantry** (default name «Cellier») besides the categories.
+- **The sync engine runs on the main thread** (no worker): payloads are small and IndexedDB is async.
+- **Wire format is camelCase JSON** built in SQL, so no mapping layer exists on the client.
+- **Idempotent replays return the stored result with `replayed: true`** instead of a separate status.
+- **Routes are the design thread's English routes** (`/welcome`, `/join#<code>`, `/items/$productId`,
+  `/groceries`, …); the French paths in early research are replaced.
+- **Movement kinds**: the ledger keeps finer kinds (`restock`, `consume`, `discard`, `recount`, `transfer_out`,
+  `transfer_in`, `correction`); the UI groups them as purchase / consume / recount / transfer / undo. `source`
+  (`scan`, `swipe`, `stepper`, `put_away`, `form`, `undo`) is stored per movement.
+- **Courses**: `grocery_entries` holds manual entries and dismissals; running-low suggestions are computed by the
+  client and have no row until dismissed. Checking never changes stock.
+- **Overwrite records** (`field_overwrites`) are written by a trigger when a field written by another device in
+  the last 7 days is replaced, and synced as entity `overwrite`, instead of extra columns in `change_log`.
+- **Invites are owner-only**, single use, 8 Crockford characters, 7 days; `peek_invite` is the only RPC callable
+  by `anon`. Redemption is rate limited per user or client address and globally.
+- **Notification switches exist per device** (`push_subscriptions.notify_*`, edited in the UI) and per member
+  (`household_members.notify_*`, default on, not shown in v1); a push needs both.
+- **Running-low pushes fire only on a decrease** of the household total; product-setting changes and pantry
+  deletion update the state silently. The actor is not notified, so a one-member household gets the digest only.
+- **`delete_account`** hands each owned household to the longest-standing member, or deletes it when the owner is
+  alone, then deletes the auth user.
+- **No separate database review agent ran** (rate limited); the migrations were self-reviewed. Run the Supabase
+  advisors on a branch before production.

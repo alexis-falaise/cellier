@@ -4,7 +4,7 @@
  * This file is copied verbatim to `src/domain/types.ts` by work package 0 and is the single
  * source of truth for entity shapes on the client. The shapes match, field for field, the JSON
  * produced by the database functions `pull_changes` and `apply_mutations`
- * (supabase/migrations/*_sync_functions.sql). Keys are camelCase on the wire, so no mapping
+ * (supabase/migrations/20261110120700_apply_mutations.sql, 20261110120800_pull_changes.sql, 20261110120900_household_rpcs.sql). Keys are camelCase on the wire, so no mapping
  * layer exists between the RPC payloads and the store.
  *
  * Conventions:
@@ -139,8 +139,10 @@ export interface Product {
   packCount: number | null;
   priceCents: number | null;
   priceSource: PriceSource | null;
-  /** Household-wide minimum. null = default rule (see 04-notifications-forecasting.md). */
+  /** Household-wide minimum (the «seuil»; design `min_qty`). null = default rule (see 04-notifications-forecasting.md). */
   minQuantity: number | null;
+  /** Usual purchase size override (design `usual_qty`). null = the forecast's value. */
+  usualQuantity: number | null;
   /** false = this product is never reported as running low. */
   lowAlert: boolean;
   imageUrl: string | null;
@@ -158,6 +160,10 @@ export interface StockRow {
   updatedAt: IsoDateTime;
 }
 
+/**
+ * Ledger kinds. UI grouping (design 03 §5): purchase = restock; consume = consume | discard;
+ * recount; transfer = transfer_out + transfer_in (same transferId); correction = undo.
+ */
 export type MovementKind =
   | 'restock'       // added to a pantry (purchase)
   | 'consume'       // used up — the only kind that counts as demand for forecasting
@@ -185,12 +191,60 @@ export interface Movement {
   revertsId: MovementId | null;
   /** null when the member's account was deleted. */
   actorId: UserId | null;
+  /** UI origin, for Activity grouping. 'undo' is set by the server on corrections. */
+  source: MovementSource | null;
   clientAt: IsoDateTime | null;
   createdAt: IsoDateTime;
 }
 
+export type MovementSource = 'scan' | 'swipe' | 'stepper' | 'put_away' | 'form' | 'undo';
+
+export type GroceryId = Brand<string, 'GroceryId'>;
+
+/**
+ * Courses entry. Either a product of the household or a free-text label. Checking an entry never
+ * changes stock (put-away is a separate stock.add). Running-low products are suggested by the client
+ * without a row; dismissing a suggestion creates an entry with dismissedAt set.
+ */
+export interface GroceryEntry {
+  id: GroceryId;
+  householdId: HouseholdId;
+  productId: ProductId | null;
+  label: string | null;
+  /** null = suggested quantity (usual quantity minus stock, at least 1). */
+  quantity: number | null;
+  addedBy: UserId | null;
+  checkedAt: IsoDateTime | null;
+  checkedBy: UserId | null;
+  dismissedAt: IsoDateTime | null;
+  createdAt: IsoDateTime;
+  updatedAt: IsoDateTime;
+  deletedAt: IsoDateTime | null;
+}
+
+/**
+ * A value written by one device and replaced by a later write from another device (design
+ * «Modification remplacée»). Show it to the user whose device id ends `oldHlc`. Server-written, read-only.
+ */
+export interface FieldOverwrite {
+  id: string;
+  householdId: HouseholdId;
+  entity: 'household' | 'pantry' | 'category' | 'product' | 'grocery';
+  rowId: string;
+  /** Mutation field name, e.g. 'priceCents'. */
+  field: string;
+  oldValue: unknown;
+  newValue: unknown;
+  oldHlc: Hlc;
+  newHlc: Hlc;
+  /** Author of the new value. */
+  actorId: UserId | null;
+  createdAt: IsoDateTime;
+}
+
 /** Entity names used by the change log, pull responses and store maps. */
-export type EntityName = 'household' | 'member' | 'pantry' | 'category' | 'product' | 'stock' | 'movement';
+export type EntityName =
+  | 'household' | 'member' | 'pantry' | 'category' | 'product' | 'stock' | 'movement' | 'grocery' | 'overwrite';
 
 export interface EntityRowMap {
   household: Household;
@@ -200,6 +254,8 @@ export interface EntityRowMap {
   product: Product;
   stock: StockRow;
   movement: Movement;
+  grocery: GroceryEntry;
+  overwrite: FieldOverwrite;
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -218,9 +274,11 @@ export interface ProductFields {
   priceCents?: number | null;
   priceSource?: PriceSource | null;
   minQuantity?: number | null;
+  usualQuantity?: number | null;
   lowAlert?: boolean;
   imageUrl?: string | null;
 }
+export interface GroceryFields { label?: string; quantity?: number | null; checked?: boolean; dismissed?: boolean }
 
 /** Argument types per mutation name. See 02-sync-protocol.md §3 for effects and conflict rules. */
 export interface MutationArgs {
@@ -242,11 +300,17 @@ export interface MutationArgs {
   'product.delete': { productId: ProductId };
   'product.restore': { productId: ProductId };
 
-  'stock.add': { pantryId: PantryId; productId: ProductId; quantity: number };
-  'stock.remove': { pantryId: PantryId; productId: ProductId; quantity: number; reason: 'consume' | 'discard' };
-  'stock.recount': { pantryId: PantryId; productId: ProductId; counted: number };
-  'stock.transfer': { fromPantryId: PantryId; toPantryId: PantryId; productId: ProductId; quantity: number };
+  'stock.add': { pantryId: PantryId; productId: ProductId; quantity: number; source?: MovementSource };
+  'stock.remove': { pantryId: PantryId; productId: ProductId; quantity: number; reason: 'consume' | 'discard'; source?: MovementSource };
+  'stock.recount': { pantryId: PantryId; productId: ProductId; counted: number; source?: MovementSource };
+  'stock.transfer': { fromPantryId: PantryId; toPantryId: PantryId; productId: ProductId; quantity: number; source?: MovementSource };
   'stock.revert': { movementId: MovementId };
+
+  /** Exactly one of productId and label. Merges into the open entry of the same product. */
+  'grocery.add': { groceryId: GroceryId; productId?: ProductId | null; label?: string | null; quantity?: number | null };
+  'grocery.update': { groceryId: GroceryId; fields: GroceryFields };
+  'grocery.delete': { groceryId: GroceryId };
+  'grocery.restore': { groceryId: GroceryId };
 }
 
 export type MutationName = keyof MutationArgs;
@@ -357,10 +421,12 @@ export interface PullUpserts {
   product: Product[];
   stock: StockRow[];
   movement: Movement[];
+  grocery: GroceryEntry[];
+  overwrite: FieldOverwrite[];
 }
 
 export interface PullDelete {
-  entity: 'member' | 'stock' | 'movement' | 'pantry' | 'category' | 'product' | 'household';
+  entity: 'member' | 'stock' | 'movement' | 'pantry' | 'category' | 'product' | 'household' | 'grocery';
   /** Same id format as change_log.row_id: uuid, member userId, or StockKey. */
   id: string;
 }
@@ -400,23 +466,38 @@ export interface HouseholdDeletedNudge {
 export interface CreateHouseholdArgs { p_household_id: HouseholdId; p_name: string; p_pantry_id: PantryId; p_pantry_name: string }
 export interface CreateHouseholdResult { householdId: HouseholdId; created: boolean }
 
-export interface CreateInviteArgs { p_household_id: HouseholdId; p_max_uses?: number; p_ttl_hours?: number }
-export interface CreateInviteResult { inviteId: string; code: string; expiresAt: IsoDateTime; maxUses: number }
+/** Single-use, 7-day code of 8 Crockford base-32 characters. Link: /join#<code>. */
+export interface CreateInviteArgs { p_household_id: HouseholdId }
+export interface CreateInviteResult { inviteId: string; code: string; expiresAt: IsoDateTime }
 
-export interface InvitePreview {
-  status: 'valid' | 'expired' | 'revoked' | 'used_up' | 'not_found' | 'already_member';
-  householdId: HouseholdId | null;
+export type InviteStatus = 'valid' | 'expired' | 'revoked' | 'used_up' | 'not_found' | 'already_member' | 'rate_limited';
+
+/** `peek_invite(p_code)`: callable before sign-in (anon). Names are null unless status is valid/already_member. */
+export interface InvitePeek {
+  status: InviteStatus;
   householdName: string | null;
-  ownerName: string | null;
-  memberCount: number | null;
+  inviterFirstName: string | null;
   expiresAt: IsoDateTime | null;
 }
+
+export interface AcceptInviteResult {
+  status: Exclude<InviteStatus, 'valid'> | 'joined';
+  householdId: HouseholdId | null;
+}
+
+/** Other RPCs: `delete_account()` → void; `delete_household(p_household_id)` → void (owner);
+ *  `leave_household`, `remove_member`, `transfer_ownership`, `revoke_invite(p_invite_id)` → void;
+ *  `register_push_subscription(p_endpoint, p_p256dh, p_auth, p_user_agent)` → subscription id. */
+
+/** Message keys raised (SQLSTATE P0001) by the household RPCs; the UI maps each to French copy. */
+export type HouseholdRpcError =
+  | 'not_authenticated' | 'not_member' | 'not_owner' | 'household_exists' | 'too_many_households'
+  | 'owner_must_transfer' | 'cannot_remove_owner' | 'target_not_member' | 'invalid_argument';
 
 export interface InviteListItem {
   id: string;
   createdAt: IsoDateTime;
   expiresAt: IsoDateTime;
-  maxUses: number;
   uses: number;
   revokedAt: IsoDateTime | null;
 }
