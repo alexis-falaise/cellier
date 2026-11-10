@@ -27,7 +27,8 @@ export interface OnboardingPageProps {
   title: string;
   body?: ReactNode | undefined;
   primary?: { label: string; onPress: () => void; loading?: boolean | undefined } | undefined;
-  secondary?: { label: string; onPress: () => void } | undefined;
+  /** `quiet`: an exit such as «Se déconnecter» (Footnote, secondary) that must not compete with the choices. */
+  secondary?: { label: string; onPress: () => void; tone?: 'accent' | 'quiet' | undefined } | undefined;
   children?: ReactNode | undefined;
   /** Content enters with `smooth` (opacity, y 8 px), together: no stagger (02 §4.1). */
   animateIn?: boolean | undefined;
@@ -67,7 +68,10 @@ export function OnboardingPage({
           <button
             type="button"
             onClick={secondary.onPress}
-            className="min-h-11 px-2 type-body text-accent-fg outline-none focus-visible:focus-ring active:opacity-60"
+            className={cx(
+              'min-h-11 px-2 outline-none focus-visible:focus-ring active:opacity-60',
+              secondary.tone === 'quiet' ? 'type-footnote text-label-secondary' : 'type-body text-accent-fg',
+            )}
           >
             {secondary.label}
           </button>

@@ -4,7 +4,7 @@ import { enterHousehold, getAppSession, refreshMembership, useSession } from '@/
 import type { HouseholdId, PantryId } from '@/domain/types';
 import { getHouseholdApi, useOnline } from '@/features/auth';
 import { t } from '@/shared/i18n';
-import { ChipGroup, ListSection, TextField } from '@/shared/ui';
+import { ChipGroup, ListSection, SectionFooter, TextField } from '@/shared/ui';
 import { OnboardingForm } from '@/widgets/onboarding/OnboardingForm';
 
 const NAME_MAX = 60;
@@ -78,7 +78,7 @@ export function CreateHouseholdPage() {
       onSubmit={() => void create()}
       message={message}
     >
-      <ListSection label={t('onboarding.create.householdLabel')}>
+      <ListSection header={t('onboarding.create.householdLabel')}>
         <TextField
           layout="stacked"
           label={t('onboarding.create.householdLabel')}
@@ -91,7 +91,7 @@ export function CreateHouseholdPage() {
           error={touched && !household ? t('onboarding.create.householdRequired') : undefined}
         />
       </ListSection>
-      <ListSection label={t('onboarding.create.pantryLabel')} footer={t('onboarding.create.footer')}>
+      <ListSection header={t('onboarding.create.pantryLabel')}>
         <TextField
           layout="stacked"
           label={t('onboarding.create.pantryLabel')}
@@ -103,13 +103,17 @@ export function CreateHouseholdPage() {
           error={touched && !pantry ? t('onboarding.create.pantryRequired') : undefined}
         />
       </ListSection>
-      <ChipGroup
-        className="-mt-2 px-4"
-        label={t('onboarding.create.pantryLabel')}
-        options={suggestions().map((s) => ({ value: s, label: s }))}
-        selected={pantry ? [pantry] : []}
-        onToggle={setPantryName}
-      />
+      {/* 03 §4.1.5: field, then its suggestions, then the footer. */}
+      <div className="-mt-2">
+        <ChipGroup
+          className="px-4"
+          label={t('onboarding.create.pantryLabel')}
+          options={suggestions().map((s) => ({ value: s, label: s }))}
+          selected={pantry ? [pantry] : []}
+          onToggle={setPantryName}
+        />
+        <SectionFooter className="mx-4 mt-3">{t('onboarding.create.footer')}</SectionFooter>
+      </div>
     </OnboardingForm>
   );
 }

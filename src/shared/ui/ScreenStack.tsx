@@ -87,7 +87,11 @@ export function ScreenStack({ screens, onBack, edgeSwipe, className }: ScreenSta
     exiting: false,
   });
 
-  const [layers, setLayers] = useState<Layer[]>(() => screens.map((s) => makeLayer(s)));
+  // A cold deep link (e.g. a notification tap) mounts a pushed stack: park the parent where a push leaves it, so a
+  // later pop slides it back in the same way.
+  const [layers, setLayers] = useState<Layer[]>(() =>
+    screens.map((s, i) => makeLayer(s, !reduced && i === screens.length - 2 ? -0.3 * (window.innerWidth || 390) : 0)),
+  );
   const [seenScreens, setSeenScreens] = useState(screens);
   const pending = useRef<{ kind: 'push' | 'pop'; key: string } | null>(null);
 
@@ -271,7 +275,8 @@ function StackLayerView({ layer, active, hidden, aboveX, width }: StackLayerView
   return (
     <m.div
       className={cx(
-        'absolute inset-0 bg-bg-grouped',
+        // Own stacking context: a lower layer's sticky header (z-sticky) must never paint over the screen above it.
+        'absolute inset-0 isolate bg-bg-grouped',
         hidden && 'invisible',
         // Static soft shadow on the leading edge of the incoming screen.
         'shadow-[-8px_0_24px_-12px_oklch(0.2_0.01_80/0.25)]',

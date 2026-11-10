@@ -575,6 +575,7 @@ const source = {
   'settings.haptics': 'Retours haptiques',
   'settings.haptics.footer': 'Une légère vibration au scan, aux balayages et aux confirmations. Nécessite iOS 18.',
   'settings.version': 'Cellier {version} ({build})',
+  'account.title': 'Compte',
   'account.provider': 'Connecté avec Google',
   'account.signOut': 'Se déconnecter',
   'account.signOut.title': 'Se déconnecter ?',

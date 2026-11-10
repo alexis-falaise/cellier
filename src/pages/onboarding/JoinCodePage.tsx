@@ -51,7 +51,7 @@ export function JoinCodePage() {
       onSubmit={() => void join()}
       message={online ? message : t('onboarding.join.offline')}
     >
-      <ListSection label={t('onboarding.join.codeLabel')}>
+      <ListSection header={t('onboarding.join.codeLabel')}>
         <TextField
           layout="stacked"
           label={t('onboarding.join.codeLabel')}

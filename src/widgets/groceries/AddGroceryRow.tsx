@@ -72,8 +72,12 @@ export function AddGroceryRow({ products, listed, onAddProduct, onAddLabel, open
 
   return (
     <ListSection label={t('groceries.add')}>
+      {/* Inset focus ring whenever the field is focused, rounded like the section's clip (as in TextField). */}
       {/* biome-ignore lint/a11y/useSemanticElements: rows of an inset list, not direct li elements */}
-      <div role="listitem" className="relative flex min-h-[52px] items-center gap-3 px-4">
+      <div
+        role="listitem"
+        className="relative row-corners flex min-h-[52px] items-center gap-3 px-4 focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-focus-ring"
+      >
         <Plus size={20} strokeWidth={1.5} absoluteStrokeWidth aria-hidden="true" className="shrink-0 text-accent-fg" />
         <input
           // biome-ignore lint/a11y/noAutofocus: the field replaces the row the user just tapped

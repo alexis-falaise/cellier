@@ -35,7 +35,7 @@ const NEEDS_ID: ReadonlySet<SettingsPage> = new Set(['member', 'pantry', 'catego
 /** Title of each page, used by the back button of the page pushed over it. */
 export const PAGE_TITLE: Record<SettingsPageName, PlainMessageKey> = {
   root: 'settings.title',
-  account: 'settings.title',
+  account: 'account.title',
   household: 'household.title',
   member: 'household.members',
   invite: 'household.invite',

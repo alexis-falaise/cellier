@@ -98,7 +98,7 @@ function Form({ digits, offerExisting, initial, onClose, onCreate, onPick }: Unk
       {digits ? (
         <p className="-mt-4 px-8 type-footnote text-label-secondary">{t('scanner.row.code', { digits })}</p>
       ) : null}
-      <ListSection label={t('field.name')}>
+      <ListSection header={t('field.name')}>
         <TextField
           label={t('field.name')}
           layout="stacked"

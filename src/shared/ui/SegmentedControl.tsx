@@ -116,7 +116,9 @@ export function SegmentedControl<V extends string>({
               tabIndex={selected ? 0 : -1}
               onClick={() => onChange(option.value)}
               className={cx(
-                'relative flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-[12px] px-2 outline-none',
+                'relative flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-[12px] outline-none',
+                // Six units (g … pièces) need the narrower inset so «pièces» is not truncated.
+                options.length > 4 ? 'px-0.5' : 'px-2',
                 'type-subhead transition-colors duration-150 ease-out focus-visible:focus-ring',
                 'before:absolute before:inset-x-0 before:-inset-y-1.5',
                 selected

@@ -137,16 +137,20 @@ export function StatusBanner({
         aria-hidden="true"
         className={cx('shrink-0', tone === 'warning' ? 'text-warning-fg' : 'text-label-secondary')}
       />
-      <p className="min-w-0 flex-1 type-callout text-label-primary">{text}</p>
-      {action ? (
-        <button
-          type="button"
-          onClick={action.onPress}
-          className="min-h-11 shrink-0 px-1 type-headline text-accent-fg outline-none focus-visible:focus-ring active:opacity-60"
-        >
-          {action.label}
-        </button>
-      ) : null}
+      {/* Text and action share one line while they fit; a longer text takes the full width and the action wraps
+          under it, aligned with the text, instead of squeezing the text into a narrow column. */}
+      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-3">
+        <p className={cx('min-w-0 flex-auto type-callout text-label-primary', action && 'py-1')}>{text}</p>
+        {action ? (
+          <button
+            type="button"
+            onClick={action.onPress}
+            className="-mx-1 min-h-11 shrink-0 px-1 text-left type-headline text-accent-fg outline-none focus-visible:focus-ring active:opacity-60"
+          >
+            {action.label}
+          </button>
+        ) : null}
+      </div>
       {onDismiss ? (
         <button
           type="button"

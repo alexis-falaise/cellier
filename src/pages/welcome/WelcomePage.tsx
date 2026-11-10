@@ -1,4 +1,4 @@
-import { Apple, Croissant, Wine } from 'lucide-react';
+import { Milk, Wheat, Wine } from 'lucide-react';
 import { m } from 'motion/react';
 import { useState } from 'react';
 import { navigateTo, openSheet } from '@/app/navigation';
@@ -45,8 +45,8 @@ export function WelcomePage() {
       >
         <div className="flex gap-3" aria-hidden="true">
           <CategoryTile icon={Wine} hue="plum" size={56} />
-          <CategoryTile icon={Croissant} hue="honey" size={56} />
-          <CategoryTile icon={Apple} hue="sage" size={56} />
+          <CategoryTile icon={Wheat} hue="honey" size={56} />
+          <CategoryTile icon={Milk} hue="sage" size={56} />
         </div>
         <h1>
           <Wordmark>{t('app.name')}</Wordmark>

@@ -1,4 +1,4 @@
-import { House, UserPlus, UserX } from 'lucide-react';
+import { HousePlus, Users, UserX } from 'lucide-react';
 import { useState } from 'react';
 import { closeConfirm, navigateTo, openConfirm, useOverlay } from '@/app/navigation';
 import { leaveRemovedHousehold, quarantine, signOut, useActiveHousehold } from '@/app/session';
@@ -60,7 +60,7 @@ export function RemovedPage() {
       hero={<HeroIcon icon={UserX} />}
       title={t('removed.title')}
       body={t('removed.body', { household: household.name ?? '…' })}
-      secondary={{ label: t('account.signOut'), onPress: () => void signOut() }}
+      secondary={{ label: t('account.signOut'), onPress: () => void signOut(), tone: 'quiet' }}
     >
       <div className="mt-4 flex w-full flex-col gap-3 text-left">
         {count > 0 && !handled ? (
@@ -83,13 +83,13 @@ export function RemovedPage() {
         {canLeave ? (
           <>
             <OptionCard
-              icon={House}
+              icon={HousePlus}
               title={t('onboarding.household.create.title')}
               subtitle={t('onboarding.household.create.detail')}
               onPress={() => void leaveTo('/onboarding/create')}
             />
             <OptionCard
-              icon={UserPlus}
+              icon={Users}
               title={t('onboarding.household.join.title')}
               subtitle={t('onboarding.household.join.detail')}
               onPress={() => void leaveTo('/onboarding/join')}
