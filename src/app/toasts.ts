@@ -14,6 +14,8 @@ export interface ToastInput {
   action?: { label: string; onPress: () => void } | undefined;
   /** Replaces a queued or visible toast with the same key instead of queueing another. */
   key?: string | undefined;
+  /** Stays until acted on or swiped away (app update prompt). */
+  persistent?: boolean | undefined;
 }
 
 let counter = 0;
@@ -39,6 +41,7 @@ export function showToast(input: ToastInput): string {
     message: input.message,
     icon: input.icon,
     action: input.action,
+    persistent: input.persistent,
     key: input.key,
   };
   if (input.key) queue = queue.filter((q) => q.key !== input.key);

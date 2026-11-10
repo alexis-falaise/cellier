@@ -6,10 +6,11 @@ Screens read an in-memory view (server base + pending overlay) and never wait on
 ## Session lifecycle (app shell)
 
 ```ts
-import { startSync, stopSync, switchHousehold, signOutSync } from '@/shared/sync';
+import { forgetHousehold, startSync, stopSync, switchHousehold, signOutSync } from '@/shared/sync';
 
 await startSync({ userId, householdId }); // after sign-in; boots from IndexedDB first, then syncs
 await switchHousehold(otherHouseholdId); // keeps the outbox of the previous household
+await forgetHousehold(householdId); // after leaving or deleting it: drop its IndexedDB data
 stopSync(); // stop the engine and keep local data
 await signOutSync(); // stop the engine and wipe IndexedDB (the device id is kept)
 ```

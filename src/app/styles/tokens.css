@@ -359,6 +359,10 @@
   --z-sheet: 41; /* nested sheets: 41 + depth */
   --z-menu: 50;
   --z-scanner: 60;
+  /* Sheets and confirmations opened from the scanner cover (Sheet / ConfirmDialog `layer="over-scanner"`) */
+  --z-over-scanner-scrim: 70;
+  --z-over-scanner-sheet: 71; /* nested sheets: 71 + depth */
+  --z-over-scanner-menu: 80;
 
   /* CSS-only motion (springs are in 02-motion-haptics.md) */
   --motion-color-duration: 150ms;

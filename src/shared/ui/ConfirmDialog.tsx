@@ -5,6 +5,7 @@ import { haptic } from '@/shared/lib/haptics';
 import { presets } from '@/shared/lib/motion';
 import { cx } from './cx';
 import { useModalFocus } from './hooks/useModalFocus';
+import { layerZ, type OverlayLayer } from './Sheet';
 
 export interface ConfirmAction {
   label: string;
@@ -22,13 +23,23 @@ export interface ConfirmDialogProps {
   actions: ConfirmAction[];
   /** «Annuler». */
   cancelLabel: string;
+  /** Stacking layer; `'over-scanner'` opens above the scanner cover. */
+  layer?: OverlayLayer | undefined;
 }
 
 /**
  * The only blocking confirmation (03 §3.7, 04 §6): iOS action-sheet style, a group of 56 px buttons with an optional
  * title and message, a separate «Annuler» below. Opens with `sheet`, closes with `smooth`; the background dims.
  */
-export function ConfirmDialog({ open, onOpenChange, title, message, actions, cancelLabel }: ConfirmDialogProps) {
+export function ConfirmDialog({
+  open,
+  onOpenChange,
+  title,
+  message,
+  actions,
+  cancelLabel,
+  layer = 'app',
+}: ConfirmDialogProps) {
   if (typeof document === 'undefined') return null;
   return createPortal(
     <AnimatePresence>
@@ -40,6 +51,7 @@ export function ConfirmDialog({ open, onOpenChange, title, message, actions, can
           message={message}
           actions={actions}
           cancelLabel={cancelLabel}
+          layer={layer}
         />
       ) : null}
     </AnimatePresence>,
@@ -47,7 +59,14 @@ export function ConfirmDialog({ open, onOpenChange, title, message, actions, can
   );
 }
 
-function ConfirmContent({ onOpenChange, title, message, actions, cancelLabel }: Omit<ConfirmDialogProps, 'open'>) {
+function ConfirmContent({
+  onOpenChange,
+  title,
+  message,
+  actions,
+  cancelLabel,
+  layer,
+}: Omit<ConfirmDialogProps, 'open' | 'layer'> & { layer: OverlayLayer }) {
   const reduced = useReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
   const titleId = useId();
@@ -62,7 +81,8 @@ function ConfirmContent({ onOpenChange, title, message, actions, cancelLabel }: 
     <>
       <m.div
         aria-hidden="true"
-        className="fixed inset-0 z-(--z-menu) bg-scrim"
+        className="fixed inset-0 bg-scrim"
+        style={{ zIndex: layerZ(layer, 'menu') }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1, transition: enter }}
         exit={{ opacity: 0, transition: exit }}
@@ -75,7 +95,8 @@ function ConfirmContent({ onOpenChange, title, message, actions, cancelLabel }: 
         aria-labelledby={title ? titleId : undefined}
         aria-describedby={message ? messageId : undefined}
         tabIndex={-1}
-        className="fixed inset-x-0 bottom-0 z-(--z-menu) mx-auto flex max-w-[600px] flex-col gap-2 px-4 pb-[calc(var(--safe-bottom)+8px)] outline-none"
+        style={{ zIndex: layerZ(layer, 'menu') }}
+        className="fixed inset-x-0 bottom-0 mx-auto flex max-w-[600px] flex-col gap-2 px-4 pb-[calc(var(--safe-bottom)+8px)] outline-none"
         initial={reduced ? { opacity: 0 } : { y: offscreen }}
         animate={reduced ? { opacity: 1, transition: enter } : { y: 0, transition: enter }}
         exit={reduced ? { opacity: 0, transition: exit } : { y: offscreen, transition: exit }}

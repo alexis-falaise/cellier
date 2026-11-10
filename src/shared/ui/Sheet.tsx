@@ -43,13 +43,33 @@ import { useModalFocus } from './hooks/useModalFocus';
 import { keyboardInset, readSafeArea, viewportHeight } from './hooks/viewport';
 import { ElevatedSurfaceContext } from './surface';
 
+/** Stacking layer of a sheet: the app's, or above the scanner cover (tokens `--z-over-scanner-*`). */
+export type OverlayLayer = 'app' | 'over-scanner';
+
+const LAYER_Z: Record<OverlayLayer, { scrim: string; sheet: string; menu: string }> = {
+  app: { scrim: 'var(--z-scrim)', sheet: 'var(--z-sheet)', menu: 'var(--z-menu)' },
+  'over-scanner': {
+    scrim: 'var(--z-over-scanner-scrim)',
+    sheet: 'var(--z-over-scanner-sheet)',
+    menu: 'var(--z-over-scanner-menu)',
+  },
+};
+
+/** z-index of an overlay part on a layer (`depth` lifts nested sheets). */
+export function layerZ(layer: OverlayLayer, part: 'scrim' | 'sheet' | 'menu', depth = 0): string {
+  const base = LAYER_Z[layer][part];
+  return depth === 0 ? base : `calc(${base} + ${depth})`;
+}
+
 interface SheetStack {
   depth: number;
+  /** Layer of the outermost sheet; nested sheets inherit it. */
+  layer: OverlayLayer;
   /** Progress (0..1) of the child sheet opened over this one, driving the push-back. */
   childProgress: MotionValue<number> | null;
 }
 
-const SheetStackContext = createContext<SheetStack>({ depth: 0, childProgress: null });
+const SheetStackContext = createContext<SheetStack>({ depth: 0, layer: 'app', childProgress: null });
 const SheetTitleContext = createContext<string | undefined>(undefined);
 
 export type { Detent } from '@/shared/lib/motion';
@@ -83,6 +103,8 @@ export interface SheetProps {
   onExited?: (() => void) | undefined;
   children?: ReactNode | undefined;
   className?: string | undefined;
+  /** Stacking layer; `'over-scanner'` opens above the scanner cover. Nested sheets inherit their parent's. */
+  layer?: OverlayLayer | undefined;
 }
 
 interface DragState {
@@ -121,6 +143,7 @@ export function Sheet({
   onExited,
   children,
   className,
+  layer,
 }: SheetProps) {
   const [present, setPresent] = useState(open);
   if (open && !present) setPresent(true);
@@ -143,6 +166,7 @@ export function Sheet({
       closeLabel={closeLabel}
       ariaLabel={ariaLabel}
       className={className}
+      layer={layer}
       onExited={() => {
         setPresent(false);
         onExited?.();
@@ -172,12 +196,14 @@ interface PanelProps {
   className: string | undefined;
   onExited: () => void;
   children: ReactNode;
+  layer: OverlayLayer | undefined;
 }
 
 function SheetPanel(props: PanelProps) {
   const { open, detents, title, leading, trailing, header, footer, closeLabel, ariaLabel, className, children } = props;
   const parent = useContext(SheetStackContext);
   const depth = parent.depth;
+  const layer = props.layer ?? parent.layer;
   const reduced = useReducedMotion();
   const titleId = useId();
 
@@ -513,18 +539,18 @@ function SheetPanel(props: PanelProps) {
   const pushScrim = useTransform(childProgress, [0, 1], [0, 0.5]);
   const footerY = useTransform(kb, (v) => -v);
 
-  const zSheet = 41 + depth;
+  const zSheet = layerZ(layer, 'sheet', depth);
   const hasHeader = header !== undefined || title !== undefined || leading !== undefined || trailing !== undefined;
 
   return (
-    <SheetStackContext.Provider value={{ depth: depth + 1, childProgress }}>
+    <SheetStackContext.Provider value={{ depth: depth + 1, layer, childProgress }}>
       <SheetTitleContext.Provider value={title ? titleId : undefined}>
         <ElevatedSurfaceContext.Provider value={true}>
           {depth === 0 ? (
             <m.div
               aria-hidden="true"
               className="fixed inset-0 bg-scrim"
-              style={{ opacity: scrimOpacity, zIndex: 40 }}
+              style={{ opacity: scrimOpacity, zIndex: layerZ(layer, 'scrim') }}
               onClick={requestDismiss}
             />
           ) : (

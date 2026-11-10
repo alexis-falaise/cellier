@@ -50,23 +50,31 @@ function UpdatePrompt() {
   const { needRefresh, applyUpdate } = useServiceWorker();
   const coverOpen = useCoverOpen();
   const shown = useRef(false);
+  const toastId = useRef<string | null>(null);
+  const currentToast = useCurrentToast();
+  const currentId = useRef<string | null>(null);
+  useEffect(() => {
+    currentId.current = currentToast?.id ?? null;
+  }, [currentToast]);
 
   useEffect(() => {
     if (!needRefresh) return;
     const offer = () => {
       if (shown.current || coverOpen || hasUnsavedChanges()) return;
       shown.current = true;
-      showToast({
+      toastId.current = showToast({
         key: 'update',
         icon: RotateCw,
         message: t('update.available'),
         action: { label: t('update.reload'), onPress: () => void applyUpdate() },
+        persistent: true,
       });
     };
     offer();
-    // The toast times out; offer it again on the next return to the app.
+    // Persistent, but it can be swiped away; offer it again on the next return to the app.
     const onVisible = () => {
       if (document.visibilityState !== 'visible') return;
+      if (toastId.current !== null && currentId.current === toastId.current) return;
       shown.current = false;
       offer();
     };

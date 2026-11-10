@@ -1,5 +1,5 @@
 export type { ScannedCode } from '@/shared/lib/gtin';
-export { primeCamera } from './model/camera';
+export { isCameraPrimed, markCameraPrimed, primeCamera } from './model/camera';
 export type { ScannerError, ScannerErrorCode } from './model/errors';
 export type { AimSpec, Rect } from './model/geometry';
 export { aimWindowRect, DEFAULT_AIM } from './model/geometry';

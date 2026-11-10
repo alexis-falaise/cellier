@@ -341,6 +341,20 @@ export function UiGalleryPage() {
           <Button fullWidth onClick={() => showToast(true)}>
             Ajouter au stock
           </Button>
+          <Button
+            fullWidth
+            variant="secondary"
+            onClick={() =>
+              setToast({
+                id: `update-${Date.now()}`,
+                message: 'Nouvelle version disponible',
+                action: { label: 'Recharger', onPress: () => undefined },
+                persistent: true,
+              })
+            }
+          >
+            Toast persistant
+          </Button>
           <Button fullWidth variant="secondary" icon={Pencil}>
             Modifier
           </Button>

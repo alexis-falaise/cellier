@@ -17,6 +17,7 @@ export { hlcDeviceId } from './hlc';
 export { syncActions, syncReactBindings, useMutate, useStore, useSyncEngine, useSyncStatus } from './react';
 export { PENDING_SEQ } from './reducers';
 export {
+  forgetHousehold,
   getSyncEngine,
   getSyncStore,
   mutate,

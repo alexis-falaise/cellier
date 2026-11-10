@@ -31,6 +31,7 @@ import type { GuardState, HouseholdPhase } from '../guards';
 import {
   changeSyncHousehold,
   clearSyncData,
+  forgetLocalHousehold,
   readCachedHouseholdId,
   readNotice,
   startHouseholdSync,
@@ -255,9 +256,14 @@ export async function enterHousehold(householdId: HouseholdId): Promise<void> {
   set({ household: { phase: 'member', id: householdId }, removed: false });
 }
 
-/** `/removed`, once the quarantine is exported or discarded: forget the old household. */
+/**
+ * `/removed`, once the quarantine is exported or discarded, and Réglages after leaving or deleting
+ * the household: close it and delete its local data.
+ */
 export async function leaveRemovedHousehold(): Promise<void> {
+  const previous = state.household.id;
   await changeSyncHousehold(null);
+  if (previous) await forgetLocalHousehold(previous);
   set({ household: { phase: 'none', id: null }, removed: false });
 }
 

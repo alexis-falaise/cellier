@@ -118,6 +118,17 @@ export async function switchHousehold(householdId: HouseholdId | null): Promise<
   await requireSyncEngine().setActiveHousehold(householdId);
 }
 
+/**
+ * Deletes one household's local data from IndexedDB (base rows, outbox, activity notes, cursor,
+ * aliases), after leaving, deleting or losing access to it. If it is the open household, the engine
+ * closes it first (no household open afterwards). Other households and the device id are kept.
+ */
+export async function forgetHousehold(householdId: HouseholdId, options: { dbName?: string } = {}): Promise<void> {
+  if (starting) await starting.catch(() => undefined);
+  if (engine && engine.householdId === householdId) await engine.setActiveHousehold(null);
+  await (await database(options.dbName)).dropHousehold(householdId);
+}
+
 /** Sign-out: closes the channel, clears every household from IndexedDB and memory. */
 export async function signOutSync(options: { dbName?: string } = {}): Promise<void> {
   const current = engine;

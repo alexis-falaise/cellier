@@ -29,6 +29,14 @@ export interface ToastData {
   message: string;
   icon?: LucideIcon | undefined;
   action?: { label: string; onPress: () => void } | undefined;
+  /** No auto-dismiss: stays until its action runs or it is swiped away (app update prompt, 03 §2.5.10). */
+  persistent?: boolean | undefined;
+}
+
+/** Auto-dismiss delay of a toast in ms (02 §3.7), or null for a persistent toast. */
+export function toastLifetimeMs(toast: Pick<ToastData, 'action' | 'persistent'>): number | null {
+  if (toast.persistent) return null;
+  return toast.action ? THRESHOLDS.toast.lifetimeWithActionMs : THRESHOLDS.toast.lifetimeMs;
 }
 
 export interface ToastProps {
@@ -41,7 +49,8 @@ export interface ToastProps {
 
 /**
  * Transient confirmation with optional undo (04 §7, 02 §3.7): material capsule at the bottom, one at a time, 4 s
- * (6 s with an action, 10 s while focused), paused while touched or hidden; swipe down to dismiss.
+ * (6 s with an action, 10 s while focused, never when `persistent`), paused while touched or hidden; swipe down to
+ * dismiss.
  */
 export function Toast({ toast, onDismiss, placement = 'tab-bar' }: ToastProps) {
   if (typeof document === 'undefined') return null;
@@ -96,8 +105,9 @@ function ToastItem({ toast, onDismiss }: { toast: ToastData; onDismiss: (id: str
   const schedule = () => {
     const t = timer.current;
     clearTimeout(t.handle);
+    t.handle = undefined;
     const p = paused.current;
-    if (p.touch || p.hidden) return;
+    if (toast.persistent || p.touch || p.hidden) return;
     t.startedAt = performance.now();
     t.handle = setTimeout(dismiss, t.remaining);
   };
@@ -111,8 +121,7 @@ function ToastItem({ toast, onDismiss }: { toast: ToastData; onDismiss: (id: str
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: one lifetime per toast id
   useEffect(() => {
-    const T = THRESHOLDS.toast;
-    timer.current.remaining = toast.action ? T.lifetimeWithActionMs : T.lifetimeMs;
+    timer.current.remaining = toastLifetimeMs(toast) ?? 0;
     paused.current.hidden = document.hidden;
     schedule();
     const onVisibility = () => {

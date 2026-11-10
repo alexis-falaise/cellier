@@ -33,6 +33,33 @@ export function stopStream(stream: MediaStream | null): void {
   for (const track of stream?.getTracks() ?? []) track.stop();
 }
 
+// First-run camera primer (design 03 §4.1.9): a per-device flag, set once the camera has been granted from the
+// primer. This module is its single source of truth: the scan flow reads and sets it, primeCamera() obeys it.
+const CAMERA_PRIMED_KEY = 'cellier.camera.primed';
+let cameraPrimedCache: boolean | null = null;
+
+/** True once the user has passed the camera permission primer on this device. */
+export function isCameraPrimed(): boolean {
+  if (cameraPrimedCache === null) {
+    try {
+      cameraPrimedCache = globalThis.localStorage?.getItem(CAMERA_PRIMED_KEY) === '1';
+    } catch {
+      cameraPrimedCache = false;
+    }
+  }
+  return cameraPrimedCache;
+}
+
+/** Called by the scan flow once the camera has been granted from the primer. */
+export function markCameraPrimed(): void {
+  cameraPrimedCache = true;
+  try {
+    globalThis.localStorage?.setItem(CAMERA_PRIMED_KEY, '1');
+  } catch {
+    // Blocked storage: the flag lives for this session only.
+  }
+}
+
 // A stream requested from a gesture outside the viewport (scan button, primer), adopted by the next useScanner.
 const PRIMED_TTL_MS = 10_000;
 let primed: { promise: Promise<CameraResult>; timer: ReturnType<typeof setTimeout> } | null = null;
@@ -40,8 +67,10 @@ let primed: { promise: Promise<CameraResult>; timer: ReturnType<typeof setTimeou
 /**
  * Call synchronously inside the tap / pointerup handler that opens the scanner, before it mounts.
  * The camera request then carries the user activation; the mounted scanner adopts the stream.
+ * Does nothing until the first-run primer has been passed: the primer's own button opens the camera.
  */
 export function primeCamera(): void {
+  if (!isCameraPrimed()) return;
   if (primed) return;
   const promise = openCamera();
   const timer = setTimeout(() => {

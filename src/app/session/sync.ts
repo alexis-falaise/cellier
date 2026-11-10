@@ -5,6 +5,7 @@
  */
 import type { HouseholdId, UserId } from '@/domain/types';
 import {
+  forgetHousehold,
   getSyncEngine,
   getSyncStore,
   type HouseholdNotice,
@@ -31,6 +32,15 @@ export async function changeSyncHousehold(householdId: HouseholdId | null): Prom
     await switchHousehold(householdId);
   } catch (error) {
     console.error('[session] household switch failed', error);
+  }
+}
+
+/** Deletes a household's local data (after leaving or deleting it, or losing access to it). */
+export async function forgetLocalHousehold(householdId: HouseholdId): Promise<void> {
+  try {
+    await forgetHousehold(householdId);
+  } catch (error) {
+    console.error('[session] local household data could not be deleted', error);
   }
 }
 
