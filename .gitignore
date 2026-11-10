@@ -15,3 +15,6 @@ blob-report
 playwright/.cache
 stats.html
 *.tsbuildinfo
+
+# Catalogue seed outputs (data files, never committed)
+scripts/catalogue/out/

@@ -24,7 +24,7 @@ Secret values are never written in this repository.
 | `rls_and_grants` | `…120600_rls_and_grants.sql` |
 | `apply_mutations` | `…120700_apply_mutations.sql` |
 | `pull_changes` | `…120800_pull_changes.sql` |
-| (not recorded) | `…120900_household_rpcs.sql`, `…121000_notifications_and_cron.sql`, `…121100_catalogue_service.sql`, `…121200_internal_secret_check.sql`: run by hand in the SQL Editor on 2026-11-10, so they are in the database but absent from `supabase_migrations.schema_migrations` |
+| `household_rpcs`, `notifications_and_cron`, `catalogue_service`, `internal_secret_check`, `fix_log_change_row_id` | `…120900` to `…121300`: run by hand in the SQL Editor on 2026-11-10, then recorded in `supabase_migrations.schema_migrations` by hand with the file prefix as version |
 
 Remote version numbers are the apply timestamps, not the file prefixes; the content is identical to the files.
 Verified 2026-11-10: all public RPCs of 01 §4 plus `verify_internal_secret` exist, the three running-low triggers
