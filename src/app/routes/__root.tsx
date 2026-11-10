@@ -1,22 +1,16 @@
-import { createRootRoute, Outlet } from '@tanstack/react-router';
-import { domAnimation, LazyMotion, MotionConfig } from 'motion/react';
-import { t } from '@/shared/i18n/fr';
-import { useServiceWorker } from '@/shared/pwa/useServiceWorker';
+import { createRootRoute, redirect } from '@tanstack/react-router';
+import { decideRedirect } from '@/app/guards';
+import { parseGlobalSearch } from '@/app/search';
+import { guardState, settled } from '@/app/session';
+import { AppRoot, NotFoundPage } from '@/widgets/app-shell';
 
 export const Route = createRootRoute({
-  component: RootLayout,
-  notFoundComponent: () => <p className="p-6">{t('errors.notFound')}</p>,
+  validateSearch: parseGlobalSearch,
+  beforeLoad: async ({ location }) => {
+    await settled();
+    const target = decideRedirect(guardState(), location.pathname);
+    if (target) throw redirect({ href: target.href, replace: true });
+  },
+  component: AppRoot,
+  notFoundComponent: NotFoundPage,
 });
-
-function RootLayout() {
-  useServiceWorker();
-  return (
-    <LazyMotion features={domAnimation} strict>
-      <MotionConfig reducedMotion="user">
-        <div className="safe-area-p flex flex-1 flex-col">
-          <Outlet />
-        </div>
-      </MotionConfig>
-    </LazyMotion>
-  );
-}

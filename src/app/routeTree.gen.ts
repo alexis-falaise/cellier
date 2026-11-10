@@ -9,14 +9,57 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as TabsRouteImport } from './routes/_tabs'
+import { Route as JoinRouteImport } from './routes/join'
+import { Route as RemovedRouteImport } from './routes/removed'
+import { Route as WelcomeRouteImport } from './routes/welcome'
+import { Route as TabsIndexRouteImport } from './routes/_tabs/index'
+import { Route as TabsActivityRouteImport } from './routes/_tabs/activity'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as DevUiRouteImport } from './routes/dev.ui'
+import { Route as LegalPrivacyRouteImport } from './routes/legal/privacy'
+import { Route as LegalTermsRouteImport } from './routes/legal/terms'
+import { Route as OnboardingCreateRouteImport } from './routes/onboarding/create'
+import { Route as OnboardingHouseholdRouteImport } from './routes/onboarding/household'
+import { Route as OnboardingJoinRouteImport } from './routes/onboarding/join'
+import { Route as OnboardingJoinedRouteImport } from './routes/onboarding/joined'
+import { Route as TabsGroceriesIndexRouteImport } from './routes/_tabs/groceries/index'
+import { Route as TabsStockIndexRouteImport } from './routes/_tabs/stock/index'
+import { Route as TabsItemsProductIdIndexRouteImport } from './routes/_tabs/items/$productId/index'
+import { Route as TabsItemsProductIdHistoryRouteImport } from './routes/_tabs/items/$productId/history'
+import { Route as TabsGroceriesItemsProductIdIndexRouteImport } from './routes/_tabs/groceries/items/$productId/index'
+import { Route as TabsGroceriesItemsProductIdHistoryRouteImport } from './routes/_tabs/groceries/items/$productId/history'
+import { Route as TabsStockItemsProductIdIndexRouteImport } from './routes/_tabs/stock/items/$productId/index'
+import { Route as TabsStockItemsProductIdHistoryRouteImport } from './routes/_tabs/stock/items/$productId/history'
 
-const IndexRoute = IndexRouteImport.update({
+const TabsRoute = TabsRouteImport.update({
+  id: '/_tabs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JoinRoute = JoinRouteImport.update({
+  id: '/join',
+  path: '/join',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RemovedRoute = RemovedRouteImport.update({
+  id: '/removed',
+  path: '/removed',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WelcomeRoute = WelcomeRouteImport.update({
+  id: '/welcome',
+  path: '/welcome',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TabsIndexRoute = TabsIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => TabsRoute,
+} as any)
+const TabsActivityRoute = TabsActivityRouteImport.update({
+  id: '/activity',
+  path: '/activity',
+  getParentRoute: () => TabsRoute,
 } as any)
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
   id: '/auth/callback',
@@ -28,45 +71,284 @@ const DevUiRoute = DevUiRouteImport.update({
   path: '/dev/ui',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LegalPrivacyRoute = LegalPrivacyRouteImport.update({
+  id: '/legal/privacy',
+  path: '/legal/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalTermsRoute = LegalTermsRouteImport.update({
+  id: '/legal/terms',
+  path: '/legal/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingCreateRoute = OnboardingCreateRouteImport.update({
+  id: '/onboarding/create',
+  path: '/onboarding/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingHouseholdRoute = OnboardingHouseholdRouteImport.update({
+  id: '/onboarding/household',
+  path: '/onboarding/household',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingJoinRoute = OnboardingJoinRouteImport.update({
+  id: '/onboarding/join',
+  path: '/onboarding/join',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingJoinedRoute = OnboardingJoinedRouteImport.update({
+  id: '/onboarding/joined',
+  path: '/onboarding/joined',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TabsGroceriesIndexRoute = TabsGroceriesIndexRouteImport.update({
+  id: '/groceries/',
+  path: '/groceries/',
+  getParentRoute: () => TabsRoute,
+} as any)
+const TabsStockIndexRoute = TabsStockIndexRouteImport.update({
+  id: '/stock/',
+  path: '/stock/',
+  getParentRoute: () => TabsRoute,
+} as any)
+const TabsItemsProductIdIndexRoute = TabsItemsProductIdIndexRouteImport.update({
+  id: '/items/$productId/',
+  path: '/items/$productId/',
+  getParentRoute: () => TabsRoute,
+} as any)
+const TabsItemsProductIdHistoryRoute =
+  TabsItemsProductIdHistoryRouteImport.update({
+    id: '/items/$productId/history',
+    path: '/items/$productId/history',
+    getParentRoute: () => TabsRoute,
+  } as any)
+const TabsGroceriesItemsProductIdIndexRoute =
+  TabsGroceriesItemsProductIdIndexRouteImport.update({
+    id: '/groceries/items/$productId/',
+    path: '/groceries/items/$productId/',
+    getParentRoute: () => TabsRoute,
+  } as any)
+const TabsGroceriesItemsProductIdHistoryRoute =
+  TabsGroceriesItemsProductIdHistoryRouteImport.update({
+    id: '/groceries/items/$productId/history',
+    path: '/groceries/items/$productId/history',
+    getParentRoute: () => TabsRoute,
+  } as any)
+const TabsStockItemsProductIdIndexRoute =
+  TabsStockItemsProductIdIndexRouteImport.update({
+    id: '/stock/items/$productId/',
+    path: '/stock/items/$productId/',
+    getParentRoute: () => TabsRoute,
+  } as any)
+const TabsStockItemsProductIdHistoryRoute =
+  TabsStockItemsProductIdHistoryRouteImport.update({
+    id: '/stock/items/$productId/history',
+    path: '/stock/items/$productId/history',
+    getParentRoute: () => TabsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof TabsIndexRoute
+  '/join': typeof JoinRoute
+  '/removed': typeof RemovedRoute
+  '/welcome': typeof WelcomeRoute
+  '/activity': typeof TabsActivityRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/dev/ui': typeof DevUiRoute
+  '/legal/privacy': typeof LegalPrivacyRoute
+  '/legal/terms': typeof LegalTermsRoute
+  '/onboarding/create': typeof OnboardingCreateRoute
+  '/onboarding/household': typeof OnboardingHouseholdRoute
+  '/onboarding/join': typeof OnboardingJoinRoute
+  '/onboarding/joined': typeof OnboardingJoinedRoute
+  '/groceries/': typeof TabsGroceriesIndexRoute
+  '/stock/': typeof TabsStockIndexRoute
+  '/items/$productId/history': typeof TabsItemsProductIdHistoryRoute
+  '/items/$productId/': typeof TabsItemsProductIdIndexRoute
+  '/groceries/items/$productId/history': typeof TabsGroceriesItemsProductIdHistoryRoute
+  '/stock/items/$productId/history': typeof TabsStockItemsProductIdHistoryRoute
+  '/groceries/items/$productId/': typeof TabsGroceriesItemsProductIdIndexRoute
+  '/stock/items/$productId/': typeof TabsStockItemsProductIdIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
+  '/join': typeof JoinRoute
+  '/removed': typeof RemovedRoute
+  '/welcome': typeof WelcomeRoute
+  '/activity': typeof TabsActivityRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/dev/ui': typeof DevUiRoute
+  '/legal/privacy': typeof LegalPrivacyRoute
+  '/legal/terms': typeof LegalTermsRoute
+  '/onboarding/create': typeof OnboardingCreateRoute
+  '/onboarding/household': typeof OnboardingHouseholdRoute
+  '/onboarding/join': typeof OnboardingJoinRoute
+  '/onboarding/joined': typeof OnboardingJoinedRoute
+  '/': typeof TabsIndexRoute
+  '/groceries': typeof TabsGroceriesIndexRoute
+  '/stock': typeof TabsStockIndexRoute
+  '/items/$productId/history': typeof TabsItemsProductIdHistoryRoute
+  '/items/$productId': typeof TabsItemsProductIdIndexRoute
+  '/groceries/items/$productId/history': typeof TabsGroceriesItemsProductIdHistoryRoute
+  '/stock/items/$productId/history': typeof TabsStockItemsProductIdHistoryRoute
+  '/groceries/items/$productId': typeof TabsGroceriesItemsProductIdIndexRoute
+  '/stock/items/$productId': typeof TabsStockItemsProductIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
+  '/_tabs': typeof TabsRouteWithChildren
+  '/join': typeof JoinRoute
+  '/removed': typeof RemovedRoute
+  '/welcome': typeof WelcomeRoute
+  '/_tabs/activity': typeof TabsActivityRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/dev/ui': typeof DevUiRoute
+  '/legal/privacy': typeof LegalPrivacyRoute
+  '/legal/terms': typeof LegalTermsRoute
+  '/onboarding/create': typeof OnboardingCreateRoute
+  '/onboarding/household': typeof OnboardingHouseholdRoute
+  '/onboarding/join': typeof OnboardingJoinRoute
+  '/onboarding/joined': typeof OnboardingJoinedRoute
+  '/_tabs/': typeof TabsIndexRoute
+  '/_tabs/groceries/': typeof TabsGroceriesIndexRoute
+  '/_tabs/stock/': typeof TabsStockIndexRoute
+  '/_tabs/items/$productId/history': typeof TabsItemsProductIdHistoryRoute
+  '/_tabs/items/$productId/': typeof TabsItemsProductIdIndexRoute
+  '/_tabs/groceries/items/$productId/history': typeof TabsGroceriesItemsProductIdHistoryRoute
+  '/_tabs/stock/items/$productId/history': typeof TabsStockItemsProductIdHistoryRoute
+  '/_tabs/groceries/items/$productId/': typeof TabsGroceriesItemsProductIdIndexRoute
+  '/_tabs/stock/items/$productId/': typeof TabsStockItemsProductIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth/callback' | '/dev/ui'
+  fullPaths:
+    | '/'
+    | '/join'
+    | '/removed'
+    | '/welcome'
+    | '/activity'
+    | '/auth/callback'
+    | '/dev/ui'
+    | '/legal/privacy'
+    | '/legal/terms'
+    | '/onboarding/create'
+    | '/onboarding/household'
+    | '/onboarding/join'
+    | '/onboarding/joined'
+    | '/groceries/'
+    | '/stock/'
+    | '/items/$productId/history'
+    | '/items/$productId/'
+    | '/groceries/items/$productId/history'
+    | '/stock/items/$productId/history'
+    | '/groceries/items/$productId/'
+    | '/stock/items/$productId/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth/callback' | '/dev/ui'
-  id: '__root__' | '/' | '/auth/callback' | '/dev/ui'
+  to:
+    | '/join'
+    | '/removed'
+    | '/welcome'
+    | '/activity'
+    | '/auth/callback'
+    | '/dev/ui'
+    | '/legal/privacy'
+    | '/legal/terms'
+    | '/onboarding/create'
+    | '/onboarding/household'
+    | '/onboarding/join'
+    | '/onboarding/joined'
+    | '/'
+    | '/groceries'
+    | '/stock'
+    | '/items/$productId/history'
+    | '/items/$productId'
+    | '/groceries/items/$productId/history'
+    | '/stock/items/$productId/history'
+    | '/groceries/items/$productId'
+    | '/stock/items/$productId'
+  id:
+    | '__root__'
+    | '/_tabs'
+    | '/join'
+    | '/removed'
+    | '/welcome'
+    | '/_tabs/activity'
+    | '/auth/callback'
+    | '/dev/ui'
+    | '/legal/privacy'
+    | '/legal/terms'
+    | '/onboarding/create'
+    | '/onboarding/household'
+    | '/onboarding/join'
+    | '/onboarding/joined'
+    | '/_tabs/'
+    | '/_tabs/groceries/'
+    | '/_tabs/stock/'
+    | '/_tabs/items/$productId/history'
+    | '/_tabs/items/$productId/'
+    | '/_tabs/groceries/items/$productId/history'
+    | '/_tabs/stock/items/$productId/history'
+    | '/_tabs/groceries/items/$productId/'
+    | '/_tabs/stock/items/$productId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
+  TabsRoute: typeof TabsRouteWithChildren
+  JoinRoute: typeof JoinRoute
+  RemovedRoute: typeof RemovedRoute
+  WelcomeRoute: typeof WelcomeRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   DevUiRoute: typeof DevUiRoute
+  LegalPrivacyRoute: typeof LegalPrivacyRoute
+  LegalTermsRoute: typeof LegalTermsRoute
+  OnboardingCreateRoute: typeof OnboardingCreateRoute
+  OnboardingHouseholdRoute: typeof OnboardingHouseholdRoute
+  OnboardingJoinRoute: typeof OnboardingJoinRoute
+  OnboardingJoinedRoute: typeof OnboardingJoinedRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
+    '/_tabs': {
+      id: '/_tabs'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof TabsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/join': {
+      id: '/join'
+      path: '/join'
+      fullPath: '/join'
+      preLoaderRoute: typeof JoinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/removed': {
+      id: '/removed'
+      path: '/removed'
+      fullPath: '/removed'
+      preLoaderRoute: typeof RemovedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/welcome': {
+      id: '/welcome'
+      path: '/welcome'
+      fullPath: '/welcome'
+      preLoaderRoute: typeof WelcomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_tabs/': {
+      id: '/_tabs/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof TabsIndexRouteImport
+      parentRoute: typeof TabsRoute
+    }
+    '/_tabs/activity': {
+      id: '/_tabs/activity'
+      path: '/activity'
+      fullPath: '/activity'
+      preLoaderRoute: typeof TabsActivityRouteImport
+      parentRoute: typeof TabsRoute
     }
     '/auth/callback': {
       id: '/auth/callback'
@@ -82,13 +364,149 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DevUiRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/legal/privacy': {
+      id: '/legal/privacy'
+      path: '/legal/privacy'
+      fullPath: '/legal/privacy'
+      preLoaderRoute: typeof LegalPrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/terms': {
+      id: '/legal/terms'
+      path: '/legal/terms'
+      fullPath: '/legal/terms'
+      preLoaderRoute: typeof LegalTermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding/create': {
+      id: '/onboarding/create'
+      path: '/onboarding/create'
+      fullPath: '/onboarding/create'
+      preLoaderRoute: typeof OnboardingCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding/household': {
+      id: '/onboarding/household'
+      path: '/onboarding/household'
+      fullPath: '/onboarding/household'
+      preLoaderRoute: typeof OnboardingHouseholdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding/join': {
+      id: '/onboarding/join'
+      path: '/onboarding/join'
+      fullPath: '/onboarding/join'
+      preLoaderRoute: typeof OnboardingJoinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding/joined': {
+      id: '/onboarding/joined'
+      path: '/onboarding/joined'
+      fullPath: '/onboarding/joined'
+      preLoaderRoute: typeof OnboardingJoinedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_tabs/groceries/': {
+      id: '/_tabs/groceries/'
+      path: '/groceries'
+      fullPath: '/groceries/'
+      preLoaderRoute: typeof TabsGroceriesIndexRouteImport
+      parentRoute: typeof TabsRoute
+    }
+    '/_tabs/stock/': {
+      id: '/_tabs/stock/'
+      path: '/stock'
+      fullPath: '/stock/'
+      preLoaderRoute: typeof TabsStockIndexRouteImport
+      parentRoute: typeof TabsRoute
+    }
+    '/_tabs/items/$productId/': {
+      id: '/_tabs/items/$productId/'
+      path: '/items/$productId'
+      fullPath: '/items/$productId/'
+      preLoaderRoute: typeof TabsItemsProductIdIndexRouteImport
+      parentRoute: typeof TabsRoute
+    }
+    '/_tabs/items/$productId/history': {
+      id: '/_tabs/items/$productId/history'
+      path: '/items/$productId/history'
+      fullPath: '/items/$productId/history'
+      preLoaderRoute: typeof TabsItemsProductIdHistoryRouteImport
+      parentRoute: typeof TabsRoute
+    }
+    '/_tabs/groceries/items/$productId/': {
+      id: '/_tabs/groceries/items/$productId/'
+      path: '/groceries/items/$productId'
+      fullPath: '/groceries/items/$productId/'
+      preLoaderRoute: typeof TabsGroceriesItemsProductIdIndexRouteImport
+      parentRoute: typeof TabsRoute
+    }
+    '/_tabs/groceries/items/$productId/history': {
+      id: '/_tabs/groceries/items/$productId/history'
+      path: '/groceries/items/$productId/history'
+      fullPath: '/groceries/items/$productId/history'
+      preLoaderRoute: typeof TabsGroceriesItemsProductIdHistoryRouteImport
+      parentRoute: typeof TabsRoute
+    }
+    '/_tabs/stock/items/$productId/': {
+      id: '/_tabs/stock/items/$productId/'
+      path: '/stock/items/$productId'
+      fullPath: '/stock/items/$productId/'
+      preLoaderRoute: typeof TabsStockItemsProductIdIndexRouteImport
+      parentRoute: typeof TabsRoute
+    }
+    '/_tabs/stock/items/$productId/history': {
+      id: '/_tabs/stock/items/$productId/history'
+      path: '/stock/items/$productId/history'
+      fullPath: '/stock/items/$productId/history'
+      preLoaderRoute: typeof TabsStockItemsProductIdHistoryRouteImport
+      parentRoute: typeof TabsRoute
+    }
   }
 }
 
+interface TabsRouteChildren {
+  TabsActivityRoute: typeof TabsActivityRoute
+  TabsIndexRoute: typeof TabsIndexRoute
+  TabsGroceriesIndexRoute: typeof TabsGroceriesIndexRoute
+  TabsStockIndexRoute: typeof TabsStockIndexRoute
+  TabsItemsProductIdHistoryRoute: typeof TabsItemsProductIdHistoryRoute
+  TabsItemsProductIdIndexRoute: typeof TabsItemsProductIdIndexRoute
+  TabsGroceriesItemsProductIdHistoryRoute: typeof TabsGroceriesItemsProductIdHistoryRoute
+  TabsStockItemsProductIdHistoryRoute: typeof TabsStockItemsProductIdHistoryRoute
+  TabsGroceriesItemsProductIdIndexRoute: typeof TabsGroceriesItemsProductIdIndexRoute
+  TabsStockItemsProductIdIndexRoute: typeof TabsStockItemsProductIdIndexRoute
+}
+
+const TabsRouteChildren: TabsRouteChildren = {
+  TabsActivityRoute: TabsActivityRoute,
+  TabsIndexRoute: TabsIndexRoute,
+  TabsGroceriesIndexRoute: TabsGroceriesIndexRoute,
+  TabsStockIndexRoute: TabsStockIndexRoute,
+  TabsItemsProductIdHistoryRoute: TabsItemsProductIdHistoryRoute,
+  TabsItemsProductIdIndexRoute: TabsItemsProductIdIndexRoute,
+  TabsGroceriesItemsProductIdHistoryRoute:
+    TabsGroceriesItemsProductIdHistoryRoute,
+  TabsStockItemsProductIdHistoryRoute: TabsStockItemsProductIdHistoryRoute,
+  TabsGroceriesItemsProductIdIndexRoute: TabsGroceriesItemsProductIdIndexRoute,
+  TabsStockItemsProductIdIndexRoute: TabsStockItemsProductIdIndexRoute,
+}
+
+const TabsRouteWithChildren = TabsRoute._addFileChildren(TabsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+  TabsRoute: TabsRouteWithChildren,
+  JoinRoute: JoinRoute,
+  RemovedRoute: RemovedRoute,
+  WelcomeRoute: WelcomeRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   DevUiRoute: DevUiRoute,
+  LegalPrivacyRoute: LegalPrivacyRoute,
+  LegalTermsRoute: LegalTermsRoute,
+  OnboardingCreateRoute: OnboardingCreateRoute,
+  OnboardingHouseholdRoute: OnboardingHouseholdRoute,
+  OnboardingJoinRoute: OnboardingJoinRoute,
+  OnboardingJoinedRoute: OnboardingJoinedRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -669,6 +669,20 @@ const source = {
   'removed.discard': 'Supprimer ces modifications',
   'removed.discard.title': { one: 'Supprimer la modification ?', other: 'Supprimer les {n} modifications ?' },
 
+  // Not in the deck: shell, onboarding and auth strings added with the app shell.
+  'a11y.tabs': 'Navigation principale',
+  'a11y.invite.code': 'Code d’invitation : {code}',
+  'common.close': 'Fermer',
+  'common.back': 'Retour',
+  'attention.gone.titleUnknown': 'Article supprimé par un autre membre',
+  'attention.pantryGone.titleUnknown': 'Cellier supprimé par un autre membre',
+  'onboarding.join.error.rateLimited': 'Trop d’essais. Réessayer dans quelques minutes.',
+  'onboarding.join.error.generic': 'Le code n’a pas pu être vérifié. Réessayer.',
+  'onboarding.create.error': 'Le foyer n’a pas pu être créé. Réessayer.',
+  'legal.terms.title': 'Conditions d’utilisation',
+  'legal.privacy.title': 'Politique de confidentialité',
+  'legal.pending': 'Ce texte sera publié avant l’ouverture du service.',
+
   // Not in the deck: still used by the scaffold's not-found route.
   'errors.notFound': 'Page introuvable',
 } as const satisfies Record<string, Entry>;
