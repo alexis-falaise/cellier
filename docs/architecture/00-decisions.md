@@ -89,4 +89,17 @@ any deviation at the bottom of this file.
 
 ## Deviations
 
-None yet.
+From the scaffold (package zero):
+
+- TypeScript 7.0.2 is used: every tool in the chain accepts it.
+- No vaul, sonner, react-aria, radix, react-query, zod, eslint or oxlint (listed in `research/22`): sheets and
+  toasts are own components on Motion, lint is Biome only.
+- `src/domain/types.ts` is a verbatim copy of `docs/architecture/contracts/domain.ts`; recopy when the contract changes.
+- Route files live in `src/app/routes/` and only render a page from `src/pages/`. `src/app/routeTree.gen.ts`
+  is generated and committed.
+- Manifest is a static `public/manifest.webmanifest` with `start_url: "/"`.
+- `vercel.json`: `Permissions-Policy` allows `camera=(self)` (scanner); the CSP names the exact Supabase origin.
+  `zxing-wasm` must load its `.wasm` from the app origin, not the CDN.
+- Three tsconfig projects (app, service worker, node); `typecheck` runs each.
+- Viewport height uses `100dvh` only (iOS 16.4+ supports it).
+- Production URL: `https://cellier-one.vercel.app` (Vercel project `cellier`, production branch `main`).

@@ -1,0 +1,24 @@
+/*
+ * PLACEHOLDER TOKENS — TO BE REPLACED.
+ * Replace this file with (or import) docs/design/tokens.css once the design package lands.
+ * Values below are rough stand-ins so the shell renders; do not build on them.
+ */
+@theme {
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  --font-serif: ui-serif, "New York", Georgia, serif;
+  --font-rounded: ui-rounded, "SF Pro Rounded", -apple-system, system-ui, sans-serif;
+
+  --color-bg: #f7f5f0;
+  --color-fg: #1c1b18;
+  --color-muted: #6b675e;
+  --color-accent: #1f4d3a;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #121210;
+    --color-fg: #f2efe8;
+    --color-muted: #a39e93;
+    --color-accent: #5fa383;
+  }
+}
