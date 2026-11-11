@@ -58,6 +58,14 @@ const CHAIN_RANK: Record<PriceChain, number> = { leclerc: 0, carrefour: 1, other
 
 /** Pure. `today` is a YYYY-MM-DD date (UTC). */
 export function selectPrice(items: PriceObservation[], today: string): PriceChoice | null {
+  return selectPriceWithSample(items, today)?.choice ?? null;
+}
+
+/** As `selectPrice`, with the number of plausible observations behind the choice (price refresh report). */
+export function selectPriceWithSample(
+  items: PriceObservation[],
+  today: string,
+): { choice: PriceChoice; sampleSize: number } | null {
   const todayN = dayNumber(today);
   if (todayN === null) return null;
 
@@ -100,7 +108,10 @@ export function selectPrice(items: PriceObservation[], today: string): PriceChoi
     a.ageDays - b.ageDays
   );
   const best = window[0];
-  return { priceCents: Math.round(best.price * 100), priceObservedOn: best.date, priceChain: best.chain };
+  return {
+    choice: { priceCents: Math.round(best.price * 100), priceObservedOn: best.date, priceChain: best.chain },
+    sampleSize: obs.length,
+  };
 }
 
 export function pricesUrl(offCode: string): string {

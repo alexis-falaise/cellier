@@ -211,6 +211,10 @@ export function pushActivity(): void {
   push('/activity');
 }
 
+export function pushValue(): void {
+  push('/value');
+}
+
 /**
  * Back button of a pushed screen: pops when there is in-app history, otherwise (opened from a
  * notification) goes to the tab root with `replace` (design 03 §1.4).

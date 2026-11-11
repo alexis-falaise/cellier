@@ -120,6 +120,10 @@ export interface Category {
 }
 
 export type PriceSource = 'catalog' | 'user';
+/** Who chose a category: the catalogue rules, the classifier model, or a member (an override). */
+export type CategorySource = 'catalog' | 'model' | 'user';
+/** Who chose a kind: the classifier model or a member (an override). */
+export type KindSource = 'model' | 'user';
 
 export interface Product {
   id: ProductId;
@@ -146,6 +150,12 @@ export interface Product {
   /** false = this product is never reported as running low. */
   lowAlert: boolean;
   imageUrl: string | null;
+  /** Generic product type ('café moulu'): products of one kind are interchangeable for running low. */
+  kind: string | null;
+  kindSource: KindSource | null;
+  categorySource: CategorySource | null;
+  /** Seuil suggested by the classifier; used when no member set `minQuantity` on the kind. */
+  suggestedMin: number | null;
   createdAt: IsoDateTime;
   updatedAt: IsoDateTime;
   deletedAt: IsoDateTime | null;
@@ -277,6 +287,10 @@ export interface ProductFields {
   usualQuantity?: number | null;
   lowAlert?: boolean;
   imageUrl?: string | null;
+  kind?: string | null;
+  kindSource?: KindSource | null;
+  categorySource?: CategorySource | null;
+  suggestedMin?: number | null;
 }
 export interface GroceryFields { label?: string; quantity?: number | null; checked?: boolean; dismissed?: boolean }
 

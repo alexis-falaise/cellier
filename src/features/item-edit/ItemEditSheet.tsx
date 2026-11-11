@@ -3,6 +3,7 @@ import { closeSheet, popSheetPage, pushSheetPage, setUnsavedChanges } from '@/ap
 import type { Product } from '@/domain/types';
 import { useCategories } from '@/entities/category';
 import { useProductViews } from '@/entities/product';
+import { propagateCategory } from '@/features/classify';
 import { t } from '@/shared/i18n';
 import {
   BackButton,
@@ -91,6 +92,13 @@ export function ItemEditSheet({
     setSubmitted(true);
     if (hasErrors(errors)) return;
     if (Object.keys(diff).length > 0) tryMutate('product.update', { productId: product.id, fields: diff });
+    // A member's category is an override for the whole kind (05 §5.8).
+    if (diff.categoryId !== undefined) {
+      const kind = diff.kind !== undefined ? diff.kind : product.kind;
+      for (const u of propagateCategory({ id: product.id, kind: kind ?? null }, diff.categoryId, others)) {
+        tryMutate('product.update', u);
+      }
+    }
     setUnsavedChanges(UNSAVED_KEY, false);
     closeSheet();
   };
@@ -110,7 +118,7 @@ export function ItemEditSheet({
         </SheetTextButton>
       }
     >
-      <ListSection header={t('itemEdit.section.item')}>
+      <ListSection header={t('itemEdit.section.item')} footer={t('itemEdit.kind.footer')}>
         <TextField
           label={t('field.name')}
           value={form.name}
@@ -131,6 +139,14 @@ export function ItemEditSheet({
           title={t('field.category')}
           value={category?.name ?? t('stock.group.noCategory')}
           onPress={() => pushSheetPage({ step: 'category' })}
+        />
+        <TextField
+          label={t('field.kind')}
+          value={form.kind}
+          onChange={(v) => set('kind', v)}
+          placeholder={t('itemEdit.kind.placeholder')}
+          maxLength={60}
+          enterKeyHint="next"
         />
       </ListSection>
 
@@ -167,6 +183,13 @@ export function ItemEditSheet({
         <ListRow
           variant="plain"
           title={t('item.alert.threshold')}
+          subtitle={
+            form.minQuantity === null && product.suggestedMin !== null ? (
+              <span className="type-caption-1 text-label-tertiary">
+                {t('item.alert.suggested', { n: product.suggestedMin })}
+              </span>
+            ) : undefined
+          }
           trailing={
             <QuantityStepper
               value={form.minQuantity ?? forecast?.minimum ?? 0}

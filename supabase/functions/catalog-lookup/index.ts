@@ -199,9 +199,9 @@ Deno.serve(async (req) => {
       return json(200, { outcome: 'not_found', cached: false, draft: norm.draft } satisfies CatalogLookupResponse, cors);
     }
 
-    // A late price is dropped (section 6.5): use it only if it has already settled; never wait.
-    priceAbort.abort();
-    void pricePromise;
+    // The price call carries its own timeout from the start of step 5 (section 6.5), so waiting for it is bounded:
+    // it delays the answer only when the product call returned before that timeout.
+    await pricePromise;
     const product = { ...norm.product };
     const p = price as PriceChoice | null;
     if (p) {

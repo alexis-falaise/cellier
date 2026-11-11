@@ -15,6 +15,7 @@ import { Route as RemovedRouteImport } from './routes/removed'
 import { Route as WelcomeRouteImport } from './routes/welcome'
 import { Route as TabsIndexRouteImport } from './routes/_tabs/index'
 import { Route as TabsActivityRouteImport } from './routes/_tabs/activity'
+import { Route as TabsValueRouteImport } from './routes/_tabs/value'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as DevUiRouteImport } from './routes/dev.ui'
 import { Route as LegalPrivacyRouteImport } from './routes/legal/privacy'
@@ -59,6 +60,11 @@ const TabsIndexRoute = TabsIndexRouteImport.update({
 const TabsActivityRoute = TabsActivityRouteImport.update({
   id: '/activity',
   path: '/activity',
+  getParentRoute: () => TabsRoute,
+} as any)
+const TabsValueRoute = TabsValueRouteImport.update({
+  id: '/value',
+  path: '/value',
   getParentRoute: () => TabsRoute,
 } as any)
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
@@ -153,6 +159,7 @@ export interface FileRoutesByFullPath {
   '/removed': typeof RemovedRoute
   '/welcome': typeof WelcomeRoute
   '/activity': typeof TabsActivityRoute
+  '/value': typeof TabsValueRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/dev/ui': typeof DevUiRoute
   '/legal/privacy': typeof LegalPrivacyRoute
@@ -175,6 +182,7 @@ export interface FileRoutesByTo {
   '/removed': typeof RemovedRoute
   '/welcome': typeof WelcomeRoute
   '/activity': typeof TabsActivityRoute
+  '/value': typeof TabsValueRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/dev/ui': typeof DevUiRoute
   '/legal/privacy': typeof LegalPrivacyRoute
@@ -200,6 +208,7 @@ export interface FileRoutesById {
   '/removed': typeof RemovedRoute
   '/welcome': typeof WelcomeRoute
   '/_tabs/activity': typeof TabsActivityRoute
+  '/_tabs/value': typeof TabsValueRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/dev/ui': typeof DevUiRoute
   '/legal/privacy': typeof LegalPrivacyRoute
@@ -226,6 +235,7 @@ export interface FileRouteTypes {
     | '/removed'
     | '/welcome'
     | '/activity'
+    | '/value'
     | '/auth/callback'
     | '/dev/ui'
     | '/legal/privacy'
@@ -248,6 +258,7 @@ export interface FileRouteTypes {
     | '/removed'
     | '/welcome'
     | '/activity'
+    | '/value'
     | '/auth/callback'
     | '/dev/ui'
     | '/legal/privacy'
@@ -272,6 +283,7 @@ export interface FileRouteTypes {
     | '/removed'
     | '/welcome'
     | '/_tabs/activity'
+    | '/_tabs/value'
     | '/auth/callback'
     | '/dev/ui'
     | '/legal/privacy'
@@ -348,6 +360,13 @@ declare module '@tanstack/react-router' {
       path: '/activity'
       fullPath: '/activity'
       preLoaderRoute: typeof TabsActivityRouteImport
+      parentRoute: typeof TabsRoute
+    }
+    '/_tabs/value': {
+      id: '/_tabs/value'
+      path: '/value'
+      fullPath: '/value'
+      preLoaderRoute: typeof TabsValueRouteImport
       parentRoute: typeof TabsRoute
     }
     '/auth/callback': {
@@ -467,6 +486,7 @@ declare module '@tanstack/react-router' {
 
 interface TabsRouteChildren {
   TabsActivityRoute: typeof TabsActivityRoute
+  TabsValueRoute: typeof TabsValueRoute
   TabsIndexRoute: typeof TabsIndexRoute
   TabsGroceriesIndexRoute: typeof TabsGroceriesIndexRoute
   TabsStockIndexRoute: typeof TabsStockIndexRoute
@@ -480,6 +500,7 @@ interface TabsRouteChildren {
 
 const TabsRouteChildren: TabsRouteChildren = {
   TabsActivityRoute: TabsActivityRoute,
+  TabsValueRoute: TabsValueRoute,
   TabsIndexRoute: TabsIndexRoute,
   TabsGroceriesIndexRoute: TabsGroceriesIndexRoute,
   TabsStockIndexRoute: TabsStockIndexRoute,

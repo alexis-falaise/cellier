@@ -86,6 +86,6 @@ describe('catalogue typography', () => {
     const keys = Object.keys(fr) as MessageKey[];
     expect(keys).toContain('category.default.petit_dej');
     expect(keys).toContain('unit.l');
-    expect(keys).toHaveLength(693); // 599 deck keys + 12 shell/onboarding keys + account.title
+    expect(keys).toHaveLength(705); // 599 deck keys + 12 shell/onboarding keys + account.title + 12 kind/value keys
   });
 });
