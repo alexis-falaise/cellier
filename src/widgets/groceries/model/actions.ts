@@ -8,6 +8,7 @@ import type { GroceryId, PantryId, ProductId } from '@/domain/types';
 import type { GroceryItem } from '@/features/forecast';
 import { t } from '@/shared/i18n';
 import { MutationValidationError, mutate, syncActions } from '@/shared/sync';
+import { itemName } from './presentation';
 
 const newId = () => crypto.randomUUID() as GroceryId;
 
@@ -103,6 +104,48 @@ export function addLabel(label: string): void {
   } catch (error) {
     report(error);
   }
+}
+
+/**
+ * Adds a seasonal suggestion: its household product when there is one, else a free-text row. For a
+ * swap, the replaced row leaves the list (a suggestion is dismissed until its next purchase, a
+ * manual row is removed), with one «Annuler» for both.
+ */
+export function addSeasonal(target: { productId: ProductId | null; name: string }, replaced: GroceryItem | null): void {
+  const done: ReturnType<typeof mutate>[] = [];
+  try {
+    done.push(
+      target.productId
+        ? mutate('grocery.add', { groceryId: newId(), productId: target.productId, quantity: null })
+        : mutate('grocery.add', { groceryId: newId(), label: target.name, quantity: null }),
+    );
+    if (replaced) {
+      if (replaced.kind === 'label' || replaced.reason === 'manual') {
+        if (replaced.entryId) done.push(mutate('grocery.delete', { groceryId: replaced.entryId }));
+      } else {
+        let groceryId = replaced.entryId;
+        if (!groceryId) {
+          groceryId = newId();
+          done.push(mutate('grocery.add', { groceryId, productId: replaced.productId, quantity: null }));
+        }
+        done.push(mutate('grocery.update', { groceryId, fields: { dismissed: true } }));
+      }
+    }
+  } catch (error) {
+    report(error);
+  }
+  if (!replaced || done.length === 0) return;
+  showToast({
+    message: t('toast.seasonalSwap', { name: target.name, replaced: itemName(replaced) }),
+    action: {
+      label: t('common.undo'),
+      onPress: () => {
+        void (async () => {
+          for (const id of [...done].reverse()) await syncActions.undo(id).catch(report);
+        })();
+      },
+    },
+  });
 }
 
 /** Units the put-away records (free-text rows count as one). */

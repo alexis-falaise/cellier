@@ -1344,7 +1344,23 @@ Fit detent. Title «Ranger les courses» `putAway.title`; body «Les articles co
 quantités indiquées.» `putAway.body`; PantryPicker rows; button «Ranger dans {pantry}» `groceries.putAway`. Result
 toast «{n} articles rangés dans {pantry}» `toast.putAway` with «Annuler».
 
-#### 4.8.5 States
+#### 4.8.5 «De saison en {mois}» `groceries.seasonal.title`
+
+Below the add row (and below the empty state, except for a brand-new household): up to a few foods suggested from
+the season, on top of the running-low and habit suggestions. Not part of the list until added. Calendar: ADEME
+Impact CO₂ fruits and vegetables (vendored, `scripts/seasonal/build-calendar.ts`) plus Saint-Jacques, huîtres and
+Mont d’Or; logic in `src/features/seasonal`.
+
+| Row | Reason line | Trailing |
+|---|---|---|
+| Swap: an in-season food instead of a listed one that is out of season, or a year-round import (avocat, mangue) | «Au lieu d’Avocats» `groceries.seasonal.swap` | `arrow-left-right`: adds it and takes the replaced row off the list (toast «{name} remplace {replaced}» with «Annuler») |
+| Bought in an earlier season, out of stock | «De retour de saison» `groceries.seasonal.back` | `plus`: adds it |
+| Season starts this month (lowest footprint first) | «Début de saison» `groceries.seasonal.starting` | `plus` |
+
+Only curated foods get a swap (staples such as onions, carrots or apples never do). Trailing swipe «Masquer» hides
+the suggestion on this device until next month. Footer: «Calendrier des saisons : ADEME, Impact CO₂.»
+
+#### 4.8.6 States
 
 | State | Courses |
 |---|---|
