@@ -13,8 +13,8 @@ export type UpstreamResult =
   /** Any other answer or an unparseable body: 502. */
   | { kind: 'invalid'; status: number };
 
-export function productUrl(host: string, offCode: string): string {
-  return `${host}/api/v3/product/${encodeURIComponent(offCode)}?product_type=all&fields=${OFF_FIELDS}`;
+export function productUrl(host: string, offCode: string, fields: string = OFF_FIELDS): string {
+  return `${host}/api/v3/product/${encodeURIComponent(offCode)}?product_type=all&fields=${fields}`;
 }
 
 function isObject(v: unknown): v is Record<string, unknown> {
@@ -61,10 +61,11 @@ export async function fetchProduct(
   offCode: string,
   userAgent: string,
   timeoutMs: number,
+  fields: string = OFF_FIELDS,
 ): Promise<UpstreamResult & { ms: number }> {
   const started = Date.now();
   try {
-    const res = await fetch(productUrl(host, offCode), {
+    const res = await fetch(productUrl(host, offCode, fields), {
       method: 'GET',
       redirect: 'follow',
       headers: { 'User-Agent': userAgent, Accept: 'application/json' },
@@ -88,14 +89,15 @@ export async function lookupUpstream(
   deadline: number,
   limits: { upstreamTimeoutMs: number; fallbackMinBudgetMs: number },
   fetcher: typeof fetchProduct = fetchProduct,
+  fields: string = OFF_FIELDS,
 ): Promise<{ result: UpstreamResult; status: number | null; usedFallback: boolean }> {
   const firstTimeout = Math.min(limits.upstreamTimeoutMs, deadline - Date.now());
-  const first = await fetcher(PRIMARY_HOST, offCode, userAgent, firstTimeout);
+  const first = await fetcher(PRIMARY_HOST, offCode, userAgent, firstTimeout, fields);
   if (first.kind !== 'unavailable') return { result: first, status: statusOf(first), usedFallback: false };
 
   const remaining = deadline - Date.now();
   if (remaining < limits.fallbackMinBudgetMs) return { result: first, status: first.status, usedFallback: false };
-  const second = await fetcher(FALLBACK_HOST, offCode, userAgent, Math.min(limits.upstreamTimeoutMs, remaining));
+  const second = await fetcher(FALLBACK_HOST, offCode, userAgent, Math.min(limits.upstreamTimeoutMs, remaining), fields);
   return { result: second, status: statusOf(second), usedFallback: true };
 }
 

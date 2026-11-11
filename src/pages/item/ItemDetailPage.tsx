@@ -17,6 +17,7 @@ import type { FieldOverwrite, ProductView } from '@/domain/types';
 import { useCategory } from '@/entities/category';
 import { useProductMovements } from '@/entities/movement';
 import { useProductView } from '@/entities/product';
+import { factsSourceUrl, hasDisplayableFacts, ProductFactsSections, useProductFacts } from '@/features/product-facts';
 import { formatPriceCents, t } from '@/shared/i18n';
 import { syncActions } from '@/shared/sync';
 import {
@@ -52,10 +53,6 @@ const TAB_TITLES: Record<TabKey, PlainMessageKey> = {
 };
 /** Scroll offset past which the product name shows in the nav bar. */
 const TITLE_AFTER = 200;
-
-function offUrl(gtin: string): string {
-  return `https://world.openfoodfacts.org/product/${encodeURIComponent(gtin)}`;
-}
 
 /** Shows the inline nav title once the header has scrolled away. */
 function useScrolledPast(ref: ReturnType<typeof useScreenScrollRef>, offset: number): boolean {
@@ -159,6 +156,10 @@ function ItemDetail({ view, active }: { view: ProductView; active: boolean }) {
   const subtitle = brandSizeLine(product);
   const fromOff = product.catalogGtin !== null;
   const source = fromOff ? t('source.off') : t('source.manual');
+  const factsGtin = product.catalogGtin ?? product.gtin;
+  const { facts } = useProductFacts(factsGtin);
+  const showFacts = facts !== null && hasDisplayableFacts(facts);
+  const attribution = attributionFor(facts?.found ? facts.source : fromOff ? 'off' : null);
 
   const remove = () => {
     const id = tryMutate('product.delete', { productId: product.id });
@@ -251,6 +252,8 @@ function ItemDetail({ view, active }: { view: ProductView; active: boolean }) {
           />
         </ListSection>
 
+        {showFacts && facts ? <ProductFactsSections facts={facts} netUnit={product.netUnit} /> : null}
+
         {entries.length > 0 ? (
           <ListSection header={t('item.history.title')}>
             {entries.slice(0, 5).map((entry) => (
@@ -278,17 +281,17 @@ function ItemDetail({ view, active }: { view: ProductView; active: boolean }) {
         </ListSection>
       </div>
 
-      {fromOff && product.catalogGtin ? (
+      {attribution && factsGtin ? (
         <p className="px-8 text-center type-footnote text-label-secondary">
-          {t('item.attribution.off')}
+          {t(attribution.text)}
           <br />
           <a
-            href={offUrl(product.catalogGtin)}
+            href={factsSourceUrl(attribution.source, factsGtin)}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex min-h-11 items-center text-accent-fg outline-none focus-visible:focus-ring"
           >
-            {t('item.attribution.link')}
+            {t(attribution.link)}
           </a>
         </p>
       ) : null}
@@ -305,6 +308,17 @@ function ItemDetail({ view, active }: { view: ProductView; active: boolean }) {
       />
     </div>
   );
+}
+
+type FactsSourceKey = 'off' | 'obf' | 'opf' | 'opff';
+
+/** Open Food Facts family attribution (ODbL) for the database that holds the product. */
+function attributionFor(
+  source: FactsSourceKey | null,
+): { source: FactsSourceKey; text: PlainMessageKey; link: PlainMessageKey } | null {
+  if (source === null) return null;
+  if (source === 'off') return { source, text: 'item.attribution.off', link: 'item.attribution.link' };
+  return { source, text: `facts.attribution.${source}`, link: `facts.attribution.link.${source}` };
 }
 
 function restoreHandler(overwrite: FieldOverwrite | null): (() => void) | undefined {
