@@ -5,9 +5,12 @@ import { createLowLightMonitor } from './lowLight';
 import { meanLuma } from './luma';
 import { acceptSymbols, dedupeKey, FrameGate } from './pipeline';
 
+// One read is enough here: these tests are about parsing, not confirmation.
+const single = () => createDuplicateFilter({ confirmFrames: 1 });
+
 describe('acceptSymbols', () => {
   it('turns decoder output into parsed codes', () => {
-    const out = acceptSymbols([{ text: '3017620422003', format: 'EAN13' }], createDuplicateFilter(), 0);
+    const out = acceptSymbols([{ text: '3017620422003', format: 'EAN13' }], single(), 0);
     expect(out).toEqual([
       {
         kind: 'product',
@@ -20,7 +23,7 @@ describe('acceptSymbols', () => {
   });
 
   it('accepts what zxing-cpp returns for UPC-A and UPC-E (13-digit forms)', () => {
-    const f = createDuplicateFilter();
+    const f = single();
     const [upca] = acceptSymbols([{ text: '0036000291452', format: 'EAN13' }], f, 0);
     const [upce] = acceptSymbols([{ text: '0042100005264', format: 'UPCE' }], f, 0);
     expect(upca?.kind === 'product' && upca.gtin14).toBe('00036000291452');
@@ -29,23 +32,30 @@ describe('acceptSymbols', () => {
   });
 
   it('drops bad check digits and formats outside the four', () => {
-    const f = createDuplicateFilter();
+    const f = single();
     expect(acceptSymbols([{ text: '3017620422004', format: 'EAN13' }], f, 0)).toEqual([]);
     expect(acceptSymbols([{ text: 'HELLO', format: 'QRCode' }], f, 0)).toEqual([]);
     expect(acceptSymbols([{ text: '3017620422003', format: 'Code128' }], f, 0)).toEqual([]);
   });
 
   it('de-duplicates the UPC-A and EAN-13 reads of one pack', () => {
-    const f = createDuplicateFilter();
+    const f = single();
     expect(acceptSymbols([{ text: '036000291452', format: 'UPCA' }], f, 0)).toHaveLength(1);
     expect(acceptSymbols([{ text: '0036000291452', format: 'EAN13' }], f, 100)).toEqual([]);
   });
 
   it('passes in-store codes through, keyed apart from products', () => {
-    const f = createDuplicateFilter();
+    const f = single();
     const [code] = acceptSymbols([{ text: '0212345001509', format: 'EAN13' }], f, 0);
     expect(code).toEqual({ kind: 'variable-measure', format: 'EAN-13', digits: '0212345001509' });
     expect(code && dedupeKey(code)).toBe('store:0212345001509');
+  });
+
+  it('waits for a second matching read by default', () => {
+    const f = createDuplicateFilter();
+    const symbols = [{ text: '3017620422003', format: 'EAN13' }];
+    expect(acceptSymbols(symbols, f, 0)).toEqual([]);
+    expect(acceptSymbols(symbols, f, 100)).toHaveLength(1);
   });
 });
 

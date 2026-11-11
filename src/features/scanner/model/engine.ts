@@ -1,6 +1,6 @@
 import type { ScannedCode } from '@/shared/lib/gtin';
 import { applyTorch, type CameraResult, openCamera, stopStream, takePrimedCamera, trackSupportsTorch } from './camera';
-import { createDuplicateFilter, type DuplicateFilter } from './dedupe';
+import { createDuplicateFilter, type DuplicateFilter, type DuplicateFilterOptions } from './dedupe';
 import type { ScannerError } from './errors';
 import { type AimSpec, aimWindowRect, DEFAULT_AIM, decodeSize, viewportRectToSource } from './geometry';
 import { createLowLightMonitor, type LowLightMonitor } from './lowLight';
@@ -23,9 +23,7 @@ export interface EngineConfig {
   aim?: AimSpec | undefined;
 }
 
-export interface EngineOptions {
-  repeatMs?: number;
-  clearMs?: number;
+export interface EngineOptions extends DuplicateFilterOptions {
   createWorker?: () => Worker;
 }
 
@@ -33,11 +31,8 @@ export interface EngineOptions {
 const AIM_PADDING = 16;
 // Long side of the bitmap sent to the worker.
 const MAX_DECODE_SIDE = 1280;
-
-type FrameVideo = HTMLVideoElement & {
-  requestVideoFrameCallback?: (cb: () => void) => number;
-  cancelVideoFrameCallback?: (handle: number) => void;
-};
+// Capture attempts; the FrameGate keeps decodes to one in flight and at most 10 per second.
+const TICK_MS = 33;
 
 const INITIAL: ScannerState = { status: 'idle', error: null, torch: { supported: false, on: false }, lowLight: false };
 
@@ -55,7 +50,7 @@ export class ScannerEngine {
   private readonly lowLight: LowLightMonitor = createLowLightMonitor();
   private readonly createWorker: () => Worker;
 
-  private video: FrameVideo | null = null;
+  private video: HTMLVideoElement | null = null;
   private stream: MediaStream | null = null;
   private worker: Worker | null = null;
   private canvas: HTMLCanvasElement | null = null;
@@ -69,11 +64,9 @@ export class ScannerEngine {
     private readonly config: () => EngineConfig,
     options: EngineOptions = {},
   ) {
-    this.filter = createDuplicateFilter({
-      ...(options.repeatMs !== undefined && { repeatMs: options.repeatMs }),
-      ...(options.clearMs !== undefined && { clearMs: options.clearMs }),
-    });
-    this.createWorker = options.createWorker ?? createDecodeWorker;
+    const { createWorker, ...filterOptions } = options;
+    this.filter = createDuplicateFilter(filterOptions);
+    this.createWorker = createWorker ?? createDecodeWorker;
   }
 
   readonly subscribe = (listener: () => void): (() => void) => {
@@ -243,27 +236,20 @@ export class ScannerEngine {
     }
   }
 
+  /**
+   * A plain timer, not requestVideoFrameCallback: rVFC silently stops firing whenever the browser stops presenting
+   * the video, and nothing restarted it, so the scanner could go deaf after a code until it was reopened. drawImage
+   * always reads the latest frame, so a timer loses nothing.
+   */
   private runLoop(): { cancel: () => void } {
-    const video = this.video as FrameVideo;
-    const useVfc = typeof video.requestVideoFrameCallback === 'function';
-    let handle = 0;
-    let cancelled = false;
-    const schedule = () => {
-      handle = useVfc ? (video.requestVideoFrameCallback?.(tick) ?? 0) : requestAnimationFrame(tick);
-    };
-    const tick = () => {
-      if (cancelled) return;
+    const video = this.video as HTMLVideoElement;
+    const timer = setInterval(() => {
+      // iOS can pause a live <video> on its own (interruption, layer change): resume it instead of reading a still.
+      if (video.paused && this.stream && document.visibilityState === 'visible')
+        void video.play().catch(() => undefined);
       this.captureFrame(video);
-      schedule();
-    };
-    schedule();
-    return {
-      cancel: () => {
-        cancelled = true;
-        if (useVfc) video.cancelVideoFrameCallback?.(handle);
-        else cancelAnimationFrame(handle);
-      },
-    };
+    }, TICK_MS);
+    return { cancel: () => clearInterval(timer) };
   }
 
   private captureFrame(video: HTMLVideoElement): void {

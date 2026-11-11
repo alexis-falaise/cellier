@@ -17,17 +17,21 @@ export function dedupeKey(code: ScannedCode): string {
   return code.kind === 'product' ? code.gtin14 : `store:${code.digits}`;
 }
 
-/** Decoder output → codes to emit: unknown formats and bad check digits are dropped silently, then duplicates. */
+/**
+ * One decoded frame → codes to emit: unknown formats and bad check digits are dropped silently, then the frame goes
+ * through the duplicate filter. Call it for every decoded frame, empty ones included: they are how a code leaves.
+ */
 export function acceptSymbols(symbols: readonly DecodedSymbol[], filter: DuplicateFilter, now: number): ScannedCode[] {
-  const out: ScannedCode[] = [];
+  const codes = new Map<string, ScannedCode>();
   for (const symbol of symbols) {
     const format = FORMATS[symbol.format];
     if (!format) continue;
     const parsed = parseBarcode(symbol.text, format);
     if (!parsed.ok) continue;
-    if (filter.accept(dedupeKey(parsed.code), now)) out.push(parsed.code);
+    const key = dedupeKey(parsed.code);
+    if (!codes.has(key)) codes.set(key, parsed.code);
   }
-  return out;
+  return filter.frame([...codes.keys()], now).flatMap((key) => codes.get(key) ?? []);
 }
 
 export interface FrameGateOptions {
