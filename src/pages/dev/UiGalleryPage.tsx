@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { type ReactNode, useEffect, useState } from 'react';
 import type { CategoryKey } from '@/domain/types';
+import { type ProductFacts, ProductFactsSections } from '@/features/product-facts';
 import { HapticsHost, isHapticsEnabled, setHapticsEnabled } from '@/shared/lib/haptics';
 import {
   AvatarButton,
@@ -170,6 +171,55 @@ function Block({ title, children }: { title: string; children: ReactNode }) {
 function Row({ children }: { children: ReactNode }) {
   return <div className="flex flex-wrap items-center gap-3 px-4">{children}</div>;
 }
+
+const GALLERY_FOOD_FACTS: ProductFacts = {
+  gtin: '03017620422003',
+  found: true,
+  source: 'off',
+  nutriscore: 'e',
+  nova: 3,
+  ecoscore: 'f',
+  nutriments: {
+    energy_kcal: 539,
+    fat: 30.9,
+    saturated_fat: 10.6,
+    carbohydrates: 57.5,
+    sugars: 56.3,
+    fiber: 0,
+    proteins: 6.3,
+    salt: 0.107,
+  },
+  levels: { fat: 'high', saturated_fat: 'high', sugars: 'high', salt: 'low' },
+  ingredients:
+    'Sucre, huile de palme, NOISETTES 13%, cacao maigre 7,4%, LAIT écrémé en poudre 6,6%, LACTOSERUM en poudre, émulsifiants : lécithines [SOJA], vanilline. Sans gluten.',
+  allergens: ['en:milk', 'en:nuts', 'en:soybeans'],
+  traces: [],
+  additives: ['E322'],
+  labels: ['en:vegetarian', 'en:no-gluten', 'fr:triman'],
+  analysis: ['en:palm-oil', 'en:vegetarian'],
+  origins: null,
+  afterOpeningMonths: null,
+  fetchedAt: '2026-11-11T00:00:00Z',
+};
+
+const GALLERY_BEAUTY_FACTS: ProductFacts = {
+  ...GALLERY_FOOD_FACTS,
+  gtin: '03337875598996',
+  source: 'obf',
+  nutriscore: null,
+  nova: null,
+  ecoscore: null,
+  nutriments: {},
+  levels: {},
+  ingredients:
+    'Eau, glycérine, alcool cétéarylique, triglycéride caprylique/caprique, alcool cétylique, céteareth-20, vaseline, phosphate de potassium, céramide NP, céramide AP, céramide EOP, carbomère, diméthicone, méthosulfate de béhentrimonium, lauryllactylate de sodium, hyaluronate de sodium, cholestérol, phénoxyéthanol, gomme xanthane, éthylhexylglycérine.',
+  allergens: [],
+  additives: [],
+  labels: ['en:without-perfume'],
+  analysis: [],
+  origins: 'France',
+  afterOpeningMonths: 12,
+};
 
 export function UiGalleryPage() {
   const [theme, setTheme] = useState<Theme>('system');
@@ -416,6 +466,11 @@ export function UiGalleryPage() {
           <ListRow variant="navigation" title="Désactivé" disabled onPress={() => {}} />
           <ListRow variant="destructive" title="Quitter le foyer" onPress={() => setConfirm('destructive')} />
         </ListSection>
+      </Block>
+
+      <Block title="Informations produit">
+        <ProductFactsSections facts={GALLERY_FOOD_FACTS} netUnit="g" />
+        <ProductFactsSections facts={GALLERY_BEAUTY_FACTS} netUnit="ml" />
       </Block>
 
       <Block title="Articles">

@@ -1,0 +1,70 @@
+{
+ "code": "3017620422003",
+ "errors": [],
+ "product": {
+  "additives_tags": [],
+  "allergens_tags": [
+   "en:milk",
+   "en:nuts",
+   "en:soybeans"
+  ],
+  "code": "3017620422003",
+  "ecoscore_grade": "f",
+  "ingredients_analysis_tags": [
+   "en:palm-oil",
+   "en:maybe-vegan",
+   "en:vegetarian"
+  ],
+  "ingredients_text": "sugar, palm oil",
+  "ingredients_text_fr": "Sucre, huile de palme, NOISETTES 13%, cacao maigre 7,4%, LAIT écrémé en poudre 6,6%, LACTOSERUM en poudre, émulsifiants: lécithines [SOJA), vanilline. Sans gluten.",
+  "labels_tags": [
+   "en:vegetarian",
+   "en:no-gluten",
+   "fr:triman"
+  ],
+  "last_modified_t": 1794233882,
+  "nova_group": 3,
+  "nutrient_levels": {
+   "fat": "high",
+   "salt": "low",
+   "saturated-fat": "high",
+   "sugars": "high"
+  },
+  "nutriments": {
+   "added-sugars_100g": 52.13,
+   "carbohydrates_100g": 57.5,
+   "energy-kcal": 539,
+   "energy-kcal_100g": 539,
+   "energy-kj_100g": 2252,
+   "energy_100g": 2252,
+   "fat": 30.9,
+   "fat_100g": 30.9,
+   "fiber_100g": 0,
+   "fruits-vegetables-legumes-estimate-from-ingredients_100g": 0,
+   "fruits-vegetables-nuts-estimate-from-ingredients_100g": 0,
+   "nova-group_100g": 4,
+   "proteins_100g": 6.3,
+   "salt_100g": 0.107,
+   "saturated-fat_100g": 10.6,
+   "sodium_100g": 0.0428,
+   "sugars_100g": 56.3
+  },
+  "nutriscore_grade": "e",
+  "nutriscore_score": 31,
+  "nutrition_data": "on",
+  "nutrition_data_per": "100g",
+  "nutrition_data_prepared_per": "100g",
+  "packaging_recycling_tags": [
+   "en:recycle"
+  ],
+  "product_type": "food",
+  "traces_tags": []
+ },
+ "result": {
+  "id": "product_found",
+  "lc_name": "Product found",
+  "name": "Product found"
+ },
+ "status": "success",
+ "warnings": []
+}

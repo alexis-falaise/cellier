@@ -1,0 +1,88 @@
+{
+ "code": "3337875598996",
+ "errors": [],
+ "product": {
+  "additives_tags": [
+   "en:e1210",
+   "en:e306",
+   "en:e340",
+   "en:e340ii",
+   "en:e386",
+   "en:e415",
+   "en:e422",
+   "en:e900",
+   "en:e900a",
+   "en:e905",
+   "en:e905b"
+  ],
+  "allergens_tags": [],
+  "code": "3337875598996",
+  "ecoscore_grade": "unknown",
+  "ingredients_analysis_tags": [
+   "en:palm-oil-content-unknown",
+   "en:vegan-status-unknown",
+   "en:vegetarian-status-unknown"
+  ],
+  "ingredients_tags": [
+   "en:aqua",
+   "en:glycerin",
+   "fr:alcool cétéarylique",
+   "fr:triglycérides caprylique",
+   "fr:caprique",
+   "fr:alcool cétylique",
+   "en:ceteareth-20",
+   "fr:vaseline",
+   "fr:phosphate de potassium",
+   "en:ceramide-np",
+   "en:ceramide-ap",
+   "en:ceramide-eop",
+   "fr:carbomère",
+   "en:dimethicone",
+   "en:silicones",
+   "fr:méthosulfate de béhentrimonium",
+   "fr:lauryllactylate de sodium",
+   "fr:hyaluronate de sodium",
+   "en:cholesterol",
+   "en:phenoxyethanol",
+   "fr:edta disodique",
+   "fr:phosphate dipotassique",
+   "en:tocopherol",
+   "en:phytosphingosine",
+   "en:xanthan-gum",
+   "fr:éthylhexylglycérine",
+   "fr:Code F.I.L",
+   "fr:D213768"
+  ],
+  "ingredients_text": "Eau, glycérine, alcool cétéarylique, triglycéride caprylique/caprique, alcool cétylique, céteareth-20, vaseline, phosphate de potassium, céramide NP, céramide AP, céramide EOP, carbomère, diméthicone, méthosulfate de béhentrimonium, lauryllactylate de sodium, hyaluronate de sodium, cholestérol, phénoxyéthanol, edta disodique, phosphate dipotassique, tocophérol, phytosphingosine, gomme xanthane, éthylhexylglycérine. (Code F.I.L. D213768/2)",
+  "ingredients_text_fr": "Eau, glycérine, alcool cétéarylique, triglycéride caprylique/caprique, alcool cétylique, céteareth-20, vaseline, phosphate de potassium, céramide NP, céramide AP, céramide EOP, carbomère, diméthicone, méthosulfate de béhentrimonium, lauryllactylate de sodium, hyaluronate de sodium, cholestérol, phénoxyéthanol, edta disodique, phosphate dipotassique, tocophérol, phytosphingosine, gomme xanthane, éthylhexylglycérine. (Code F.I.L. D213768/2)",
+  "labels_tags": [
+   "en:without-perfume"
+  ],
+  "last_modified_t": 1794335495,
+  "manufacturing_places": "france",
+  "nova_group": 4,
+  "nutrient_levels": {},
+  "nutriscore_grade": "unknown",
+  "origins_tags": [
+   "en:france"
+  ],
+  "packaging_recycling_tags": [],
+  "packagings": [
+   {
+    "material": {
+     "id": "xx:81-c-hdpe"
+    },
+    "number_of_units": 2
+   }
+  ],
+  "product_type": "beauty",
+  "traces_tags": []
+ },
+ "result": {
+  "id": "product_found",
+  "lc_name": "Product found",
+  "name": "Product found"
+ },
+ "status": "success",
+ "warnings": []
+}

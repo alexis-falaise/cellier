@@ -8,6 +8,7 @@ import { useCategories } from '@/entities/category';
 import { useMembers } from '@/entities/member';
 import type { GroceryItem } from '@/features/forecast';
 import { ReceiptEntry } from '@/features/receipt';
+import type { SeasonalSuggestion } from '@/features/seasonal';
 import { t } from '@/shared/i18n';
 import { type CellierSnapshot, useStore } from '@/shared/sync';
 import {
@@ -25,7 +26,15 @@ import {
 import { AppSyncIndicator, SessionExpiredBanner } from '@/widgets';
 import { AddGroceryRow } from '@/widgets/groceries/AddGroceryRow';
 import { GroceryListRow } from '@/widgets/groceries/GroceryListRow';
-import { addLabel, addProduct, hide, putAway, setChecked, setQuantity } from '@/widgets/groceries/model/actions';
+import {
+  addLabel,
+  addProduct,
+  addSeasonal,
+  hide,
+  putAway,
+  setChecked,
+  setQuantity,
+} from '@/widgets/groceries/model/actions';
 import { useGroceryList, useHouseholdForecasts } from '@/widgets/groceries/model/householdForecasts';
 import {
   capitalize,
@@ -37,9 +46,11 @@ import {
   tripDateText,
   tripReasonText,
 } from '@/widgets/groceries/model/presentation';
+import { dismissSeasonal, undismissSeasonal, useSeasonalSuggestions } from '@/widgets/groceries/model/seasonal';
 import { itemVisual } from '@/widgets/groceries/model/tripSummary';
 import { NextTripCard } from '@/widgets/groceries/NextTripCard';
 import { PutAwaySheet } from '@/widgets/groceries/PutAwaySheet';
+import { SeasonalSection } from '@/widgets/groceries/SeasonalSection';
 import { HomeSection, SkeletonList } from '@/widgets/home/HomeSections';
 
 const selectUserId = (s: CellierSnapshot) => s.userId;
@@ -84,6 +95,7 @@ export function GroceriesPage() {
   const loading = firstSync === 'loading';
   const forecasts = useHouseholdForecasts();
   const list = useGroceryList(forecasts);
+  const seasonal = useSeasonalSuggestions(list, forecasts);
   const categories = useCategories();
   const members = useMembers();
   const me = useStore(selectUserId);
@@ -139,6 +151,27 @@ export function GroceriesPage() {
       />
     );
   };
+
+  const addSeasonalSuggestion = (s: SeasonalSuggestion) => {
+    const replaced = s.replaces ? (list.toBuy.find((i) => i.key === s.replaces?.ref) ?? null) : null;
+    addSeasonal(s, replaced);
+  };
+  const hideSeasonal = (s: SeasonalSuggestion) => {
+    dismissSeasonal(seasonal.month, s.slug);
+    showToast({
+      message: t('toast.seasonalHidden'),
+      action: { label: t('common.undo'), onPress: () => undismissSeasonal(seasonal.month, s.slug) },
+    });
+  };
+  const seasonalSection = (
+    <SeasonalSection
+      month={seasonal.month}
+      suggestions={seasonal.suggestions}
+      viewsById={viewsById}
+      onAdd={addSeasonalSuggestion}
+      onHide={hideSeasonal}
+    />
+  );
 
   const addRow = (
     <AddGroceryRow
@@ -196,6 +229,7 @@ export function GroceriesPage() {
             action={adding ? undefined : { label: t('groceries.add'), onPress: () => setAdding(true) }}
           />
           {adding ? addRow : null}
+          {brandNew ? null : seasonalSection}
         </div>
       ) : (
         <>
@@ -209,6 +243,7 @@ export function GroceriesPage() {
             </ListSection>
           ))}
           <div className="mt-6">{addRow}</div>
+          {seasonalSection}
 
           {list.inCart.length > 0 ? (
             <HomeSection title={t('groceries.inCart', { n: list.inCart.length })}>
