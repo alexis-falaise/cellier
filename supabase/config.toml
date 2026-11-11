@@ -8,3 +8,7 @@ verify_jwt = false
 # Called by signed-in clients through supabase.functions.invoke.
 [functions.catalog-lookup]
 verify_jwt = true
+
+# Called by signed-in clients through supabase.functions.invoke.
+[functions.classify-product]
+verify_jwt = true

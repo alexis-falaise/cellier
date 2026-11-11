@@ -23,6 +23,8 @@ export interface ItemForm {
   name: string;
   brand: string;
   categoryId: string | null;
+  /** «Type» (kind), as typed; '' = none. */
+  kind: string;
   /** «Quantité» of «Contenance», as typed («1,5»). */
   size: string;
   unit: FormUnit;
@@ -86,6 +88,7 @@ export function formFromProduct(product: Product): ItemForm {
     name: product.name,
     brand: product.brand ?? '',
     categoryId: product.categoryId,
+    kind: product.kind ?? '',
     size,
     unit,
     price: product.priceCents === null ? '' : priceText.format(product.priceCents / 100),
@@ -131,7 +134,15 @@ export function itemFormDiff(product: Product, form: ItemForm): ProductFields {
   if (name && name !== product.name) fields.name = name;
   const brand = form.brand.trim() || null;
   if (brand !== product.brand) fields.brand = brand;
-  if (form.categoryId !== product.categoryId) fields.categoryId = form.categoryId as CategoryId | null;
+  if (form.categoryId !== product.categoryId) {
+    fields.categoryId = form.categoryId as CategoryId | null;
+    fields.categorySource = 'user';
+  }
+  const kind = form.kind.trim().replace(/\s+/g, ' ') || null;
+  if (kind !== product.kind) {
+    fields.kind = kind;
+    fields.kindSource = kind === null ? null : 'user';
+  }
   const { netQuantity, netUnit } = sizeToStored(form.size, form.unit);
   if (netQuantity !== product.netQuantity || (netQuantity !== null && netUnit !== product.netUnit)) {
     fields.netQuantity = netQuantity;

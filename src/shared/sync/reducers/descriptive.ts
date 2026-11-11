@@ -7,8 +7,10 @@
 import type {
   Category,
   CategoryFields,
+  CategorySource,
   HouseholdId,
   IsoDateTime,
+  KindSource,
   MutationErrorCode,
   NetUnit,
   Pantry,
@@ -23,6 +25,8 @@ import type { ReducerDraft, SyncReducer, TouchContext } from './types';
 
 const NET_UNITS: readonly NetUnit[] = ['g', 'ml', 'piece'];
 const PRICE_SOURCES: readonly PriceSource[] = ['catalog', 'user'];
+const CATEGORY_SOURCES: readonly CategorySource[] = ['catalog', 'model', 'user'];
+const KIND_SOURCES: readonly KindSource[] = ['model', 'user'];
 const GTIN_RE = /^\d{14}$/;
 
 function optionalText(value: unknown, max: number): boolean {
@@ -290,6 +294,10 @@ const PRODUCT_FIELDS = new Set<keyof ProductFields>([
   'usualQuantity',
   'lowAlert',
   'imageUrl',
+  'kind',
+  'kindSource',
+  'categorySource',
+  'suggestedMin',
 ]);
 
 function validateProductFields(fields: ProductFields, requireName: boolean): MutationErrorCode | null {
@@ -308,6 +316,16 @@ function validateProductFields(fields: ProductFields, requireName: boolean): Mut
   if (hasOwn(f, 'usualQuantity') && f.usualQuantity !== null && !isInt(f.usualQuantity, 1, 9999)) return 'validation';
   if (hasOwn(f, 'lowAlert') && f.lowAlert !== null && typeof f.lowAlert !== 'boolean') return 'validation';
   if (hasOwn(f, 'imageUrl') && !optionalText(f.imageUrl, 500)) return 'validation';
+  if (hasOwn(f, 'kind') && f.kind !== null && !isText(f.kind, 1, 60)) return 'validation';
+  if (hasOwn(f, 'kindSource') && f.kindSource !== null && !KIND_SOURCES.includes(f.kindSource as KindSource))
+    return 'validation';
+  if (
+    hasOwn(f, 'categorySource') &&
+    f.categorySource !== null &&
+    !CATEGORY_SOURCES.includes(f.categorySource as CategorySource)
+  )
+    return 'validation';
+  if (hasOwn(f, 'suggestedMin') && f.suggestedMin !== null && !isInt(f.suggestedMin, 0, 9999)) return 'validation';
   return null;
 }
 
@@ -364,6 +382,10 @@ export const productCreate: SyncReducer<'product.create'> = {
         minQuantity: existing.minQuantity ?? a.minQuantity ?? null,
         usualQuantity: existing.usualQuantity ?? a.usualQuantity ?? null,
         imageUrl: existing.imageUrl ?? a.imageUrl ?? null,
+        kind: existing.kind ?? a.kind?.trim() ?? null,
+        kindSource: existing.kindSource ?? a.kindSource ?? null,
+        categorySource: existing.categorySource ?? a.categorySource ?? null,
+        suggestedMin: existing.suggestedMin ?? a.suggestedMin ?? null,
         updatedAt: at,
       });
       return;
@@ -385,6 +407,10 @@ export const productCreate: SyncReducer<'product.create'> = {
       usualQuantity: a.usualQuantity ?? null,
       lowAlert: a.lowAlert ?? true,
       imageUrl: a.imageUrl ?? null,
+      kind: a.kind?.trim() || null,
+      kindSource: a.kindSource ?? null,
+      categorySource: a.categorySource ?? null,
+      suggestedMin: a.suggestedMin ?? null,
       createdAt: at,
       updatedAt: at,
       deletedAt: null,
@@ -426,6 +452,10 @@ export const productUpdate: SyncReducer<'product.update'> = {
     if (hasOwn(f, 'usualQuantity')) next.usualQuantity = f.usualQuantity ?? null;
     if (hasOwn(f, 'lowAlert')) next.lowAlert = f.lowAlert ?? true;
     if (hasOwn(f, 'imageUrl')) next.imageUrl = f.imageUrl ?? null;
+    if (hasOwn(f, 'kind')) next.kind = f.kind?.trim() || null;
+    if (hasOwn(f, 'kindSource')) next.kindSource = f.kindSource ?? null;
+    if (hasOwn(f, 'categorySource')) next.categorySource = f.categorySource ?? null;
+    if (hasOwn(f, 'suggestedMin')) next.suggestedMin = f.suggestedMin ?? null;
     draft.put('product', row.id, next);
   },
 };

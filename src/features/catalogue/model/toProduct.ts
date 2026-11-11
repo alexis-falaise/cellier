@@ -46,6 +46,10 @@ export function catalogueToProductCreate(
 ): NewProductFromCatalogue {
   const priceCents = displayablePriceCents(product, options.now);
   const gtin: Gtin = product.gtin;
+  const categoryId = resolveHouseholdCategory(options.categories, product.categoryKey);
+  // Only a real placement by the catalogue rules counts; 'autre' leaves the classifier free (05 §5.8).
+  const placedKey = options.categories.find((c) => c.id === categoryId)?.templateKey ?? null;
+  const placed = placedKey !== null && placedKey === product.categoryKey && placedKey !== 'autre';
   return {
     args: {
       productId: options.productId,
@@ -53,7 +57,8 @@ export function catalogueToProductCreate(
       brand: product.brand,
       gtin,
       catalogGtin: gtin,
-      categoryId: resolveHouseholdCategory(options.categories, product.categoryKey),
+      categoryId,
+      categorySource: placed ? 'catalog' : null,
       netQuantity: product.netQuantity,
       netUnit: product.netUnit,
       packCount: product.packCount,

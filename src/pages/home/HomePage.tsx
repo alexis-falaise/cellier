@@ -1,16 +1,17 @@
 import { ScanBarcode } from 'lucide-react';
 import { useEffect, useMemo, useRef } from 'react';
-import { navigateTo, openScanner, openSheet, pushActivity, pushItem } from '@/app/navigation';
+import { navigateTo, openScanner, openSheet, pushActivity, pushItem, pushValue } from '@/app/navigation';
 import { syncNow, useActiveHousehold, useActivePantry, useFirstSyncState, useSession } from '@/app/session';
 import { useMe } from '@/entities/member';
 import { updateAppBadge } from '@/features/notifications';
 import { primeCamera } from '@/features/scanner';
-import { formatRelativeTime, t } from '@/shared/i18n';
+import { formatPriceCents, formatRelativeTime, t } from '@/shared/i18n';
 import {
   AvatarButton,
   categoryVisual,
   EmptyState,
   LargeTitleHeader,
+  ListRow,
   ListSection,
   PantrySwitcher,
   PullToRefreshIndicator,
@@ -33,6 +34,7 @@ import {
   SkeletonList,
 } from '@/widgets/home/HomeSections';
 import { nextToWatch, runningLowCount, runningLowRows } from '@/widgets/home/model/runningLow';
+import { stockValue } from '@/widgets/value/model/value';
 
 const MAX_LOW_ROWS = 5;
 const RECENT_ROWS = 3;
@@ -89,6 +91,10 @@ export function HomePage() {
   }, [forecasts, isAll, pantry, multiPantry, pantryNames]);
 
   const watch = useMemo(() => nextToWatch(forecasts.forecasts, forecasts.names), [forecasts]);
+  const value = useMemo(
+    () => stockValue(forecasts.views, !isAll && pantry ? pantry.id : null),
+    [forecasts.views, isAll, pantry],
+  );
   const summary = useMemo(() => tripSummary(list.toBuy, forecasts.viewsById), [list.toBuy, forecasts.viewsById]);
   const brandNew = !loading && forecasts.views.length === 0;
   const recent = feed.rows.slice(0, RECENT_ROWS);
@@ -177,6 +183,22 @@ export function HomePage() {
               onPress={() => navigateTo('/groceries')}
             />
           </div>
+
+          {value.priced > 0 ? (
+            <HomeSection title={t('value.title')}>
+              <ListSection label={t('value.title')}>
+                <ListRow
+                  title={formatPriceCents(value.totalCents)}
+                  subtitle={
+                    value.unpriced > 0
+                      ? `${t('value.priced', { n: value.priced })} · ${t('value.unpriced', { n: value.unpriced })}`
+                      : t('value.priced', { n: value.priced })
+                  }
+                  onPress={pushValue}
+                />
+              </ListSection>
+            </HomeSection>
+          ) : null}
 
           {recent.length > 0 ? (
             <HomeSection title={t('home.recent.title')} action={{ label: t('common.seeAll'), onPress: pushActivity }}>

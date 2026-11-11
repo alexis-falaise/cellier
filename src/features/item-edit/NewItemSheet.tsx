@@ -89,6 +89,7 @@ export function NewItemSheet({
       productId: crypto.randomUUID() as ProductId,
       name: trimmed,
       categoryId: chosenCategory as CategoryId | null,
+      categorySource: categoryId !== null ? 'user' : null,
     });
     if (!productId) return;
     if (quantity > 0) {

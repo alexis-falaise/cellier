@@ -381,6 +381,7 @@ describe('catalogueToProductCreate', () => {
       gtin: NUTELLA_14,
       catalogGtin: NUTELLA_14,
       categoryId: 'c-pdj',
+      categorySource: 'catalog',
       netQuantity: 400,
       netUnit: 'g',
       packCount: 1,

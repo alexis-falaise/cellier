@@ -4,6 +4,8 @@
  */
 export { nextTrip, shoppingCadence } from './model/cadence';
 export { CATEGORY_PRIORS, DEFAULT_FORECAST_CONFIG } from './model/config';
+export type { KindGroup, KindMerge, KindProduct } from './model/kinds';
+export { mergeKindForecasts } from './model/kinds';
 export { demandEvents, householdRestockTimes, movementTime, orderLedger, reconstructTotals } from './model/ledger';
 export type {
   GroceryItem,

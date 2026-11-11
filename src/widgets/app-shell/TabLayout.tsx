@@ -12,6 +12,7 @@ import {
 } from '@/app/navigation';
 import { syncNow, useFirstSyncState } from '@/app/session';
 import { type StackEntry, stackFor, TAB_ROOTS, type TabStack } from '@/app/stack';
+import { useAutoClassify } from '@/features/classify';
 import { ItemEditSheetHost } from '@/features/item-edit/ItemEditSheetHost';
 import { PantrySheetHost } from '@/features/pantries/PantrySheetHost';
 import { ScannerCoverHost } from '@/features/scan-flow/ScannerCoverHost';
@@ -63,6 +64,7 @@ export function TabLayout() {
   const current = stackFor(pathname) ?? stackFor('/');
   const keyboard = useKeyboardVisible();
   const firstSync = useFirstSyncState();
+  useAutoClassify(firstSync === 'ready');
   const containers = useRef(new Map<TabKey, HTMLDivElement>());
 
   useEffect(() => {
