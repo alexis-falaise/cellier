@@ -570,8 +570,9 @@ configured list; never `*`), `Access-Control-Allow-Headers: authorization, apike
 ### 6.5 Timeouts
 
 Total budget inside the function: 7 s. Upstream product call: 4.5 s including the redirect. Fallback host: only if
-2.5 s remain. Open Prices: 2.5 s, in parallel, never delays the answer beyond the product call (a late price is
-dropped; the monthly refresh will add it). Client: 9 s, after which the scan flow shows the manual form with the
+2.5 s remain. Open Prices: 2.5 s, in parallel, started with the product call; the answer waits for it, so it never delays the
+answer beyond the later of the product call and 2.5 s (a price that times out is dropped; the monthly refresh will
+add it). Client: 9 s, after which the scan flow shows the manual form with the
 lookup queued.
 
 ### 6.6 Abuse limits and their storage
