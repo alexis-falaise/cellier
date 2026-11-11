@@ -100,7 +100,7 @@ function omit(search: Record<string, unknown>, keys: readonly string[]): Record<
 // ---------------------------------------------------------------------------------------------
 
 export type SheetTarget =
-  | { sheet: 'pantries' | 'stock-view' | 'put-away' | 'notify' | 'install' | 'sync' }
+  | { sheet: 'pantries' | 'stock-view' | 'put-away' | 'notify' | 'install' | 'sync' | 'receipt' }
   | { sheet: 'new-item'; step?: SheetStep }
   | { sheet: 'settings'; page?: SettingsPage; id?: string }
   | { sheet: 'item-edit'; id: string; step?: SheetStep }

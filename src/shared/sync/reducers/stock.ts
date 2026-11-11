@@ -15,11 +15,11 @@ import type {
 } from '@/domain/types';
 import { stockKey } from '@/domain/types';
 import type { EntityKey } from '../contract';
-import { entityKey, isInt } from '../util';
+import { entityKey, isInt, isText, isUuid } from '../util';
 import { liveRow } from './descriptive';
 import type { ReducerDraft, SyncReducer, ViewReader } from './types';
 
-const SOURCES: readonly MovementSource[] = ['scan', 'swipe', 'stepper', 'put_away', 'form'];
+const SOURCES: readonly MovementSource[] = ['scan', 'swipe', 'stepper', 'put_away', 'form', 'receipt'];
 
 /** Sequence number of a pending (optimistic) movement. */
 export const PENDING_SEQ = Number.POSITIVE_INFINITY;
@@ -52,7 +52,30 @@ interface LedgerInsert {
   revertsId?: string | null;
   source: MovementSource | null;
   clientAt: IsoDateTime;
+  purchase?: Purchase;
 }
+
+/** Purchase fields of a restock (receipt or priced put-away). */
+interface Purchase {
+  priceCents: number | null;
+  receiptId: string | null;
+  receiptLabel: string | null;
+  store: string | null;
+}
+
+const optional = (value: unknown, ok: (v: unknown) => boolean) => value === undefined || value === null || ok(value);
+
+/** Mirrors the column checks of migration 16 (price 0..100 000 €, label 1..120, store 1..60). */
+function validPurchase(args: { priceCents?: unknown; receiptId?: unknown; receiptLabel?: unknown; store?: unknown }) {
+  return (
+    optional(args.priceCents, (v) => isInt(v, 0, 10_000_000)) &&
+    optional(args.receiptId, isUuid) &&
+    optional(args.receiptLabel, (v) => isText(v, 1, 120)) &&
+    optional(args.store, (v) => isText(v, 1, 60))
+  );
+}
+
+const trimmed = (v: string | null | undefined) => (v?.trim() ? v.trim() : null);
 
 /** Inserts one ledger row the way the trigger does and updates the stock row. Returns the applied delta. */
 function insertMovement(draft: ReducerDraft, m: LedgerInsert): { applied: number; after: number } {
@@ -93,6 +116,10 @@ function insertMovement(draft: ReducerDraft, m: LedgerInsert): { applied: number
     source: m.source,
     clientAt: m.clientAt,
     createdAt: m.clientAt,
+    priceCents: m.purchase?.priceCents ?? null,
+    receiptId: m.purchase?.receiptId ?? null,
+    receiptLabel: m.purchase?.receiptLabel ?? null,
+    store: m.purchase?.store ?? null,
   };
   draft.put('movement', m.id, row);
   return { applied, after };
@@ -110,7 +137,7 @@ const targetTouches = (pantryId: string, productId: string): EntityKey[] => [
 
 export const stockAdd: SyncReducer<'stock.add'> = {
   validate(args, view) {
-    if (!isInt(args.quantity, 1, 9999) || !validSource(args.source)) return 'validation';
+    if (!isInt(args.quantity, 1, 9999) || !validSource(args.source) || !validPurchase(args)) return 'validation';
     return targetValid(view, args.pantryId, args.productId) ? null : 'not_found';
   },
   touches: (args, ctx) => [
@@ -128,6 +155,12 @@ export const stockAdd: SyncReducer<'stock.add'> = {
       requestedDelta: a.quantity,
       source: a.source ?? null,
       clientAt: env.clientAt,
+      purchase: {
+        priceCents: a.priceCents ?? null,
+        receiptId: a.receiptId ?? null,
+        receiptLabel: trimmed(a.receiptLabel),
+        store: trimmed(a.store),
+      },
     });
   },
 };

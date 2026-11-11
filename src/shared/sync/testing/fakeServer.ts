@@ -453,6 +453,21 @@ export class FakeServer {
           this.int(a.counted, 0, 99999);
         }
         const source = (m.args as { source?: string }).source ?? null;
+        const p = m.args as {
+          priceCents?: number | null;
+          receiptId?: string | null;
+          receiptLabel?: string | null;
+          store?: string | null;
+        };
+        const purchase =
+          m.name === 'stock.add'
+            ? {
+                priceCents: p.priceCents ?? null,
+                receiptId: p.receiptId ?? null,
+                receiptLabel: p.receiptLabel?.trim() || null,
+                store: p.store?.trim() || null,
+              }
+            : undefined;
         const mv = this.ledger(state, hid, userId, {
           id: m.id,
           pantryId: pantry,
@@ -462,6 +477,7 @@ export class FakeServer {
           counted: a.counted ?? null,
           source,
           clientAt: m.clientAt,
+          purchase,
         });
         return {
           status: mv.appliedDelta === mv.requestedDelta ? 'applied' : 'clamped',
@@ -795,6 +811,14 @@ export class FakeServer {
       revertsId?: string;
       source: string | null;
       clientAt: string;
+      purchase?:
+        | {
+            priceCents: number | null;
+            receiptId: string | null;
+            receiptLabel: string | null;
+            store: string | null;
+          }
+        | undefined;
     },
   ): Movement {
     const key = `${m.pantryId}:${m.productId}`;
@@ -836,6 +860,10 @@ export class FakeServer {
       source: m.source as Movement['source'],
       clientAt: m.clientAt,
       createdAt: at,
+      priceCents: m.purchase?.priceCents ?? null,
+      receiptId: m.purchase?.receiptId ?? null,
+      receiptLabel: m.purchase?.receiptLabel ?? null,
+      store: m.purchase?.store ?? null,
     };
     this.write(state, 'movement', mv.id, mv);
     if (applied !== 0) this.write(state, 'stock', key, { ...stock, quantity: qty + applied, updatedAt: at });

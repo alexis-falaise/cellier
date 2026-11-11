@@ -54,7 +54,7 @@ const time = (m: Movement) => Date.parse(m.createdAt);
 
 interface Session {
   row: FeedRow;
-  source: 'scan' | 'put_away';
+  source: 'scan' | 'put_away' | 'receipt';
   direction: Direction;
   pantryId: string;
   oldestAt: number;
@@ -127,6 +127,7 @@ function sessionTitle(s: Session, lookups: FeedLookups): string {
   const n = s.movements.reduce((sum, m) => sum + Math.abs(m.appliedDelta), 0);
   const pantry = lookups.pantryName(s.pantryId);
   if (s.source === 'put_away') return t('activity.putAway', { n, pantry });
+  if (s.source === 'receipt') return t('activity.receipt', { n, pantry });
   return s.direction === 'add' ? t('activity.addSession', { n, pantry }) : t('activity.withdrawSession', { n, pantry });
 }
 
@@ -177,7 +178,7 @@ export function buildFeed(movements: readonly MovementView[], lookups: FeedLooku
     }
 
     const dir = direction(m);
-    const source = m.source === 'scan' || m.source === 'put_away' ? m.source : null;
+    const source = m.source === 'scan' || m.source === 'put_away' || m.source === 'receipt' ? m.source : null;
     if (dir && source) {
       const key = `${source}|${dir}|${m.actorId ?? ''}|${m.pantryId}`;
       const at = time(m);
