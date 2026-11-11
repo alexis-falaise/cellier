@@ -24,7 +24,7 @@ import { entityKey, hasOwn, isInt, isText, isUuid, normalizeName } from '../util
 import type { ReducerDraft, SyncReducer, TouchContext } from './types';
 
 const NET_UNITS: readonly NetUnit[] = ['g', 'ml', 'piece'];
-const PRICE_SOURCES: readonly PriceSource[] = ['catalog', 'user'];
+const PRICE_SOURCES: readonly PriceSource[] = ['catalog', 'user', 'receipt'];
 const CATEGORY_SOURCES: readonly CategorySource[] = ['catalog', 'model', 'user'];
 const KIND_SOURCES: readonly KindSource[] = ['model', 'user'];
 const GTIN_RE = /^\d{14}$/;

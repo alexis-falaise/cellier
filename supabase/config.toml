@@ -13,6 +13,10 @@ verify_jwt = true
 [functions.classify-product]
 verify_jwt = true
 
+# Called by signed-in clients through supabase.functions.invoke (receipt photo, up to 8 MB).
+[functions.scan-receipt]
+verify_jwt = true
+
 # Called by signed-in clients through supabase.functions.invoke.
 [functions.product-facts]
 verify_jwt = true

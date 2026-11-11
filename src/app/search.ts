@@ -17,6 +17,7 @@ export const SHEETS = [
   'notify',
   'install',
   'sync',
+  'receipt',
 ] as const;
 export type SheetName = (typeof SHEETS)[number];
 

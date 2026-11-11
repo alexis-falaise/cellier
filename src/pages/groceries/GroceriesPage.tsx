@@ -7,6 +7,7 @@ import type { Pantry } from '@/domain/types';
 import { useCategories } from '@/entities/category';
 import { useMembers } from '@/entities/member';
 import type { GroceryItem } from '@/features/forecast';
+import { ReceiptEntry } from '@/features/receipt';
 import type { SeasonalSuggestion } from '@/features/seasonal';
 import { t } from '@/shared/i18n';
 import { type CellierSnapshot, useStore } from '@/shared/sync';
@@ -190,12 +191,15 @@ export function GroceriesPage() {
         title={t('groceries.title')}
         scrollRef={scrollRef}
         trailing={
-          <IconButton
-            icon={Share}
-            label={t('a11y.groceries.share')}
-            disabled={list.toBuy.length === 0}
-            onClick={() => void shareList(shareText(dateText, sections))}
-          />
+          <div className="flex items-center gap-1">
+            <ReceiptEntry />
+            <IconButton
+              icon={Share}
+              label={t('a11y.groceries.share')}
+              disabled={list.toBuy.length === 0}
+              onClick={() => void shareList(shareText(dateText, sections))}
+            />
+          </div>
         }
         subtitle={<AppSyncIndicator />}
       />

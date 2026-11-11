@@ -119,7 +119,8 @@ export interface Category {
   deletedAt: IsoDateTime | null;
 }
 
-export type PriceSource = 'catalog' | 'user';
+/** 'receipt': the unit price paid on the latest scanned receipt. */
+export type PriceSource = 'catalog' | 'user' | 'receipt';
 /** Who chose a category: the catalogue rules, the classifier model, or a member (an override). */
 export type CategorySource = 'catalog' | 'model' | 'user';
 /** Who chose a kind: the classifier model or a member (an override). */
@@ -205,9 +206,20 @@ export interface Movement {
   source: MovementSource | null;
   clientAt: IsoDateTime | null;
   createdAt: IsoDateTime;
+  /**
+   * Restock only: unit price paid, in cents. The product's price history is its priced restocks
+   * that were not reverted. Rows cached before the field existed may lack it (read as null).
+   */
+  priceCents?: number | null;
+  /** Restock from a scanned receipt: groups the receipt's lines. */
+  receiptId?: string | null;
+  /** The receipt's own wording for the line, used to match the next receipts. */
+  receiptLabel?: string | null;
+  /** Shop name printed on the receipt. */
+  store?: string | null;
 }
 
-export type MovementSource = 'scan' | 'swipe' | 'stepper' | 'put_away' | 'form' | 'undo';
+export type MovementSource = 'scan' | 'swipe' | 'stepper' | 'put_away' | 'form' | 'undo' | 'receipt';
 
 export type GroceryId = Brand<string, 'GroceryId'>;
 
@@ -314,7 +326,17 @@ export interface MutationArgs {
   'product.delete': { productId: ProductId };
   'product.restore': { productId: ProductId };
 
-  'stock.add': { pantryId: PantryId; productId: ProductId; quantity: number; source?: MovementSource };
+  'stock.add': {
+    pantryId: PantryId;
+    productId: ProductId;
+    quantity: number;
+    source?: MovementSource;
+    /** Unit price paid (purchase). */
+    priceCents?: number | null;
+    receiptId?: string | null;
+    receiptLabel?: string | null;
+    store?: string | null;
+  };
   'stock.remove': { pantryId: PantryId; productId: ProductId; quantity: number; reason: 'consume' | 'discard'; source?: MovementSource };
   'stock.recount': { pantryId: PantryId; productId: ProductId; counted: number; source?: MovementSource };
   'stock.transfer': { fromPantryId: PantryId; toPantryId: PantryId; productId: ProductId; quantity: number; source?: MovementSource };

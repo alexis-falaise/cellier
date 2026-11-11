@@ -7,12 +7,11 @@ import type { Gtin, MutationId, PantryId, ProductId } from '@/domain/types';
 import { stockKey } from '@/domain/types';
 import { useCategories } from '@/entities/category';
 import { usePantries } from '@/entities/pantry';
-import { type CatalogueClient, type CatalogueLookup, createCatalogueLookup } from '@/features/catalogue';
-import { supabase } from '@/shared/api/supabase';
 import { t } from '@/shared/i18n';
 import type { ScannedCode } from '@/shared/lib/gtin';
 import { getSyncStore, mutate, syncActions, useStore } from '@/shared/sync';
-import { createLookupLocal, deviceCatalogue, draftStore, lookupHousehold } from './local';
+import { draftStore, lookupHousehold } from './local';
+import { catalogueLookup } from './lookup';
 import {
   type CommitContext,
   committableUnits,
@@ -25,17 +24,6 @@ import {
   type TrayState,
   trayReducer,
 } from './tray';
-
-let lookupSingleton: CatalogueLookup | null = null;
-
-function catalogueLookup(): CatalogueLookup {
-  lookupSingleton ??= createCatalogueLookup({
-    client: supabase as unknown as CatalogueClient,
-    lookupLocal: createLookupLocal(() => getSyncStore().getSnapshot()),
-    remember: (product) => deviceCatalogue.remember(product),
-  });
-  return lookupSingleton;
-}
 
 export interface CommitResult {
   /** Units written. */

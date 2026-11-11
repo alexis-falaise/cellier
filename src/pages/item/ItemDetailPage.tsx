@@ -18,7 +18,7 @@ import { useCategory } from '@/entities/category';
 import { useProductMovements } from '@/entities/movement';
 import { useProductView } from '@/entities/product';
 import { factsSourceUrl, hasDisplayableFacts, ProductFactsSections, useProductFacts } from '@/features/product-facts';
-import { formatPriceCents, t } from '@/shared/i18n';
+import { t } from '@/shared/i18n';
 import { syncActions } from '@/shared/sync';
 import {
   BackButton,
@@ -41,6 +41,7 @@ import { forecastCard } from './model/forecastCard';
 import { AlertSection } from './ui/AlertSection';
 import { ForecastCard } from './ui/ForecastCard';
 import { HistoryRow } from './ui/HistoryRow';
+import { PriceSection } from './ui/PriceSection';
 import { PropertyRow } from './ui/PropertyRow';
 import { QuantityBlock } from './ui/QuantityBlock';
 import { entryMeta, restoreOverwrite, useProductHistory } from './useHistory';
@@ -208,27 +209,7 @@ function ItemDetail({ view, active }: { view: ProductView; active: boolean }) {
 
         <AlertSection product={product} forecast={forecast} disabled={deleted} />
 
-        <ListSection header={t('item.price.title')}>
-          {product.priceCents !== null ? (
-            <PropertyRow
-              label={t('field.unitPrice')}
-              value={formatPriceCents(product.priceCents)}
-              caption={product.priceSource === 'catalog' ? t('source.openPricesShort') : t('source.manual')}
-              numeric
-              missing={t('common.none')}
-            />
-          ) : (
-            <ListRow
-              variant="plain"
-              title={<span className="text-label-secondary">{t('item.price.unknown')}</span>}
-              trailing={
-                <SheetTextButton onPress={() => openSheet({ sheet: 'item-edit', id: product.id })}>
-                  {t('common.add')}
-                </SheetTextButton>
-              }
-            />
-          )}
-        </ListSection>
+        <PriceSection product={product} />
 
         <ListSection header={t('item.info.title')}>
           <PropertyRow
