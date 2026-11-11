@@ -20,6 +20,19 @@ import { applyEnvelope, type ReducerDraft, type TouchContext, touchesOf } from '
 import { rewriteIds } from './util';
 
 type RowMaps = { [E in EntityName]: Map<string, EntityRowMap[E]> };
+
+/**
+ * Fields added to a row shape after devices had already cached rows (pulls are deltas, so an
+ * unchanged row is never sent again). Cached rows get them as null when loaded.
+ */
+const ADDED_FIELDS: Partial<Record<EntityName, Record<string, null>>> = {
+  product: { kind: null, kindSource: null, categorySource: null, suggestedMin: null },
+};
+
+export function upgradeStoredRow(entity: EntityName, row: unknown): unknown {
+  const added = ADDED_FIELDS[entity];
+  return added ? { ...added, ...(row as object) } : row;
+}
 type ReadonlyRowMaps = StoreSnapshot['rows'];
 
 /** Membership problems the UI must prompt about (02 §9 cases 15 and 26). */
@@ -304,7 +317,7 @@ export function createSyncStore(): CellierStore {
       householdId = id;
       cursor = cursorValue;
       base = emptyMaps();
-      for (const r of rows) (base[r.entity] as Map<string, unknown>).set(r.id, r.row);
+      for (const r of rows) (base[r.entity] as Map<string, unknown>).set(r.id, upgradeStoredRow(r.entity, r.row));
       entries.clear();
       touchCache.clear();
       for (const e of outbox) entries.set(e.id, e);
