@@ -13,7 +13,9 @@ import {
   type GroceryList,
   groceryList,
   householdRestockTimes,
+  type KindGroup,
   type LedgerMovement,
+  mergeKindForecasts,
   type NextTrip,
   nextTrip,
   type ProductForecast,
@@ -117,7 +119,8 @@ function cachedForecast(
   }
   const result = forecastProduct(
     {
-      product: view.product,
+      // The suggested seuil stands in for a seuil nobody set (05 §5.8).
+      product: { ...view.product, minQuantity: view.product.minQuantity ?? view.product.suggestedMin },
       categoryKey: view.category?.templateKey ?? null,
       totalQuantity: view.totalQuantity,
       movements,
@@ -130,12 +133,20 @@ function cachedForecast(
   return result;
 }
 
+const capitalizeKind = (kind: string) => kind.charAt(0).toLocaleUpperCase('fr-FR') + kind.slice(1);
+
 export interface HouseholdForecasts {
   now: number;
   views: readonly ProductView[];
   viewsById: ReadonlyMap<string, ProductView>;
+  /** Per product, members of a multi-product kind folded into its representative (lists, trip). */
   forecasts: readonly ProductForecast[];
   forecastsById: ReadonlyMap<string, ProductForecast>;
+  /** Each product's own forecast, for the item screens. */
+  productForecastsById: ReadonlyMap<string, ProductForecast>;
+  /** Kind of every product that shares its kind with another product. */
+  kinds: ReadonlyMap<ProductId, KindGroup>;
+  /** List names: a kind's representative is named after the kind («Café moulu»). */
   names: ReadonlyMap<ProductId, string>;
   cadence: Cadence | null;
   trip: NextTrip;
@@ -149,16 +160,21 @@ export function computeHouseholdForecasts(
 ): HouseholdForecasts {
   const cadence = shoppingCadence(householdRestockTimes(ledger.all, deleted), now);
   const hasCadence = cadence !== null;
-  const forecasts = views.map((v) =>
+  const own = views.map((v) =>
     cachedForecast(v, ledger.byProduct.get(v.product.id) ?? EMPTY, deleted, hasCadence, now),
   );
+  const { forecasts, groups } = mergeKindForecasts(own, new Map(views.map((v) => [v.product.id, v.product])), now);
+  const names = new Map(views.map((v) => [v.product.id, v.product.name]));
+  for (const [id, g] of groups) if (g.representative === id) names.set(id, capitalizeKind(g.label));
   return {
     now,
     views,
     viewsById: new Map(views.map((v) => [v.product.id, v])),
     forecasts,
     forecastsById: new Map(forecasts.map((f) => [f.productId, f])),
-    names: new Map(views.map((v) => [v.product.id, v.product.name])),
+    productForecastsById: new Map(own.map((f) => [f.productId, f])),
+    kinds: groups,
+    names,
     cadence,
     trip: nextTrip(cadence, forecasts, now),
   };

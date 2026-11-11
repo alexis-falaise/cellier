@@ -350,6 +350,10 @@ export class FakeServer {
             usualQuantity: a.usualQuantity ?? null,
             lowAlert: a.lowAlert ?? true,
             imageUrl: a.imageUrl ?? null,
+            kind: a.kind?.trim() || null,
+            kindSource: a.kindSource ?? null,
+            categorySource: a.categorySource ?? null,
+            suggestedMin: a.suggestedMin ?? null,
             createdAt: at,
             updatedAt: at,
             deletedAt: null,
@@ -377,6 +381,10 @@ export class FakeServer {
           minQuantity: existing.minQuantity ?? a.minQuantity ?? null,
           usualQuantity: existing.usualQuantity ?? a.usualQuantity ?? null,
           imageUrl: existing.imageUrl ?? a.imageUrl ?? null,
+          kind: existing.kind ?? (a.kind?.trim() || null),
+          kindSource: existing.kindSource ?? a.kindSource ?? null,
+          categorySource: existing.categorySource ?? a.categorySource ?? null,
+          suggestedMin: existing.suggestedMin ?? a.suggestedMin ?? null,
           updatedAt: at,
         });
         return ok({ canonicalId: existing.id, merged, restored });
@@ -399,6 +407,10 @@ export class FakeServer {
           'usualQuantity',
           'lowAlert',
           'imageUrl',
+          'kind',
+          'kindSource',
+          'categorySource',
+          'suggestedMin',
         ]);
         const f = w.winning as Record<string, unknown>;
         if (typeof f.name === 'string' && row.gtin === null) {

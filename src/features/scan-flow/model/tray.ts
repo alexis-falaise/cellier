@@ -424,6 +424,11 @@ function createArgs(row: TrayRow, ctx: CommitContext): MutationArgs['product.cre
         name: input.name,
         gtin,
         categoryId: input.categoryId,
+        // A category picked in the sheet is the member's choice; the 'autre' default is not.
+        categorySource:
+          input.categoryId !== null && ctx.categories.find((c) => c.id === input.categoryId)?.templateKey !== 'autre'
+            ? 'user'
+            : null,
         netQuantity: input.netQuantity,
         netUnit: input.netUnit,
         priceCents: input.priceCents,

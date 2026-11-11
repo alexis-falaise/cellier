@@ -1,19 +1,13 @@
 /**
- * Category mapping, section 5.3.
- *
- * TODO(catalogue rules): the rules artefact `supabase/functions/_shared/catalogue/category-rules.json`
- * (section 5.1, built by scripts/catalogue/build-category-rules.ts) does not exist yet. Until it
- * does, `CATEGORY_RULES` is null and every product is written with `category_key = null` and
- * `category_rule = null` (the client then falls back to the household's `autre` category,
- * section 5.4). When the artefact lands: import it here
- * (`import rules from '../_shared/catalogue/category-rules.json' with { type: 'json' };`) and set
- * `CATEGORY_RULES = rules as CategoryRulesArtefact`. Rows written meanwhile have a null
- * `category_rule` and are picked up by the re-classification of section 5.6.
+ * Category mapping, section 5.3. The rules artefact is built by
+ * scripts/catalogue/build-category-rules.ts (section 5.1). A product the rules cannot place ends in
+ * 'autre'; the client then asks classify-product (section 5.8).
  */
 import type { CategoryMappingInput, CategoryMappingResult, CategoryRulesArtefact } from './types.ts';
+import rules from '../_shared/catalogue/category-rules.json' with { type: 'json' };
 import { fold } from './retailers.ts';
 
-export const CATEGORY_RULES: CategoryRulesArtefact | null = null;
+export const CATEGORY_RULES: CategoryRulesArtefact | null = rules as unknown as CategoryRulesArtefact;
 
 /** `fr:Liquide vaisselle` -> `fr:liquide-vaisselle`: lower-case prefix, slugified rest. */
 export function canonicalTagForm(tag: string): string {

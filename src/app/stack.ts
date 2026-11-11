@@ -6,7 +6,7 @@
 
 export type TabKey = 'home' | 'stock' | 'groceries';
 
-export type ScreenKind = 'home' | 'activity' | 'stock' | 'groceries' | 'item' | 'history';
+export type ScreenKind = 'home' | 'activity' | 'value' | 'stock' | 'groceries' | 'item' | 'history';
 
 export interface StackEntry {
   /** Stable key: the screen's pathname. */
@@ -87,6 +87,10 @@ export function stackFor(pathname: string): TabStack | null {
   if (rest.length === 0) return { tab, entries };
   if (tab === 'home' && rest.length === 1 && rest[0] === 'activity') {
     entries.push({ key: '/activity', kind: 'activity', routeId: '/_tabs/activity', pathname: '/activity' });
+    return { tab, entries };
+  }
+  if (tab === 'home' && rest.length === 1 && rest[0] === 'value') {
+    entries.push({ key: '/value', kind: 'value', routeId: '/_tabs/value', pathname: '/value' });
     return { tab, entries };
   }
   if (rest[0] !== 'items' || rest.length < 2 || rest.length > 3) return null;

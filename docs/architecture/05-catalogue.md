@@ -460,6 +460,31 @@ wins. A rule change affects only products created afterwards.
 
 ---
 
+### 5.7 (reserved)
+
+### 5.8 Kinds, model classification and overrides
+
+Every household product gets a **kind**: the generic type written on a shopping list («café moulu»,
+«lait demi-écrémé»). Products of one kind are interchangeable, so running low is evaluated on the kind:
+four ground coffees from different origins are one «café moulu», and one of them running out does not
+put coffee on the list.
+
+- **Edge Function `classify-product`** (Claude Haiku `claude-haiku-5-5`, effort `low`, JSON-schema output).
+  Input: up to 25 items `{id, name, brand, categoryKey}`, the household's existing kinds (so the model reuses
+  one when it is the same thing) and up to 40 member corrections as examples. Output per item: `kind`,
+  `categoryKey`, `suggestedMin`. Secret: `ANTHROPIC_API_KEY` (Edge Function secret, never shipped to the browser).
+- **Client** (`src/features/classify`): `useAutoClassify`, mounted by the tab shell, sends products with no
+  kind once per session while online, and writes each answer as one `product.update`.
+- **Category precedence**: (1) a member's override: the category a member chose for another product of the same
+  kind (`categorySource 'user'`, most recent wins); (2) the product's own member choice, or a real catalogue
+  category (`'catalog'`, not `autre`); (3) the model's category. Changing a category in ItemEditSheet moves the
+  other products of the kind that no member placed.
+- **Kind**: a kind set by a member (`kindSource 'user'`) is never replaced and is sent to the model as an example.
+- **Seuil**: `suggestedMin` is the model's suggestion; it stands in for `minQuantity` when no member set one.
+  The seuil of a kind is the largest member `minQuantity`, else the largest `suggestedMin`, else the default
+  rule (§5.6 of 04). Client: `src/features/forecast/model/kinds.ts`; server: `private.evaluate_low_stock`
+  (migration `20261111120000_product_kinds.sql`), which notifies once per kind.
+
 ## 6. Edge Function `catalog-lookup`
 
 ### 6.1 Deployment and authentication
