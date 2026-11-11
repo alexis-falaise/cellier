@@ -46,7 +46,7 @@ function liveCategory(categories: readonly CategoryRef[], id: CategoryId | null)
 
 /** Products waiting for the classifier: live, no kind yet, not tried in this session. */
 export function pendingClassification(products: readonly Product[], tried: ReadonlySet<string>): Product[] {
-  return products.filter((p) => p.deletedAt === null && p.kind === null && !tried.has(p.id));
+  return products.filter((p) => p.deletedAt === null && p.kind == null && !tried.has(p.id));
 }
 
 /** Distinct kinds of the household, as written. */
@@ -114,7 +114,7 @@ export function fieldsFromAnswer(
 ): ProductFields {
   const fields: ProductFields = {};
   const kind = product.kindSource === 'user' && product.kind ? product.kind : answer.kind;
-  if (product.kind === null) {
+  if (product.kind == null) {
     fields.kind = kind;
     fields.kindSource = 'model';
   }

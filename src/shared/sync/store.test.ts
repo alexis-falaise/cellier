@@ -52,6 +52,21 @@ const pull = (server: FakeServer, since: number): PullResponse =>
   server.pullChanges({ householdId: HOUSEHOLD, since }, ALICE);
 
 describe('store', () => {
+  it('gives cached product rows the fields added after they were stored', () => {
+    const store = createSyncStore();
+    store.setUser(ALICE);
+    const legacy = { id: P, householdId: HOUSEHOLD, name: 'Café moulu', deletedAt: null };
+    store.hydrate(HOUSEHOLD, [{ entity: 'product', id: P, row: legacy } as never], [], 1);
+    const row = store.getSnapshot().rows.product.get(P);
+    expect(row).toMatchObject({
+      name: 'Café moulu',
+      kind: null,
+      kindSource: null,
+      categorySource: null,
+      suggestedMin: null,
+    });
+  });
+
   it('applies a local mutation to the view and keeps unchanged maps', () => {
     const { store, create, add } = setup();
     const before = store.getSnapshot();
