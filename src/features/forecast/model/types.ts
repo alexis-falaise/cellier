@@ -143,7 +143,7 @@ export interface ProductForecast {
   lowByThreshold: boolean;
   /** Usable forecast and daysLeft ≤ leadTime + safety. */
   lowByForecast: boolean;
-  /** lowAlert && !deleted && (lowByThreshold || lowByForecast). */
+  /** lowAlert (effective) && !deleted && (lowByThreshold || lowByForecast). */
   runningLow: boolean;
   /** Set when runningLow: 'out' if total is 0, else 'threshold' if lowByThreshold, else 'forecast'. */
   lowReason: RunningLowReason | null;
@@ -151,7 +151,10 @@ export interface ProductForecast {
   lastRestockAt: EpochMs | null;
   /** Highest server seq among this product's movements, or null. */
   lastSeq: number | null;
-  /** Extension: copied from the product so list builders need no product lookup. */
+  /**
+   * Extension: the product's alert switch, effective (false when the seuil is 0, «no alert
+   * threshold»), so list builders need no product lookup.
+   */
   lowAlert: boolean;
   /** Extension: product tombstoned. */
   deleted: boolean;

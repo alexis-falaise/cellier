@@ -68,7 +68,10 @@ export function AlertSection({
         : null;
 
   return (
-    <ListSection header={t('item.alert.title')} footer={t('item.alert.footer', { n: value })}>
+    <ListSection
+      header={t('item.alert.title')}
+      footer={value > 0 ? t('item.alert.footer', { n: value }) : t('item.alert.footerOff')}
+    >
       <ListRow
         variant="plain"
         title={t('item.alert.threshold')}

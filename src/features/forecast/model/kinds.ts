@@ -8,17 +8,17 @@
  * the other members are never low on their own.
  *
  * Seuil of a kind: the largest `minQuantity` a member set, else the largest suggested seuil, else
- * the largest default minimum of its products.
+ * the largest default minimum of its products. A seuil of 0 means «no alert threshold»: never low.
  */
 import type { Product, ProductId } from '@/domain/types';
 import { normalizeName } from '@/shared/sync/util';
 import { DEFAULT_FORECAST_CONFIG } from './config';
 import { runOutBand } from './rate';
-import { clearLevel } from './threshold';
+import { alertsAt, clearLevel } from './threshold';
 import { DAY_MS } from './time';
 import type { EpochMs, ForecastConfig, ProductForecast, RateEstimate, RunningLowReason } from './types';
 
-export type KindProduct = Pick<Product, 'id' | 'kind' | 'minQuantity' | 'suggestedMin' | 'deletedAt'>;
+export type KindProduct = Pick<Product, 'id' | 'kind' | 'minQuantity' | 'suggestedMin' | 'lowAlert' | 'deletedAt'>;
 
 export interface KindGroup {
   /** The kind as written on the representative. */
@@ -69,7 +69,10 @@ function foldKind(
   const usuals = members.map((f) => f.usualQuantity).filter((v): v is number => v !== null);
   const usual = usuals.length > 0 ? Math.max(...usuals) : null;
   const clear = clearLevel(minimum, usual);
-  const lowAlert = members.some((f) => f.lowAlert);
+  const lowAlert = alertsAt(
+    members.some((f) => products.get(f.productId)?.lowAlert ?? f.lowAlert),
+    minimum,
+  );
 
   const wasLow = members.some((f) => f.lowByThreshold);
   const lowByThreshold = lowAlert && (wasLow ? total < clear : total <= minimum);

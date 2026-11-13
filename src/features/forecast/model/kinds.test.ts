@@ -46,7 +46,15 @@ function products(list: Array<Omit<Partial<KindProduct>, 'id'> & { id: string }>
   return new Map(
     list.map((p) => [
       p.id,
-      { kind: null, minQuantity: null, suggestedMin: null, deletedAt: null, ...p, id: id(p.id) } as KindProduct,
+      {
+        kind: null,
+        minQuantity: null,
+        suggestedMin: null,
+        lowAlert: true,
+        deletedAt: null,
+        ...p,
+        id: id(p.id),
+      } as KindProduct,
     ]),
   );
 }
@@ -93,6 +101,23 @@ describe('mergeKindForecasts', () => {
     ]);
     const merged = mergeKindForecasts(own, suggested, NOW).forecasts.find((f) => f.minimum === 6);
     expect(merged?.runningLow).toBe(true);
+  });
+
+  it('a kind whose seuil is 0 has no alert threshold: never low, never on the courses list', () => {
+    const own = [
+      empty('a', { minimum: 0, runningLow: false, lowByThreshold: false, lowReason: null, lowAlert: false }),
+      empty('b', { lastRestockAt: day(95) }),
+    ];
+    const set = products([
+      { id: 'a', kind: 'barre de céréales', minQuantity: 0, suggestedMin: 1 },
+      { id: 'b', kind: 'barre de céréales', suggestedMin: 1 },
+    ]);
+    const { forecasts } = mergeKindForecasts(own, set, NOW);
+    expect(forecasts.map((f) => [f.minimum, f.runningLow, f.lowAlert])).toEqual([
+      [0, false, false],
+      [0, false, false],
+    ]);
+    expect(shoppingList(forecasts, new Map(), trip, [], NOW).entries).toEqual([]);
   });
 
   it('leaves products without a kind, or alone in their kind, untouched', () => {
