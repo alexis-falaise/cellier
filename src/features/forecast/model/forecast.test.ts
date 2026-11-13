@@ -206,7 +206,7 @@ describe('threshold rule (§5.6)', () => {
     expect(states).toEqual([false, false, false, true, true, true, false]);
   });
 
-  it('never low with lowAlert off, low only at 0 with minQuantity 0, never when deleted (scenario 13)', () => {
+  it('never low with lowAlert off, with minQuantity 0 (no alert threshold), or when deleted (scenario 13)', () => {
     const b = new LedgerBuilder();
     b.restock(day(0), 2);
     b.consume(day(1), 1);
@@ -215,8 +215,23 @@ describe('threshold rule (§5.6)', () => {
     expect(run(b, day(2), { product: { deletedAt: new Date(day(2)).toISOString() } }).runningLow).toBe(false);
     b.consume(day(2), 1);
     const out = run(b, day(3), { product: { minQuantity: 0 } });
-    expect(out.runningLow).toBe(true);
-    expect(out.lowReason).toBe('out');
+    expect(out.totalQuantity).toBe(0);
+    expect(out.runningLow).toBe(false);
+    expect(out.lowByThreshold).toBe(false);
+    expect(out.lowReason).toBeNull();
+    expect(out.lowAlert).toBe(false);
+    expect(run(b, day(3)).lowReason).toBe('out');
+  });
+
+  it('a seuil of 0 is not low by forecast either', () => {
+    const b = new LedgerBuilder();
+    b.restock(day(0), 10);
+    for (let i = 1; i <= 9; i++) b.consume(day(i), 1);
+    const f = run(b, day(9) + HOUR_MS, { product: { minQuantity: 0 } });
+    expect(f.runOut).not.toBeNull();
+    expect(f.lowByForecast).toBe(true);
+    expect(f.runningLow).toBe(false);
+    expect(f.lowAlert).toBe(false);
   });
 
   it('a restock to the clear level resets the state (restock resets)', () => {
@@ -330,7 +345,7 @@ describe('forecastProduct (§5.7)', () => {
     three.consume(day(1), 2);
     three.consume(day(2), 3);
     three.consume(day(3), 3);
-    const f3 = run(three, day(3) + HOUR_MS, { category: 'eau', product: { minQuantity: 0 } });
+    const f3 = run(three, day(3) + HOUR_MS, { category: 'eau', product: { minQuantity: 1 } });
     expect(f3.daysLeft).not.toBeNull();
     expect(f3.daysLeft ?? 99).toBeLessThanOrEqual(4);
     expect(f3.lowByThreshold).toBe(false);
@@ -341,7 +356,7 @@ describe('forecastProduct (§5.7)', () => {
     two.restock(day(0), 10);
     two.consume(day(1), 4);
     two.consume(day(3), 4);
-    const f2 = run(two, day(3) + HOUR_MS, { category: 'eau', product: { minQuantity: 0 } });
+    const f2 = run(two, day(3) + HOUR_MS, { category: 'eau', product: { minQuantity: 1 } });
     expect(f2.daysLeft).toBeNull();
     expect(f2.lowByForecast).toBe(false);
     expect(f2.runningLow).toBe(false);

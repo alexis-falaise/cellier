@@ -8,6 +8,11 @@ export function effectiveMinimum(minQuantity: number | null, usual: number | nul
   return usual !== null ? Math.max(1, Math.ceil(0.25 * usual)) : 1;
 }
 
+/** True when the product can run low: alerts on and a seuil above 0 (a seuil of 0 = no alert threshold). */
+export function alertsAt(lowAlert: boolean, minimum: number): boolean {
+  return lowAlert && minimum > 0;
+}
+
 /** §5.6. c = max(m + 1, ceil(0.5 · (usual ?? 0))). */
 export function clearLevel(minimum: number, usual: number | null): number {
   return Math.max(minimum + 1, Math.ceil(0.5 * (usual ?? 0)));

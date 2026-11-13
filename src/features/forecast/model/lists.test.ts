@@ -2,8 +2,9 @@ import { describe, expect, it } from 'vitest';
 import type { GroceryEntry, GroceryId, PantryId, ProductId, UserId } from '@/domain/types';
 import { nextTrip, shoppingCadence } from './cadence';
 import { householdRestockTimes } from './ledger';
-import { day, LedgerBuilder } from './ledgerBuilder.testing';
+import { day, LedgerBuilder, product } from './ledgerBuilder.testing';
 import { groceryList, isDismissalActive, runningLowView, shoppingList, suggestedQuantity } from './lists';
+import { forecastProduct } from './product';
 import { DAY_MS, HOUR_MS, parisDate, parisWeekday } from './time';
 import type { Cadence, NextTrip, ProductForecast, RunOutBand } from './types';
 
@@ -272,5 +273,56 @@ describe('groceryList (Courses merged with entries)', () => {
       ['Produit A', 1],
       ['Sel', null],
     ]);
+  });
+});
+
+describe('no alert threshold (seuil 0)', () => {
+  const NO_PANTRY = new Set<PantryId>();
+  const forecastOf = (productId: string, minQuantity: number | null) => {
+    const b = new LedgerBuilder(id(productId));
+    b.restock(day(90), 2);
+    b.consume(day(95), 1);
+    b.consume(day(98), 1);
+    return forecastProduct(
+      {
+        product: product({ id: id(productId), minQuantity }),
+        categoryKey: null,
+        totalQuantity: b.total(),
+        movements: b.movements,
+        deletedPantryIds: NO_PANTRY,
+        householdHasCadence: false,
+      },
+      NOW,
+    );
+  };
+
+  it('keeps an out-of-stock product with seuil 0 out of «Bientôt épuisé» and the courses', () => {
+    const forecasts = [forecastOf('a', 0), forecastOf('b', null)];
+    expect(runningLowView(forecasts, names, []).map((e) => [e.productId, e.reason])).toEqual([['b', 'out']]);
+    expect(shoppingList(forecasts, names, trip(), [], NOW).entries.map((e) => e.productId)).toEqual(['b']);
+    const list = groceryList({ forecasts, names, entries: [], trip: trip(), now: NOW });
+    expect(list.toBuy.map((i) => (i.kind === 'product' ? i.productId : null))).toEqual(['b']);
+  });
+
+  it('still shows a row the user added by hand', () => {
+    const forecasts = [forecastOf('a', 0)];
+    const entries: GroceryEntry[] = [
+      {
+        id: 'g1' as GroceryId,
+        householdId: 'h' as GroceryEntry['householdId'],
+        productId: id('a'),
+        label: null,
+        quantity: null,
+        addedBy: null,
+        checkedAt: null,
+        checkedBy: null,
+        dismissedAt: null,
+        createdAt: new Date(day(99)).toISOString(),
+        updatedAt: new Date(day(99)).toISOString(),
+        deletedAt: null,
+      },
+    ];
+    const list = groceryList({ forecasts, names, entries, trip: trip(), now: NOW });
+    expect(list.toBuy.map((i) => (i.kind === 'product' ? [i.productId, i.reason] : null))).toEqual([['a', 'manual']]);
   });
 });

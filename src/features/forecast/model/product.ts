@@ -1,7 +1,7 @@
 import { CATEGORY_PRIORS, DEFAULT_FORECAST_CONFIG } from './config';
 import { demandEvents, reconstructTotals } from './ledger';
 import { consumptionRate, runOutBand } from './rate';
-import { clearLevel, effectiveMinimum, replayThresholdState, usualQuantity } from './threshold';
+import { alertsAt, clearLevel, effectiveMinimum, replayThresholdState, usualQuantity } from './threshold';
 import { DAY_MS, startOfParisDay } from './time';
 import type {
   CategoryPriorTable,
@@ -55,9 +55,11 @@ export function forecastProduct(
   if (rate.events >= 6 && rate.exposureDays >= 20 && input.householdHasCadence) confidence = 'high';
   else if (rate.events >= 3) confidence = 'medium';
 
-  const lowByThreshold = replayThresholdState(series, minimum, clear, product.lowAlert, deleted, total);
+  // A seuil of 0 means «no alert threshold»: never running low, never suggested for the courses.
+  const alert = alertsAt(product.lowAlert, minimum);
+  const lowByThreshold = replayThresholdState(series, minimum, clear, alert, deleted, total);
   const lowByForecast = runOut !== null && daysLeft !== null && daysLeft <= cfg.leadTimeDays + cfg.safetyDays;
-  const runningLow = product.lowAlert && !deleted && (lowByThreshold || lowByForecast);
+  const runningLow = alert && !deleted && (lowByThreshold || lowByForecast);
   let lowReason: RunningLowReason | null = null;
   if (runningLow) lowReason = total <= 0 ? 'out' : lowByThreshold ? 'threshold' : 'forecast';
 
@@ -85,7 +87,7 @@ export function forecastProduct(
     lowReason,
     lastRestockAt,
     lastSeq,
-    lowAlert: product.lowAlert,
+    lowAlert: alert,
     deleted,
   };
 }

@@ -404,6 +404,8 @@ const source = {
   'item.alert.enablePush': 'Recevoir les alertes sur cet iPhone',
   'item.alert.footer':
     'Signalé quand il en reste {n} ou moins. Le stock habituel sert à proposer la quantité à racheter.',
+  'item.alert.footerOff':
+    'Seuil à 0 : pas d’alerte. L’article n’apparaît ni dans « Bientôt épuisé » ni dans les courses.',
   'item.price.title': 'Prix',
   'item.price.unknown': 'Prix inconnu',
   'item.info.title': 'Informations',

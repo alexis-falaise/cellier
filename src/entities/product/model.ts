@@ -149,11 +149,10 @@ export function effectiveMinimum(product: Product): number {
   return 1;
 }
 
-/** Running low by threshold (the forecast rule lives in the forecasting package). */
+/** Running low by threshold (the forecast rule lives in the forecasting package). A seuil of 0 is never low. */
 export function isLowByThreshold(view: ProductView): boolean {
-  return (
-    view.product.lowAlert && view.product.deletedAt === null && view.totalQuantity <= effectiveMinimum(view.product)
-  );
+  const minimum = effectiveMinimum(view.product);
+  return view.product.lowAlert && view.product.deletedAt === null && minimum > 0 && view.totalQuantity <= minimum;
 }
 
 export const selectLowProducts: Selector<readonly ProductView[]> = createSelector(

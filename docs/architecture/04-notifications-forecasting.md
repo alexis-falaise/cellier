@@ -772,6 +772,11 @@ product's **current** settings: become low when `!low && lowAlert && total ≤ m
 when a setting changes), and returns false if the product is deleted. A product with no movement is not low, as on
 the server (no stock row, no trigger).
 
+A seuil of 0 (`m = 0`, set by a member, or the kind's seuil of 05 §5.8) means «no alert threshold»: the product is
+handled as if `lowAlert` were false. It is never low by threshold or forecast, never in «Bientôt épuisé» or the
+courses suggestions, and gets no push (`alertsAt` on the client, the `v_min <= 0` branch of
+`private.evaluate_low_stock`). A row the user added to the courses by hand stays.
+
 The client replays history with the current `m` and `c`, whereas the server evaluated each change with the values of
 the time. The two can differ only when settings or the usual quantity changed while the total was between `m` and
 `c`; the client value is the one shown.
@@ -1016,7 +1021,7 @@ run-out times. `now` is always injected.
 | 10 | Deleted pantry | Its movements are ignored; the total matches the cache. |
 | 11 | Offline client times: consumes with `client_at` 3 days before `created_at`, one 10 days before | Times used are `client_at` for the first, `created_at − 7 days` for the second; series is non-decreasing. |
 | 12 | Threshold hysteresis: total 6 → 1 one by one, then 2, then 3 (usual 6) | `m = 2`, `c = 3`; exactly one transition to low (at 2); still low at 2 after 1; cleared at 3. The same table of cases is used by the SQL test of the trigger, and both must agree. |
-| 13 | `lowAlert` false; `minQuantity` 0; deleted product | Never low; low only at 0; not low. |
+| 13 | `lowAlert` false; `minQuantity` 0; deleted product | Never low; never low, even at 0 (no alert threshold); not low. |
 | 14 | Forecast rule | Low by forecast at 4.0 days left with ≥ 3 events; not with 2 events. |
 | 15 | `asOf` stability | Same median run-out for two `now` values in the same Paris day with no new movement; `daysLeft` decreases. |
 | 16 | Usual quantity | Median of the last 5 post-restock levels; sessions within 6 h merged; null with no stock ever. |
