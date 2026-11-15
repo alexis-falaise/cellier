@@ -108,10 +108,12 @@ export interface IconPickerProps {
   icons?: readonly CategoryIconName[] | undefined;
   hue: CategoryHue;
   label: string;
+  /** Name of each icon, read by VoiceOver. */
+  iconLabels: Record<CategoryIconName, string>;
 }
 
 /** 6 columns of 44 px cells from the curated set; the selected cell has a 2 px accent ring (03 §4.13.2). */
-export function IconPicker({ value, onChange, icons, hue, label }: IconPickerProps) {
+export function IconPicker({ value, onChange, icons, hue, label, iconLabels }: IconPickerProps) {
   const list = icons ?? (Object.keys(CATEGORY_ICONS) as CategoryIconName[]);
   const { tile, fg } = hueStyle(hue);
   return (
@@ -122,7 +124,7 @@ export function IconPicker({ value, onChange, icons, hue, label }: IconPickerPro
       className="grid grid-cols-6 justify-items-center gap-2 px-4"
     >
       {list.map((name) => {
-        const { icon: Icon, label: iconLabel } = CATEGORY_ICONS[name];
+        const { icon: Icon } = CATEGORY_ICONS[name];
         const selected = name === value;
         return (
           // biome-ignore lint/a11y/useSemanticElements: a styled button with the radio pattern and roving focus
@@ -131,7 +133,7 @@ export function IconPicker({ value, onChange, icons, hue, label }: IconPickerPro
             type="button"
             role="radio"
             aria-checked={selected}
-            aria-label={iconLabel}
+            aria-label={iconLabels[name]}
             tabIndex={selected ? 0 : -1}
             onClick={() => onChange(name)}
             className="relative flex size-11 items-center justify-center rounded-sm outline-none focus-visible:focus-ring"

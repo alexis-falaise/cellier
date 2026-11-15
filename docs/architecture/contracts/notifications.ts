@@ -64,7 +64,8 @@ export interface DeclarativeNotification {
   navigate: string;
   /** Collapse key, see `NotificationTag`. */
   tag: NotificationTag;
-  lang: 'fr';
+  /** The recipient's own language (`cellier_locale` in the account's metadata), French by default. */
+  lang: 'fr' | 'en' | 'sv';
   dir: 'ltr';
   silent: false;
   data: CellierNotificationData;
@@ -187,6 +188,8 @@ export interface ClaimedSubscription {
 
 export interface ClaimedRecipient {
   userId: UserId;
+  /** `cellier_locale` of the account's metadata; null until the user's app has saved one (then French). */
+  locale?: string | null;
   /** Never empty: members without a subscription are not returned. */
   subscriptions: ClaimedSubscription[];
 }

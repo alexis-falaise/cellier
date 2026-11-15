@@ -5,7 +5,7 @@
  */
 import type { Movement } from '@/domain/types';
 import type { MovementView } from '@/entities/movement';
-import { formatShortDate, t } from '@/shared/i18n';
+import { capitalize, formatShortDate, formatShortDateYear, t } from '@/shared/i18n';
 
 /** Movements of one member, same direction and cellier, closer than this, form one session row. */
 export const SESSION_GAP_MS = 10 * 60_000;
@@ -238,13 +238,6 @@ function startOfDay(at: number): number {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
 }
 
-const weekdayDayMonthYear = new Intl.DateTimeFormat('fr-FR', {
-  weekday: 'long',
-  day: 'numeric',
-  month: 'short',
-  year: 'numeric',
-});
-
 /** Day header (§4.3): «Aujourd’hui», «Hier», «Jeudi 14 nov.», with the year when it is not this year's. */
 export function dayLabel(dayStart: number, now: number): string {
   const today = startOfDay(now);
@@ -252,9 +245,9 @@ export function dayLabel(dayStart: number, now: number): string {
   if (days === 0) return t('activity.day.today');
   if (days === 1) return t('activity.day.yesterday');
   const date = new Date(dayStart);
-  const text =
-    date.getFullYear() === new Date(now).getFullYear() ? formatShortDate(date) : weekdayDayMonthYear.format(date);
-  return text.charAt(0).toLocaleUpperCase('fr') + text.slice(1);
+  return capitalize(
+    date.getFullYear() === new Date(now).getFullYear() ? formatShortDate(date) : formatShortDateYear(date),
+  );
 }
 
 export type FeedItem =

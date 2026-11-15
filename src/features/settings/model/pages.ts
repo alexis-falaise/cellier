@@ -47,6 +47,7 @@ export const PAGE_TITLE: Record<SettingsPageName, PlainMessageKey> = {
   category: 'categories.title',
   'category-new': 'categories.new',
   notifications: 'notifications.title',
+  language: 'language.title',
   about: 'about.sources',
 };
 

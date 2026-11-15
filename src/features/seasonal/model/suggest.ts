@@ -10,6 +10,7 @@
  */
 import type { ProductId } from '@/domain/types';
 import { FOODS_BY_SLUG, SEASONAL_FOODS, SWAPS } from './catalog';
+import { foodName } from './names';
 import type { KnownFood, ListedFood, SeasonalEntry, SeasonalSuggestion } from './types';
 
 export const MAX_BACK = 3;
@@ -73,7 +74,7 @@ export function seasonalSuggestions(input: SeasonalInput): SeasonalSuggestion[] 
   };
   const suggestion = (e: SeasonalEntry, rest: Pick<SeasonalSuggestion, 'reason' | 'replaces'>): SeasonalSuggestion => {
     taken.add(e.slug);
-    return { slug: e.slug, name: e.name, productId: productFor(e.slug), ...rest };
+    return { slug: e.slug, name: foodName(e.slug), productId: productFor(e.slug), ...rest };
   };
 
   const out: SeasonalSuggestion[] = [];

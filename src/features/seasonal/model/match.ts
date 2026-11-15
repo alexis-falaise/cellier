@@ -1,11 +1,16 @@
 /**
- * Which seasonal food a list row or a product is. A name matches when it *starts* with a food's
- * name or alias («Tomates cerises» → tomate, «Sauce tomate» → nothing); the longest name wins
+ * Which seasonal food a list row or a product is. A French name matches when it *starts* with a
+ * food's name or alias («Tomates cerises» → tomate, «Sauce tomate» → nothing); the longest name wins
  * («Chou-fleur» → chou-fleur, not chou). Plurals and accents are ignored.
+ *
+ * English and Swedish names match only as the whole text («Tomatoes», «2 kg tomater»): English puts
+ * the food first in processed products («Tomato soup», «Apple juice»), so a prefix would be wrong.
+ * Every language is recognised whatever the active one: a household may mix them.
  */
 import type { CategoryKey } from '@/domain/types';
 import { fold } from '@/shared/i18n';
 import { ALIASES, NOT_SEASONAL, SEASONAL_FOODS } from './catalog';
+import { englishSingular, FOOD_NAMES_EN, FOOD_NAMES_SV, FOOD_SINGULARS_SV } from './names';
 
 /** Words a free-text row may start with before the food itself («2 kg de tomates», «barquette de fraises»). */
 const LEADING = new Set([
@@ -53,7 +58,11 @@ export function tokens(text: string): string[] {
 interface Term {
   words: readonly string[];
   slug: string | null;
+  /** The name must be the whole text, not only its beginning. */
+  whole?: boolean;
 }
+
+const stripNote = (name: string) => name.replace(/\s*\(.*\)\s*$/, '');
 
 let terms: readonly Term[] | null = null;
 
@@ -61,9 +70,17 @@ function allTerms(): readonly Term[] {
   if (terms) return terms;
   const out: Term[] = [];
   for (const e of SEASONAL_FOODS) {
-    for (const name of [e.name.replace(/\s*\(.*\)\s*$/, ''), ...(ALIASES[e.slug] ?? [])]) {
+    for (const name of [stripNote(e.name), ...(ALIASES[e.slug] ?? [])]) {
       out.push({ words: tokens(name), slug: e.slug });
     }
+    const english = FOOD_NAMES_EN[e.slug];
+    const swedish = FOOD_NAMES_SV[e.slug];
+    const translated = [
+      ...(english ? [stripNote(english), englishSingular(stripNote(english))] : []),
+      ...(swedish ? [stripNote(swedish)] : []),
+      ...(FOOD_SINGULARS_SV[e.slug] ? [FOOD_SINGULARS_SV[e.slug] as string] : []),
+    ];
+    for (const name of translated) out.push({ words: tokens(name), slug: e.slug, whole: true });
   }
   for (const name of NOT_SEASONAL) out.push({ words: tokens(name), slug: null });
   // Longest first, so the first match is the most specific; a name keeps the first food it was given.
@@ -77,7 +94,10 @@ export function foodOf(text: string | null | undefined): string | null {
   const words = tokens(text);
   let start = 0;
   while (start < words.length && (LEADING.has(words[start] ?? '') || /^\d/.test(words[start] ?? ''))) start++;
+  // A whole-text name may still carry a trailing note: «Mango (air-freighted)».
+  const wholeLength = tokens(stripNote(text)).length - start;
   for (const term of allTerms()) {
+    if (term.whole && wholeLength !== term.words.length) continue;
     if (term.words.every((w, i) => words[start + i] === w)) return term.slug;
   }
   return null;

@@ -206,3 +206,43 @@ Deno.test('planRound: same product claimed twice for a recipient is named once',
   assertEquals(plan.messages[0].outboxIds, [1, 2]);
   assertEquals(plan.messages[0].copy.title, 'Pâtes : plus que 1');
 });
+
+Deno.test('each recipient is written to in their own language', async () => {
+  const recipients = [
+    { userId: 'u1', locale: 'sv', subscriptions: [sub('s1')] },
+    { userId: 'u2', locale: 'en', subscriptions: [sub('s2')] },
+    { userId: 'u3', subscriptions: [sub('s3')] },
+    { userId: 'u4', locale: 'xx', subscriptions: [sub('s4')] },
+  ];
+  const h = harness([[low(1, 1, recipients, 'Pasta'), digestItem(2, recipients)]], () => 201);
+  await run(h.deps);
+  const byKind = (kind: string) =>
+    Object.fromEntries(
+      h.sent
+        .filter((p) => decode(p).notification.data.kind === kind)
+        .map((p) => [p.subscription.id, decode(p).notification]),
+    );
+  const lowBySub = byKind('running_low');
+  assertEquals(lowBySub.s1.title, 'Pasta: bara 1 kvar');
+  assertEquals(lowBySub.s1.lang, 'sv');
+  assertEquals(lowBySub.s2.title, 'Pasta: only 1 left');
+  assertEquals(lowBySub.s2.lang, 'en');
+  assertEquals(lowBySub.s3.title, 'Pasta\u00a0: plus que 1');
+  assertEquals(lowBySub.s4.lang, 'fr');
+  const digestBySub = byKind('digest');
+  assertEquals(digestBySub.s1.title, 'Inköp i morgon: 1 vara');
+  assertEquals(digestBySub.s2.title, 'Shopping tomorrow: 1 item');
+  assertEquals(digestBySub.s3.title, 'Courses demain\u00a0: 1 article');
+  assertEquals(h.reports[0].outbox.map((o) => o.status).sort(), ['sent', 'sent']);
+});
+
+Deno.test('an empty digest is skipped whatever the languages', async () => {
+  const recipients = [
+    { userId: 'u1', locale: 'sv', subscriptions: [sub('s1')] },
+    { userId: 'u2', locale: 'en', subscriptions: [sub('s2')] },
+  ];
+  const h = harness([[digestItem(7, recipients, true)]], () => 201);
+  await run(h.deps);
+  assertEquals(h.sent.length, 0);
+  assertEquals(h.reports[0].outbox, [{ outboxId: 7, status: 'skipped', error: 'empty_digest' }]);
+});

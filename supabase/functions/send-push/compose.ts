@@ -1,6 +1,7 @@
 /**
- * French copy and payload composition (§2.1, §2.3, §3.6, §4). Pure functions, no I/O.
- * Typography: U+00A0 before «:», typographic apostrophe ’, single-character ellipsis ….
+ * Copy and payload composition (§2.1, §2.3, §3.6, §4). Pure functions, no I/O. Every message is
+ * written in its recipient's language (French, English or Swedish; French when unknown).
+ * Typography: U+00A0 before «:» in French, typographic apostrophe ’, single-character ellipsis ….
  */
 
 import type {
@@ -8,6 +9,7 @@ import type {
   ClaimedProduct,
   HouseholdId,
   NotificationKind,
+  NotificationLang,
   NotificationPath,
   NotificationTag,
   ProductId,
@@ -23,8 +25,104 @@ export const TTL_RUNNING_LOW = 43_200;
 export const TTL_DIGEST = 14_400;
 export const RUNNING_LOW_BODY = 'Seuil d’alerte atteint. Ajout automatique à Courses.';
 
-const collator = new Intl.Collator('fr', { sensitivity: 'base', numeric: true });
-const qtyFormat = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 2 });
+export const DEFAULT_LANG: NotificationLang = 'fr';
+
+/** The recipient's saved language (`cellier_locale` in the account's metadata), French when unset or unknown. */
+export function langOf(value: unknown): NotificationLang {
+  return value === 'en' || value === 'sv' || value === 'fr' ? value : DEFAULT_LANG;
+}
+
+/** Everything a notification says, per language. Mirrors the app's vocabulary (src/shared/i18n). */
+interface Strings {
+  intl: string;
+  /** Name of a product whose name is empty. */
+  unnamed: string;
+  left: (name: string, quantity: string) => string;
+  out: (name: string) => string;
+  runningLowBody: string;
+  /** Title of several running-low products grouped in one notification. */
+  severalLow: (n: number) => string;
+  and: string;
+  others: (n: number) => string;
+  digestTomorrow: (n: number) => string;
+  digestToday: (n: number) => string;
+  digestSoon: (n: number) => string;
+  belowLevel: string;
+  runningOut: string;
+}
+
+const articles = (n: number) => (n === 1 ? 'article' : 'articles');
+const items = (n: number) => (n === 1 ? 'item' : 'items');
+const varor = (n: number) => (n === 1 ? 'vara' : 'varor');
+
+const STRINGS: Record<NotificationLang, Strings> = {
+  fr: {
+    intl: 'fr-FR',
+    unnamed: 'Article',
+    left: (name, quantity) => `${name}${NBSP}: plus que ${quantity}`,
+    out: (name) => `${name}${NBSP}: stock épuisé`,
+    runningLowBody: RUNNING_LOW_BODY,
+    severalLow: (n) => `${n} articles à racheter`,
+    and: 'et',
+    others: (n) => `${n} ${n === 1 ? 'autre' : 'autres'}`,
+    digestTomorrow: (n) => `Courses demain${NBSP}: ${n} ${articles(n)}`,
+    digestToday: (n) => `Courses${NBSP}: ${n} ${articles(n)} à racheter`,
+    digestSoon: (n) => `${n} ${articles(n)} à racheter bientôt`,
+    belowLevel: `Sous le seuil${NBSP}:`,
+    runningOut: `Bientôt épuisé${NBSP}:`,
+  },
+  en: {
+    intl: 'en-GB',
+    unnamed: 'Item',
+    left: (name, quantity) => `${name}: only ${quantity} left`,
+    out: (name) => `${name}: out of stock`,
+    runningLowBody: 'Below its alert level. Added to your shopping list.',
+    severalLow: (n) => `${n} items running low`,
+    and: 'and',
+    others: (n) => `${n} ${n === 1 ? 'other' : 'others'}`,
+    digestTomorrow: (n) => `Shopping tomorrow: ${n} ${items(n)}`,
+    digestToday: (n) => `Shopping today: ${n} ${items(n)} to buy`,
+    digestSoon: (n) => `${n} ${items(n)} to buy soon`,
+    belowLevel: 'Below alert level:',
+    runningOut: 'Running out soon:',
+  },
+  sv: {
+    intl: 'sv-SE',
+    unnamed: 'Vara',
+    left: (name, quantity) => `${name}: bara ${quantity} kvar`,
+    out: (name) => `${name}: slut`,
+    runningLowBody: 'Varningsnivån är nådd. Tillagd på inköpslistan.',
+    severalLow: (n) => `${n} varor är snart slut`,
+    and: 'och',
+    others: (n) => `${n} till`,
+    digestTomorrow: (n) => `Inköp i morgon: ${n} ${varor(n)}`,
+    digestToday: (n) => `Inköp i dag: ${n} ${varor(n)} att köpa`,
+    digestSoon: (n) => `${n} ${varor(n)} att köpa snart`,
+    belowLevel: 'Under varningsnivån:',
+    runningOut: 'Snart slut:',
+  },
+};
+
+const collators = new Map<NotificationLang, Intl.Collator>();
+const quantityFormats = new Map<NotificationLang, Intl.NumberFormat>();
+
+function collator(lang: NotificationLang): Intl.Collator {
+  let c = collators.get(lang);
+  if (!c) {
+    c = new Intl.Collator(STRINGS[lang].intl, { sensitivity: 'base', numeric: true });
+    collators.set(lang, c);
+  }
+  return c;
+}
+
+function formatQuantity(quantity: number, lang: NotificationLang): string {
+  let f = quantityFormats.get(lang);
+  if (!f) {
+    f = new Intl.NumberFormat(STRINGS[lang].intl, { maximumFractionDigits: 2 });
+    quantityFormats.set(lang, f);
+  }
+  return f.format(quantity);
+}
 
 /** Cuts to `max` code points, the last one being «…» when cut. */
 export function truncate(s: string, max: number): string {
@@ -32,27 +130,27 @@ export function truncate(s: string, max: number): string {
   return chars.length <= max ? s : `${chars.slice(0, max - 1).join('').trimEnd()}…`;
 }
 
-export function productName(name: string): string {
+export function productName(name: string, lang: NotificationLang = DEFAULT_LANG): string {
   const t = name.trim().replace(/\s+/g, ' ');
-  return truncate(t || 'Article', MAX_NAME);
-}
-
-function articles(n: number): string {
-  return n === 1 ? 'article' : 'articles';
+  return truncate(t || STRINGS[lang].unnamed, MAX_NAME);
 }
 
 /** «A», «A et B», «A, B et C», «A, B, C et 1 autre», «A, B, C et 2 autres» (§3.6). */
-export function nameListEt(names: string[]): string {
-  const shown = names.slice(0, 3).map(productName);
+export function nameListEt(names: string[], lang: NotificationLang = DEFAULT_LANG): string {
+  const { and, others } = STRINGS[lang];
+  const shown = names.slice(0, 3).map((n) => productName(n, lang));
   const rest = names.length - shown.length;
-  if (rest > 0) return `${shown.join(', ')} et ${rest} ${rest === 1 ? 'autre' : 'autres'}`;
+  if (rest > 0) return `${shown.join(', ')} ${and} ${others(rest)}`;
   if (shown.length <= 1) return shown.join('');
-  return `${shown.slice(0, -1).join(', ')} et ${shown[shown.length - 1]}`;
+  return `${shown.slice(0, -1).join(', ')} ${and} ${shown[shown.length - 1]}`;
 }
 
 /** «A, B, C +2» (§4). */
-export function nameListPlus(names: string[]): string {
-  const shown = names.slice(0, 3).map(productName).join(', ');
+export function nameListPlus(names: string[], lang: NotificationLang = DEFAULT_LANG): string {
+  const shown = names
+    .slice(0, 3)
+    .map((n) => productName(n, lang))
+    .join(', ');
   const rest = names.length - 3;
   return rest > 0 ? `${shown} +${rest}` : shown;
 }
@@ -60,6 +158,7 @@ export function nameListPlus(names: string[]): string {
 /** A composed message, before payload serialisation. */
 export interface Copy {
   kind: NotificationKind;
+  lang: NotificationLang;
   title: string;
   body: string;
   path: NotificationPath;
@@ -79,15 +178,22 @@ export function runningLowSkipReason(product: ClaimedProduct | null): 'product_g
   return product ? null : 'product_gone';
 }
 
-export function composeRunningLow(householdId: HouseholdId, products: ClaimedProduct[]): Copy {
+export function composeRunningLow(
+  householdId: HouseholdId,
+  products: ClaimedProduct[],
+  lang: NotificationLang = DEFAULT_LANG,
+): Copy {
+  const strings = STRINGS[lang];
   if (products.length === 1) {
     const p = products[0];
-    const name = productName(p.name);
-    const title = p.totalQuantity > 0 ? `${name}${NBSP}: plus que ${qtyFormat.format(p.totalQuantity)}` : `${name}${NBSP}: stock épuisé`;
+    const name = productName(p.name, lang);
+    const title =
+      p.totalQuantity > 0 ? strings.left(name, formatQuantity(p.totalQuantity, lang)) : strings.out(name);
     return {
       kind: 'running_low',
+      lang,
       title: truncate(title, MAX_TITLE),
-      body: RUNNING_LOW_BODY,
+      body: strings.runningLowBody,
       path: `/items/${p.id}`,
       tag: `produit-${p.id}`,
       ttl: TTL_RUNNING_LOW,
@@ -96,8 +202,9 @@ export function composeRunningLow(householdId: HouseholdId, products: ClaimedPro
   }
   return {
     kind: 'running_low',
-    title: truncate(`${products.length} articles à racheter`, MAX_TITLE),
-    body: truncate(nameListEt(products.map((p) => p.name)), MAX_BODY),
+    lang,
+    title: truncate(strings.severalLow(products.length), MAX_TITLE),
+    body: truncate(nameListEt(products.map((p) => p.name), lang), MAX_BODY),
     path: '/groceries',
     tag: `courses-${householdId}`,
     ttl: TTL_RUNNING_LOW,
@@ -136,9 +243,9 @@ export function tripOf(nextTripOn: string | null, nowMs: number): Trip {
 
 const STALE_MS = 30 * 86_400_000;
 
-export function digestLists(digest: ClaimedDigest, nowMs: number) {
+export function digestLists(digest: ClaimedDigest, nowMs: number, lang: NotificationLang = DEFAULT_LANG) {
   const low = [...(digest.lowProducts ?? [])].sort(
-    (a, b) => a.totalQuantity - b.totalQuantity || collator.compare(a.name, b.name),
+    (a, b) => a.totalQuantity - b.totalQuantity || collator(lang).compare(a.name, b.name),
   );
   const lowIds = new Set(low.map((p) => p.id));
   const soon = (digest.runningOutSoon ?? [])
@@ -149,22 +256,25 @@ export function digestLists(digest: ClaimedDigest, nowMs: number) {
 }
 
 /** Returns null when there is nothing to report (item skipped with `empty_digest`). */
-export function composeDigest(householdId: HouseholdId, digest: ClaimedDigest, nowMs: number): Copy | null {
-  const { low, soon } = digestLists(digest, nowMs);
+export function composeDigest(
+  householdId: HouseholdId,
+  digest: ClaimedDigest,
+  nowMs: number,
+  lang: NotificationLang = DEFAULT_LANG,
+): Copy | null {
+  const strings = STRINGS[lang];
+  const { low, soon } = digestLists(digest, nowMs, lang);
   const n = low.length + soon.length;
   if (n === 0) return null;
   const trip = tripOf(digest.nextTripOn, nowMs);
   const title =
-    trip === 'tomorrow'
-      ? `Courses demain${NBSP}: ${n} ${articles(n)}`
-      : trip === 'today'
-        ? `Courses${NBSP}: ${n} ${articles(n)} à racheter`
-        : `${n} ${articles(n)} à racheter bientôt`;
+    trip === 'tomorrow' ? strings.digestTomorrow(n) : trip === 'today' ? strings.digestToday(n) : strings.digestSoon(n);
   const segments: string[] = [];
-  if (low.length) segments.push(`Sous le seuil${NBSP}: ${nameListPlus(low.map((p) => p.name))}`);
-  if (soon.length) segments.push(`Bientôt épuisé${NBSP}: ${nameListPlus(soon.map((p) => p.name))}`);
+  if (low.length) segments.push(`${strings.belowLevel} ${nameListPlus(low.map((p) => p.name), lang)}`);
+  if (soon.length) segments.push(`${strings.runningOut} ${nameListPlus(soon.map((p) => p.name), lang)}`);
   return {
     kind: 'digest',
+    lang,
     title: truncate(title, MAX_TITLE),
     body: truncate(segments.join(' · '), MAX_BODY),
     path: '/groceries',
@@ -190,7 +300,7 @@ export function buildPayload(
       body: copy.body,
       navigate: `${appUrl.replace(/\/+$/, '')}${copy.path}`,
       tag: copy.tag,
-      lang: 'fr',
+      lang: copy.lang,
       dir: 'ltr',
       silent: false,
       data: {

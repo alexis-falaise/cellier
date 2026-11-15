@@ -4,7 +4,7 @@
  * concurrent edit of another field by another member is kept, 02 §3 per-field LWW).
  */
 import type { CategoryId, NetUnit, Product, ProductFields } from '@/domain/types';
-import { fold } from '@/shared/i18n';
+import { fold, formatFieldNumber } from '@/shared/i18n';
 
 /** Units offered by the «Unité» control; stored as g, ml or piece. */
 export type FormUnit = 'g' | 'kg' | 'ml' | 'cl' | 'l' | 'piece';
@@ -41,13 +41,6 @@ export interface ItemFormErrors {
   price?: 'positive';
 }
 
-const decimalText = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 3, useGrouping: false });
-const priceText = new Intl.NumberFormat('fr-FR', {
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-  useGrouping: false,
-});
-
 /** «1,5» / «1.5» / « 2 » → number; '' → null; anything else → NaN. */
 export function parseDecimal(text: string): number | null {
   const s = text.trim().replace(/\s/g, '').replace(',', '.');
@@ -64,7 +57,7 @@ export function sizeForDisplay(netQuantity: number | null, netUnit: NetUnit | nu
   if (unit === 'g' && netQuantity >= 1000) shown = 'kg';
   if (unit === 'ml' && netQuantity >= 1000) shown = 'l';
   else if (unit === 'ml' && netQuantity % 10 === 0) shown = 'cl';
-  return { size: decimalText.format(netQuantity / FACTOR[shown].factor), unit: shown };
+  return { size: formatFieldNumber(netQuantity / FACTOR[shown].factor, 3), unit: shown };
 }
 
 /** Typed size → stored `netQuantity` / `netUnit` (null when empty or invalid). */
@@ -91,7 +84,7 @@ export function formFromProduct(product: Product): ItemForm {
     kind: product.kind ?? '',
     size,
     unit,
-    price: product.priceCents === null ? '' : priceText.format(product.priceCents / 100),
+    price: product.priceCents === null ? '' : formatFieldNumber(product.priceCents / 100, 2, true),
     minQuantity: product.minQuantity,
     usualQuantity: product.usualQuantity,
   };

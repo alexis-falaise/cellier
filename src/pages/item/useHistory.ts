@@ -5,7 +5,7 @@ import { useMembers } from '@/entities/member';
 import { useProductMovements } from '@/entities/movement';
 import { useRowOverwrites } from '@/entities/overwrite';
 import { usePantries } from '@/entities/pantry';
-import { formatPriceCents, formatRelativeTime, t } from '@/shared/i18n';
+import { formatPlainNumber, formatPriceCents, formatRelativeTime, t } from '@/shared/i18n';
 import { type CellierSnapshot, hlcDeviceId, useStore, useSyncEngine } from '@/shared/sync';
 import type { PlainMessageKey } from '@/widgets/item/productText';
 import { tryMutate } from '@/widgets/item/stockActions';
@@ -72,7 +72,7 @@ function formatFieldValue(field: string, value: unknown, categoryNames: Readonly
   if (value === null || value === undefined || value === '') return t('common.none');
   if (field === 'categoryId') return categoryNames.get(String(value)) ?? t('stock.group.noCategory');
   if (field === 'priceCents' && typeof value === 'number') return formatPriceCents(value);
-  return typeof value === 'number' ? new Intl.NumberFormat('fr-FR').format(value) : String(value);
+  return typeof value === 'number' ? formatPlainNumber(value) : String(value);
 }
 
 /** «Rétablir» on a «Modification remplacée» row: writes the old value again as a new edit. */

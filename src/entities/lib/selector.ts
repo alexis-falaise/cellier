@@ -72,5 +72,4 @@ export function keyedSelector<K, R>(factory: (key: K) => Selector<R>, max = 200)
   };
 }
 
-const collator = new Intl.Collator('fr', { sensitivity: 'base', numeric: true });
-export const compareFr = (a: string, b: string) => collator.compare(a, b);
+export { compareNames } from '@/shared/i18n';

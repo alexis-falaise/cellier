@@ -3,7 +3,7 @@
  * Pure; the forecasts come from `useHouseholdForecasts`.
  */
 import type { ProductForecast } from '@/features/forecast';
-import { compareFr, formatCover, formatCoverA11y, t } from '@/shared/i18n';
+import { compareText, formatCover, formatCoverA11y, t } from '@/shared/i18n';
 
 export type LowBadge = { kind: 'out' } | { kind: 'cover'; days: number } | { kind: 'threshold' };
 
@@ -55,7 +55,7 @@ export function runningLowRows(
     const ga = group(a);
     const gb = group(b);
     if (ga !== gb) return ga - gb;
-    const nameOrder = compareFr(names.get(a.productId) ?? '', names.get(b.productId) ?? '');
+    const nameOrder = compareText(names.get(a.productId) ?? '', names.get(b.productId) ?? '');
     if (ga === 1) return (a.daysLeft ?? 0) - (b.daysLeft ?? 0) || nameOrder;
     if (ga === 2) {
       const ra = a.totalQuantity / Math.max(1, a.minimum);

@@ -1,7 +1,7 @@
 /** Household and member selectors and hooks. */
 import type { Household, Member } from '@/domain/types';
 import { useStore } from '@/shared/sync';
-import { compareFr, createSelector, keyedSelector, type Selector } from '../lib/selector';
+import { compareNames, createSelector, keyedSelector, type Selector } from '../lib/selector';
 
 export const selectHousehold: Selector<Household | null> = (s) =>
   (s.householdId ? s.rows.household.get(s.householdId) : undefined) ?? null;
@@ -11,7 +11,8 @@ export const selectMembers: Selector<readonly Member[]> = createSelector(
   (s) => [s.rows.member] as const,
   (members) =>
     [...members.values()].sort(
-      (a, b) => (a.role === 'owner' ? 0 : 1) - (b.role === 'owner' ? 0 : 1) || compareFr(a.displayName, b.displayName),
+      (a, b) =>
+        (a.role === 'owner' ? 0 : 1) - (b.role === 'owner' ? 0 : 1) || compareNames(a.displayName, b.displayName),
     ),
 );
 

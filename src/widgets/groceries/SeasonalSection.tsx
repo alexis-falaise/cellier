@@ -1,7 +1,7 @@
 import { ArrowLeftRight, EyeOff, Plus } from 'lucide-react';
 import type { CategoryKey, ProductView } from '@/domain/types';
 import { FOODS_BY_SLUG, type SeasonalGroup, type SeasonalSuggestion } from '@/features/seasonal';
-import { t } from '@/shared/i18n';
+import { elide, formatMonthName, getLocale, t } from '@/shared/i18n';
 import {
   CategoryTile,
   type CategoryVisual,
@@ -22,20 +22,19 @@ const GROUP_CATEGORY: Record<SeasonalGroup, CategoryKey> = {
   fromage: 'laitier',
 };
 
-const monthName = new Intl.DateTimeFormat('fr-FR', { month: 'long', timeZone: 'UTC' });
-
 /** «novembre» for a running month index (year × 12 + month − 1). */
 export function seasonalMonthName(month: number): string {
-  return monthName.format(new Date(Date.UTC(Math.floor(month / 12), month % 12, 15)));
+  return formatMonthName(month % 12);
 }
 
-/** «de Tomates», «d’Avocats» (elision before a vowel; h is left alone, most food names have an aspirated h). */
-export function ofName(name: string): string {
-  return /^[aeiouyàâäéèêëîïôöùûüœæ]/i.test(name) ? `d’${name}` : `de ${name}`;
+/** «Au lieu de Tomates», «Au lieu d’Avocats» (French elides before a vowel), «Instead of Tomatoes». */
+export function seasonalSwapText(name: string): string {
+  const text = t('groceries.seasonal.swap', { name });
+  return getLocale() === 'fr' ? elide(text) : text;
 }
 
 export function seasonalReasonText(s: SeasonalSuggestion): string {
-  if (s.replaces) return t('groceries.seasonal.swap', { ofName: ofName(s.replaces.name) });
+  if (s.replaces) return seasonalSwapText(s.replaces.name);
   return s.reason === 'back' ? t('groceries.seasonal.back') : t('groceries.seasonal.starting');
 }
 

@@ -2,6 +2,7 @@
  * Store selectors of the Stock screen. The search documents depend only on product and category
  * rows, so the MiniSearch index is not rebuilt when a quantity changes.
  */
+import { localizeCategory } from '@/entities/category';
 import { createSelector, type Selector } from '@/entities/lib/selector';
 import { type StockSearchDoc, toSearchDoc } from './search';
 
@@ -18,7 +19,7 @@ export const selectStockSearchDocs: Selector<readonly StockSearchDoc[]> = create
           name: p.name,
           brand: p.brand,
           gtin: p.gtin,
-          categoryName: category && category.deletedAt === null ? category.name : null,
+          categoryName: category && category.deletedAt === null ? localizeCategory(category).name : null,
         }),
       );
     }

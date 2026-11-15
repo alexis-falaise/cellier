@@ -3,6 +3,7 @@ import {
   buildPayload,
   composeDigest,
   composeRunningLow,
+  langOf,
   MAX_PAYLOAD_BYTES,
   nameListEt,
   nameListPlus,
@@ -135,4 +136,65 @@ Deno.test('payload shape and size bound', () => {
   const bytes = serializePayload(buildPayload(big, H, [1], 'https://cellier-one.vercel.app', NOW));
   assert(bytes.length <= MAX_PAYLOAD_BYTES);
   assertEquals(JSON.parse(new TextDecoder().decode(bytes)).notification.title, '120 articles à racheter bientôt');
+});
+
+Deno.test('language of a recipient: saved value, French otherwise', () => {
+  assertEquals(langOf('sv'), 'sv');
+  assertEquals(langOf('en'), 'en');
+  assertEquals(langOf('fr'), 'fr');
+  assertEquals([langOf(null), langOf(undefined), langOf('de'), langOf(3)], ['fr', 'fr', 'fr', 'fr']);
+});
+
+Deno.test('running low in English and Swedish', () => {
+  const one = [{ id: P(1), name: 'Pasta', totalQuantity: 1500, minQuantity: 2 }];
+  const en = composeRunningLow(H, one, 'en');
+  assertEquals(en.title, 'Pasta: only 1,500 left');
+  assertEquals(en.body, 'Below its alert level. Added to your shopping list.');
+  assertEquals(en.lang, 'en');
+  const sv = composeRunningLow(H, one, 'sv');
+  assertEquals(sv.title, `Pasta: bara 1${NBSP}500 kvar`);
+  assertEquals(sv.body, 'Varningsnivån är nådd. Tillagd på inköpslistan.');
+
+  const out = [{ id: P(1), name: ' ', totalQuantity: 0, minQuantity: 1 }];
+  assertEquals(composeRunningLow(H, out, 'en').title, 'Item: out of stock');
+  assertEquals(composeRunningLow(H, out, 'sv').title, 'Vara: slut');
+  assertEquals(composeRunningLow(H, out).title, `Article${NBSP}: stock épuisé`);
+
+  const three = ['Pasta', 'Milk', 'Coffee'].map((name, i) => ({ id: P(i), name, totalQuantity: 0, minQuantity: 1 }));
+  assertEquals(composeRunningLow(H, three, 'en').title, '3 items running low');
+  assertEquals(composeRunningLow(H, three, 'en').body, 'Pasta, Milk and Coffee');
+  assertEquals(composeRunningLow(H, three, 'sv').title, '3 varor är snart slut');
+  assertEquals(composeRunningLow(H, three, 'sv').body, 'Pasta, Milk och Coffee');
+});
+
+Deno.test('name lists in English and Swedish', () => {
+  assertEquals(nameListEt(['A', 'B'], 'en'), 'A and B');
+  assertEquals(nameListEt(['A', 'B', 'C', 'D'], 'en'), 'A, B, C and 1 other');
+  assertEquals(nameListEt(['A', 'B', 'C', 'D', 'E'], 'en'), 'A, B, C and 2 others');
+  assertEquals(nameListEt(['A', 'B'], 'sv'), 'A och B');
+  assertEquals(nameListEt(['A', 'B', 'C', 'D', 'E'], 'sv'), 'A, B, C och 2 till');
+});
+
+Deno.test('digest in English and Swedish', () => {
+  const en = composeDigest(H, digest, NOW, 'en');
+  assert(en);
+  assertEquals(en.title, 'Shopping tomorrow: 6 items');
+  assertEquals(en.body, 'Below alert level: Pâtes, Lait · Running out soon: Café, Riz, Thé +1');
+  const sv = composeDigest(H, digest, NOW, 'sv');
+  assert(sv);
+  assertEquals(sv.title, 'Inköp i morgon: 6 varor');
+  assertEquals(sv.body, 'Under varningsnivån: Pâtes, Lait · Snart slut: Café, Riz, Thé +1');
+
+  const one = { lowProducts: [{ id: P(1), name: 'Lait', totalQuantity: 1 }], runningOutSoon: [], nextTripOn: '2026-11-10' };
+  assertEquals(composeDigest(H, one, NOW, 'en')?.title, 'Shopping today: 1 item to buy');
+  assertEquals(composeDigest(H, one, NOW, 'sv')?.title, 'Inköp i dag: 1 vara att köpa');
+  assertEquals(composeDigest(H, { ...one, nextTripOn: null }, NOW, 'en')?.title, '1 item to buy soon');
+  assertEquals(composeDigest(H, { ...one, nextTripOn: null }, NOW, 'sv')?.title, '1 vara att köpa snart');
+});
+
+Deno.test('the payload carries the language of its copy', () => {
+  const c = composeRunningLow(H, [{ id: P(1), name: 'Pasta', totalQuantity: 1, minQuantity: 2 }], 'sv');
+  assertEquals(buildPayload(c, H, [1], 'https://cellier-one.vercel.app', NOW).notification.lang, 'sv');
+  const fr = composeRunningLow(H, [{ id: P(1), name: 'Pâtes', totalQuantity: 1, minQuantity: 2 }]);
+  assertEquals(buildPayload(fr, H, [1], 'https://cellier-one.vercel.app', NOW).notification.lang, 'fr');
 });

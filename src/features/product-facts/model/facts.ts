@@ -1,7 +1,8 @@
 /**
  * Product facts as the item sheet shows them: parsed from a `catalog_facts` row (PostgREST or the
- * `product-facts` Edge Function), plus the French names of the taxonomy tags.
+ * `product-facts` Edge Function), plus the names of the taxonomy tags in the active language.
  */
+import { type MessageKey, t } from '@/shared/i18n';
 import {
   type CatalogFactsRow,
   type FactsSource,
@@ -121,66 +122,73 @@ export function hasDisplayableFacts(f: ProductFacts): boolean {
 }
 
 // ---------------------------------------------------------------------------------------------
-// Taxonomy names (French). Unknown tags fall back to the tag value, prettified.
+// Taxonomy names, in the active language. Unknown tags fall back to the tag value, prettified.
 // ---------------------------------------------------------------------------------------------
 
-const ALLERGENS: Record<string, string> = {
-  'en:gluten': 'Gluten',
-  'en:crustaceans': 'Crustacés',
-  'en:eggs': 'Œufs',
-  'en:fish': 'Poisson',
-  'en:peanuts': 'Arachides',
-  'en:soybeans': 'Soja',
-  'en:milk': 'Lait',
-  'en:nuts': 'Fruits à coque',
-  'en:celery': 'Céleri',
-  'en:mustard': 'Moutarde',
-  'en:sesame-seeds': 'Sésame',
-  'en:sulphur-dioxide-and-sulphites': 'Sulfites',
-  'en:lupin': 'Lupin',
-  'en:molluscs': 'Mollusques',
+type AllergenKey = Extract<MessageKey, `facts.allergen.${string}`>;
+
+const ALLERGENS: Record<string, AllergenKey> = {
+  'en:gluten': 'facts.allergen.gluten',
+  'en:crustaceans': 'facts.allergen.crustaceans',
+  'en:eggs': 'facts.allergen.eggs',
+  'en:fish': 'facts.allergen.fish',
+  'en:peanuts': 'facts.allergen.peanuts',
+  'en:soybeans': 'facts.allergen.soybeans',
+  'en:milk': 'facts.allergen.milk',
+  'en:nuts': 'facts.allergen.nuts',
+  'en:celery': 'facts.allergen.celery',
+  'en:mustard': 'facts.allergen.mustard',
+  'en:sesame-seeds': 'facts.allergen.sesame',
+  'en:sulphur-dioxide-and-sulphites': 'facts.allergen.sulphites',
+  'en:lupin': 'facts.allergen.lupin',
+  'en:molluscs': 'facts.allergen.molluscs',
 };
 
-const LABELS: Record<string, string> = {
-  'en:organic': 'Bio',
-  'en:eu-organic': 'Bio européen',
-  'fr:ab-agriculture-biologique': 'AB Agriculture biologique',
-  'en:fair-trade': 'Commerce équitable',
-  'en:fairtrade-international': 'Fairtrade',
-  'en:max-havelaar': 'Max Havelaar',
-  'en:rainforest-alliance': 'Rainforest Alliance',
-  'en:utz-certified': 'UTZ',
-  'en:vegan': 'Végan',
-  'en:vegetarian': 'Végétarien',
-  'en:no-gluten': 'Sans gluten',
-  'en:no-lactose': 'Sans lactose',
-  'en:no-palm-oil': 'Sans huile de palme',
-  'en:no-preservatives': 'Sans conservateurs',
-  'en:no-colorings': 'Sans colorants',
-  'en:no-additives': 'Sans additifs',
-  'en:no-added-sugar': 'Sans sucres ajoutés',
-  'en:no-gmos': 'Sans OGM',
-  'en:made-in-france': 'Fabriqué en France',
-  'fr:origine-france': 'Origine France',
-  'fr:label-rouge': 'Label Rouge',
-  'en:pdo': 'AOP',
-  'en:pgi': 'IGP',
-  'fr:aoc': 'AOC',
-  'en:tsg': 'STG',
-  'en:sustainable-seafood-msc': 'Pêche durable MSC',
-  'en:msc': 'Pêche durable MSC',
-  'en:asc': 'Aquaculture responsable ASC',
-  'fr:bleu-blanc-coeur': 'Bleu-Blanc-Cœur',
-  'en:eu-ecolabel': 'Écolabel européen',
-  'en:ecolabel': 'Écolabel',
-  'en:ecocert': 'Ecocert',
-  'fr:cosmebio': 'Cosmébio',
-  'en:cosmos-organic': 'Cosmos Organic',
-  'en:without-perfume': 'Sans parfum',
-  'en:not-tested-on-animals': 'Non testé sur les animaux',
-  'en:cruelty-free': 'Cruelty free',
-  'en:fsc': 'FSC',
-  'en:pefc': 'PEFC',
+/** A translated name (`key`), or a proper name that reads the same in every language (`name`). */
+type LabelName = { key: PlainKey } | { name: string };
+type PlainKey = Extract<MessageKey, `facts.label.${string}` | `facts.analysis.${string}`>;
+
+/** Known labels, in the order their chips are shown. */
+const LABELS: Record<string, LabelName> = {
+  'en:organic': { key: 'facts.label.organic' },
+  'en:eu-organic': { key: 'facts.label.euOrganic' },
+  'fr:ab-agriculture-biologique': { name: 'AB Agriculture biologique' },
+  'en:fair-trade': { key: 'facts.label.fairTrade' },
+  'en:fairtrade-international': { name: 'Fairtrade' },
+  'en:max-havelaar': { name: 'Max Havelaar' },
+  'en:rainforest-alliance': { name: 'Rainforest Alliance' },
+  'en:utz-certified': { name: 'UTZ' },
+  'en:vegan': { key: 'facts.label.vegan' },
+  'en:vegetarian': { key: 'facts.label.vegetarian' },
+  'en:no-gluten': { key: 'facts.label.noGluten' },
+  'en:no-lactose': { key: 'facts.label.noLactose' },
+  'en:no-palm-oil': { key: 'facts.label.noPalmOil' },
+  'en:no-preservatives': { key: 'facts.label.noPreservatives' },
+  'en:no-colorings': { key: 'facts.label.noColorings' },
+  'en:no-additives': { key: 'facts.label.noAdditives' },
+  'en:no-added-sugar': { key: 'facts.label.noAddedSugar' },
+  'en:no-gmos': { key: 'facts.label.noGmos' },
+  'en:made-in-france': { key: 'facts.label.madeInFrance' },
+  'fr:origine-france': { key: 'facts.label.frenchOrigin' },
+  'fr:label-rouge': { name: 'Label Rouge' },
+  'en:pdo': { key: 'facts.label.pdo' },
+  'en:pgi': { key: 'facts.label.pgi' },
+  'fr:aoc': { name: 'AOC' },
+  'en:tsg': { key: 'facts.label.tsg' },
+  'en:sustainable-seafood-msc': { key: 'facts.label.msc' },
+  'en:msc': { key: 'facts.label.msc' },
+  'en:asc': { key: 'facts.label.asc' },
+  'fr:bleu-blanc-coeur': { name: 'Bleu-Blanc-Cœur' },
+  'en:eu-ecolabel': { key: 'facts.label.euEcolabel' },
+  'en:ecolabel': { key: 'facts.label.ecolabel' },
+  'en:ecocert': { name: 'Ecocert' },
+  'fr:cosmebio': { name: 'Cosmébio' },
+  'en:cosmos-organic': { name: 'Cosmos Organic' },
+  'en:without-perfume': { key: 'facts.label.noPerfume' },
+  'en:not-tested-on-animals': { key: 'facts.label.notTestedOnAnimals' },
+  'en:cruelty-free': { key: 'facts.label.crueltyFree' },
+  'en:fsc': { name: 'FSC' },
+  'en:pefc': { name: 'PEFC' },
 };
 
 /** Logos and administrative marks that say nothing about the product. */
@@ -188,21 +196,24 @@ const HIDDEN_LABEL =
   /nutriscore|nutri-score|triman|green-dot|point-vert|eco-emballages|citeo|info-tri|recycl|^[a-z]{2}:pme-plus$|ecoscore|green-score/;
 
 export function allergenName(tag: string): string {
-  return ALLERGENS[tag] ?? prettyTag(tag);
+  const key = ALLERGENS[tag];
+  return key ? t(key) : prettyTag(tag);
 }
 
 export function labelName(tag: string): string {
-  return LABELS[tag] ?? prettyTag(tag);
+  const label = LABELS[tag];
+  if (!label) return prettyTag(tag);
+  return 'key' in label ? t(label.key) : label.name;
 }
 
 /** Labels worth a chip: known first (in table order), then up to `max` in all. */
 export function visibleLabels(f: Pick<ProductFacts, 'labels' | 'analysis'>, max = 10): string[] {
-  const tags = f.labels.filter((t) => !HIDDEN_LABEL.test(t) && /^[a-z]{2}:/.test(t));
-  const known = tags.filter((t) => t in LABELS);
-  const unknown = tags.filter((t) => !(t in LABELS) && t.startsWith('fr:'));
+  const tags = f.labels.filter((tag) => !HIDDEN_LABEL.test(tag) && /^[a-z]{2}:/.test(tag));
+  const known = tags.filter((tag) => tag in LABELS);
+  const unknown = tags.filter((tag) => !(tag in LABELS) && tag.startsWith('fr:'));
   const names: string[] = [];
-  for (const t of [...known, ...unknown]) {
-    const n = labelName(t);
+  for (const tag of [...known, ...unknown]) {
+    const n = labelName(tag);
     if (!names.includes(n)) names.push(n);
   }
   return names.slice(0, max);
@@ -212,12 +223,12 @@ export type AnalysisChip = { key: string; label: string; tone: 'positive' | 'war
 
 /** Palm oil, vegan, vegetarian, from the definite analysis tags; vegan supersedes vegetarian. */
 export function analysisChips(f: Pick<ProductFacts, 'analysis' | 'labels'>): AnalysisChip[] {
-  const has = (t: string) => f.analysis.includes(t);
+  const has = (tag: string) => f.analysis.includes(tag);
   const out: AnalysisChip[] = [];
-  if (has('en:palm-oil')) out.push({ key: 'palm', label: 'Huile de palme', tone: 'warning' });
-  else if (has('en:palm-oil-free')) out.push({ key: 'palm', label: 'Sans huile de palme', tone: 'positive' });
-  if (has('en:vegan')) out.push({ key: 'veg', label: 'Végan', tone: 'positive' });
-  else if (has('en:vegetarian')) out.push({ key: 'veg', label: 'Végétarien', tone: 'positive' });
+  if (has('en:palm-oil')) out.push({ key: 'palm', label: t('facts.analysis.palmOil'), tone: 'warning' });
+  else if (has('en:palm-oil-free')) out.push({ key: 'palm', label: t('facts.label.noPalmOil'), tone: 'positive' });
+  if (has('en:vegan')) out.push({ key: 'veg', label: t('facts.label.vegan'), tone: 'positive' });
+  else if (has('en:vegetarian')) out.push({ key: 'veg', label: t('facts.label.vegetarian'), tone: 'positive' });
   return out;
 }
 

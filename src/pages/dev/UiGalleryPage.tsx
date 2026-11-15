@@ -23,12 +23,14 @@ import {
 import { type ReactNode, useEffect, useState } from 'react';
 import type { CategoryKey } from '@/domain/types';
 import { type ProductFacts, ProductFactsSections } from '@/features/product-facts';
+import { t } from '@/shared/i18n';
 import { HapticsHost, isHapticsEnabled, setHapticsEnabled } from '@/shared/lib/haptics';
 import {
   AvatarButton,
   BackButton,
   Button,
   CATEGORY_HUES,
+  CATEGORY_ICONS,
   Card,
   type CategoryHue,
   type CategoryIconName,
@@ -706,7 +708,17 @@ export function UiGalleryPage() {
           onChange={setCategory}
           label="Catégorie"
         />
-        <IconPicker value={icon} onChange={setIcon} hue={hue} label="Icône" />
+        <IconPicker
+          value={icon}
+          onChange={setIcon}
+          hue={hue}
+          label={t('category.icon')}
+          iconLabels={
+            Object.fromEntries(
+              (Object.keys(CATEGORY_ICONS) as CategoryIconName[]).map((name) => [name, t(`category.icon.${name}`)]),
+            ) as Record<CategoryIconName, string>
+          }
+        />
         <ColorSwatchPicker value={hue} onChange={setHue} hueLabels={HUE_LABELS} label="Couleur" />
         <p className="px-4 type-footnote text-label-secondary">{CATEGORY_HUES.length} teintes</p>
       </Block>

@@ -8,6 +8,7 @@ import { t } from '@/shared/i18n';
 import { useMutate } from '@/shared/sync';
 import {
   CATEGORY_HUES,
+  CATEGORY_ICONS,
   type CategoryHue,
   type CategoryIconName,
   CategoryTile,
@@ -41,6 +42,10 @@ const HUE_LABELS = Object.fromEntries(CATEGORY_HUES.map((hue) => [hue, t(`catego
   CategoryHue,
   string
 >;
+
+const ICON_LABELS = Object.fromEntries(
+  (Object.keys(CATEGORY_ICONS) as CategoryIconName[]).map((name) => [name, t(`category.icon.${name}`)]),
+) as Record<CategoryIconName, string>;
 
 interface Appearance {
   name: string;
@@ -83,7 +88,13 @@ function Editor({
       </ListSection>
       <section className="flex flex-col gap-2">
         <h2 className="mx-8 type-footnote text-label-secondary">{t('category.icon')}</h2>
-        <IconPicker value={value.icon} hue={value.hue} onChange={onIcon} label={t('category.icon')} />
+        <IconPicker
+          value={value.icon}
+          hue={value.hue}
+          onChange={onIcon}
+          label={t('category.icon')}
+          iconLabels={ICON_LABELS}
+        />
       </section>
       <section className="flex flex-col gap-2">
         <h2 className="mx-8 type-footnote text-label-secondary">{t('category.color')}</h2>

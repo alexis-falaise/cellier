@@ -7,6 +7,7 @@ import {
   buildPayload,
   composeDigest,
   composeRunningLow,
+  langOf,
   runningLowSkipReason,
   serializePayload,
   type Copy,
@@ -18,6 +19,7 @@ import type {
   NotificationClaimResult,
   NotificationCompleteReport,
   NotificationKind,
+  NotificationLang,
   OutboxReport,
   SendPushInvocationLog,
   SubscriptionReport,
@@ -98,7 +100,12 @@ export async function planRound(items: ClaimedItem[], appUrl: string, nowMs: num
   // running_low: household → recipient → items (claim order).
   const groups = new Map<
     string,
-    { householdId: string; items: { outboxId: number; product: ClaimedProduct }[]; subs: Map<string, ClaimedSubscription> }
+    {
+      householdId: string;
+      lang: NotificationLang;
+      items: { outboxId: number; product: ClaimedProduct }[];
+      subs: Map<string, ClaimedSubscription>;
+    }
   >();
 
   for (const item of items) {
@@ -118,7 +125,7 @@ export async function planRound(items: ClaimedItem[], appUrl: string, nowMs: num
         const key = `${item.householdId}\u0000${r.userId}`;
         let g = groups.get(key);
         if (!g) {
-          g = { householdId: item.householdId, items: [], subs: new Map() };
+          g = { householdId: item.householdId, lang: langOf(r.locale), items: [], subs: new Map() };
           groups.set(key, g);
         }
         if (!g.items.some((x) => x.outboxId === item.outboxId)) g.items.push({ outboxId: item.outboxId, product });
@@ -129,12 +136,20 @@ export async function planRound(items: ClaimedItem[], appUrl: string, nowMs: num
         skipped.push({ outboxId: item.outboxId, status: 'skipped', error: 'no_recipient' });
         continue;
       }
-      const copy = item.digest ? composeDigest(item.householdId, item.digest, nowMs) : null;
-      if (!copy) {
+      // One copy per language among the recipients; an empty digest is empty in every language.
+      const digest = item.digest;
+      const copies = new Map<NotificationLang, Copy | null>();
+      const copyIn = (lang: NotificationLang) => {
+        if (!copies.has(lang)) copies.set(lang, digest ? composeDigest(item.householdId, digest, nowMs, lang) : null);
+        return copies.get(lang) ?? null;
+      };
+      if (!copyIn(langOf(recipients[0]?.locale))) {
         skipped.push({ outboxId: item.outboxId, status: 'skipped', error: 'empty_digest' });
         continue;
       }
       for (const r of recipients) {
+        const copy = copyIn(langOf(r.locale));
+        if (!copy) continue;
         drafts.push({ copy, householdId: item.householdId, outboxIds: [item.outboxId], subscriptions: r.subscriptions });
       }
     } else {
@@ -147,7 +162,7 @@ export async function planRound(items: ClaimedItem[], appUrl: string, nowMs: num
     const products: ClaimedProduct[] = [];
     for (const x of g.items) if (!products.some((p) => p.id === x.product.id)) products.push(x.product);
     drafts.push({
-      copy: composeRunningLow(g.householdId, products),
+      copy: composeRunningLow(g.householdId, products, g.lang),
       householdId: g.householdId,
       outboxIds: g.items.map((x) => x.outboxId),
       subscriptions: [...g.subs.values()],

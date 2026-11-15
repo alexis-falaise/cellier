@@ -27,7 +27,9 @@ import {
   type PushDeps,
   reconcilePush,
 } from '@/features/notifications';
+import type { Locale } from '@/shared/i18n';
 import type { GuardState, HouseholdPhase } from '../guards';
+import { chooseLocale, forgetUnsentLocale, reconcileLocale } from './locale';
 import {
   changeSyncHousehold,
   clearSyncData,
@@ -103,6 +105,7 @@ let booting: Promise<void> | null = null;
 let transition: Promise<void> = Promise.resolve();
 let resolvedFor: UserId | null = null;
 let pushReconciledFor: UserId | null = null;
+let localeReconciledFor: UserId | null = null;
 let lastReconcileAt = 0;
 
 function set(patch: Partial<AppSessionState>) {
@@ -149,6 +152,12 @@ async function resolveHousehold(next: AuthState): Promise<void> {
   if (next.status === 'signedIn') {
     void syncNow();
     maybeReconcilePush(user.id);
+    // Once per user and page load: a language changed on another device applies at the next start,
+    // never in the middle of a session.
+    if (localeReconciledFor !== user.id) {
+      localeReconciledFor = user.id;
+      reconcileLocale(auth, user);
+    }
   }
   if (resolvedFor === user.id && state.household.phase !== 'unknown') return;
 
@@ -274,10 +283,17 @@ export async function signOut(): Promise<void> {
     if (pushDeps) await disablePush(pushDeps).catch(() => undefined);
     await clearSyncData();
     clearLocalPreferences();
+    forgetUnsentLocale();
     disableGoogleAutoSelect();
   });
   resolvedFor = null;
   pushReconciledFor = null;
+  localeReconciledFor = null;
+}
+
+/** Réglages › Langue: saves the language on the device and the account, then reloads the app in it. */
+export function chooseLanguage(locale: Locale): Promise<void> {
+  return chooseLocale(auth, locale);
 }
 
 export function getHouseholds(): HouseholdApi | null {

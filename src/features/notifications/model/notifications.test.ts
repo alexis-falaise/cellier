@@ -71,11 +71,31 @@ describe('notificationFromPush (§2.1–2.2)', () => {
       { web_push: 1, notification: payload.notification },
       { web_push: 8030, notification: { title: ' ' } },
     ]) {
-      const { title, options } = notificationFromPush(bad);
+      const { title, options } = notificationFromPush(bad, 'fr-FR');
       expect(title).toBe(NOTIFICATION_FALLBACK.title);
       expect(options.body).toBe(NOTIFICATION_FALLBACK.body);
       expect(options.data).toEqual({ path: '/' });
     }
+  });
+
+  it('writes the fallback in the device language, French when it is not supported', () => {
+    expect(notificationFromPush(null, 'sv-SE').options).toMatchObject({
+      body: 'Något nytt i ditt förråd.',
+      lang: 'sv',
+    });
+    expect(notificationFromPush(null, 'en-GB').options).toMatchObject({
+      body: 'Something new in your pantry.',
+      lang: 'en',
+    });
+    expect(notificationFromPush(null, 'de-DE').options).toMatchObject({ body: NOTIFICATION_FALLBACK.body, lang: 'fr' });
+  });
+
+  it('keeps the language the server wrote the notification in', () => {
+    const swedish = { ...payload, notification: { ...payload.notification, lang: 'sv' } };
+    expect(notificationFromPush(swedish).options.lang).toBe('sv');
+    expect(
+      notificationFromPush({ ...payload, notification: { ...payload.notification, lang: 'xx' } }).options.lang,
+    ).toBe('fr');
   });
 });
 
