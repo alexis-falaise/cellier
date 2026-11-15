@@ -5,6 +5,7 @@
  */
 export { FOODS_BY_SLUG, SEASONAL_FOODS } from './model/catalog';
 export { foodOf, foodOfProduct } from './model/match';
+export { foodName } from './model/names';
 export type { MonthIndex, SeasonalInput } from './model/suggest';
 export { inSeason, isYearRound, monthIndex, seasonalSuggestions, seasonStart } from './model/suggest';
 export type * from './model/types';

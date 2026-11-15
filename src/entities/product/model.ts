@@ -1,6 +1,7 @@
 /** Product selectors: products with household totals (ProductView), lookups, running low. */
 import type { Category, Gtin, Pantry, PantryId, Product, ProductView, StockRow } from '@/domain/types';
-import { compareFr, createSelector, keyedSelector, type Selector } from '../lib/selector';
+import { localizeCategory } from '../category/localize';
+import { compareNames, createSelector, keyedSelector, type Selector } from '../lib/selector';
 
 /** Product ids with a queued mutation touching the product or one of its stock rows. */
 export const selectPendingProductIds: Selector<ReadonlySet<string>> = createSelector(
@@ -55,7 +56,7 @@ let viewCache = new Map<string, ProductView>();
 function liveCategory(categories: ReadonlyMap<string, Category>, id: string | null): Category | null {
   if (!id) return null;
   const c = categories.get(id);
-  return c && c.deletedAt === null ? c : null;
+  return c && c.deletedAt === null ? localizeCategory(c) : null;
 }
 
 /** ProductView of every product (deleted ones included), by id. Unchanged products keep their object. */
@@ -111,13 +112,13 @@ export const selectProductViews: Selector<readonly ProductView[]> = createSelect
   (map) =>
     [...map.values()]
       .filter((v) => v.product.deletedAt === null)
-      .sort((a, b) => compareFr(a.product.name, b.product.name)),
+      .sort((a, b) => compareNames(a.product.name, b.product.name)),
 );
 
 /** Deleted products (for «Restaurer»). */
 export const selectDeletedProducts: Selector<readonly Product[]> = createSelector(
   (s) => [s.rows.product] as const,
-  (products) => [...products.values()].filter((p) => p.deletedAt !== null).sort((a, b) => compareFr(a.name, b.name)),
+  (products) => [...products.values()].filter((p) => p.deletedAt !== null).sort((a, b) => compareNames(a.name, b.name)),
 );
 
 /** One product view by id (aliases resolved), or undefined. */

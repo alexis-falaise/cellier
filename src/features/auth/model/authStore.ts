@@ -44,6 +44,10 @@ export interface AuthClientLike {
   }): Promise<{ error: AuthErrorLike | null }>;
   exchangeCodeForSession(authCode: string): Promise<SessionResult>;
   signOut(options: { scope: 'local' | 'global' | 'others' }): Promise<{ error: AuthErrorLike | null }>;
+  updateUser(attributes: { data: Record<string, unknown> }): Promise<{
+    data: { user: AuthUserLike | null } | null;
+    error: AuthErrorLike | null;
+  }>;
 }
 
 /** Synchronous key-value storage (localStorage in the app, a Map in tests). */
@@ -64,6 +68,8 @@ export interface SessionUser {
   name: string | null;
   firstName: string | null;
   avatarUrl: string | null;
+  /** Interface language saved on the account (`LOCALE_METADATA_KEY`), null until one is saved. */
+  locale: string | null;
 }
 
 export type AuthState =
@@ -91,10 +97,18 @@ export interface AuthStore {
   exchangeCode(code: string): Promise<ExchangeResult>;
   /** Explicit sign-out: runs `beforeSignOut` (push, sync, local data), then ends the local session. */
   signOut(beforeSignOut?: () => Promise<void>): Promise<void>;
+  /** Saves the interface language on the account, so it follows the user to other devices and to push. */
+  setLocale(locale: string): Promise<{ ok: boolean }>;
   dispose(): void;
 }
 
 export const LAST_USER_KEY = 'cellier:last-user';
+
+/**
+ * Key of the interface language in the account's user metadata. Prefixed: Google's own `locale`
+ * claim is merged into the same object at every sign-in. The send-push function reads it too.
+ */
+export const LOCALE_METADATA_KEY = 'cellier_locale';
 
 function text(value: unknown): string | null {
   return typeof value === 'string' && value.trim().length > 0 ? value.trim() : null;
@@ -110,6 +124,7 @@ export function toSessionUser(user: AuthUserLike): SessionUser {
     name,
     firstName,
     avatarUrl: text(meta.avatar_url) ?? text(meta.picture),
+    locale: text(meta[LOCALE_METADATA_KEY]),
   };
 }
 
@@ -133,6 +148,7 @@ function readLastUser(storage: KeyValueStorage): SessionUser | null {
           name: parsed.name ?? null,
           firstName: parsed.firstName ?? null,
           avatarUrl: parsed.avatarUrl ?? null,
+          locale: parsed.locale ?? null,
         }
       : null;
   } catch {
@@ -297,6 +313,22 @@ export function createAuthStore({ client, storage, isOnline = () => true }: Auth
         forget();
         set({ status: 'signedOut' });
         explicitSignOut = false;
+      }
+    },
+
+    async setLocale(locale) {
+      if (state.status !== 'signedIn') return { ok: false };
+      try {
+        const { data: result, error } = await client.updateUser({ data: { [LOCALE_METADATA_KEY]: locale } });
+        if (error || !result?.user) return { ok: false };
+        if (state.status === 'signedIn' && state.user.id === result.user.id) {
+          const user = { ...state.user, locale };
+          remember(user);
+          set({ status: 'signedIn', user });
+        }
+        return { ok: true };
+      } catch {
+        return { ok: false };
       }
     },
 

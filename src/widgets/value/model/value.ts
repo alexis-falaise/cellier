@@ -3,7 +3,7 @@
  * category. A product without a price is counted apart, so the total never pretends to be complete.
  */
 import type { Category, ProductView } from '@/domain/types';
-import { compareFr } from '@/shared/i18n';
+import { compareText } from '@/shared/i18n';
 
 export interface CategoryValue {
   /** null = «Sans catégorie». */
@@ -50,6 +50,6 @@ export function stockValue(views: readonly ProductView[], pantryId: string | nul
   }
   const byCategory = [...groups.values()]
     .map((g) => ({ ...g, share: totalCents > 0 ? g.cents / totalCents : 0 }))
-    .sort((a, b) => b.cents - a.cents || compareFr(a.category?.name ?? '', b.category?.name ?? ''));
+    .sort((a, b) => b.cents - a.cents || compareText(a.category?.name ?? '', b.category?.name ?? ''));
   return { totalCents, priced, unpriced, byCategory };
 }

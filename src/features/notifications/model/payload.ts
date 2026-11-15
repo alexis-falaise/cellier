@@ -20,13 +20,16 @@ export interface CellierNotificationData {
   sentAt: string;
 }
 
+/** Languages the server writes notifications in (the recipient's own, French by default). */
+export type NotificationLang = 'fr' | 'en' | 'sv';
+
 /** The `notification` member of a declarative Web Push message (§2.1). */
 export interface DeclarativeNotification {
   title: string;
   body: string;
   navigate: string;
   tag: string;
-  lang: 'fr';
+  lang: NotificationLang;
   dir: 'ltr';
   silent: false;
   data: CellierNotificationData;
@@ -47,8 +50,7 @@ export interface SwNavigateMessage {
 
 /**
  * Shown when a push cannot be parsed (§2.2): iOS revokes push for a site whose pushes show nothing.
- * Strings: fr.ts has no keys for these yet (`push.fallback.title`, `push.fallback.body` requested);
- * the service worker does not load the string catalogue.
+ * The service worker does not load the string catalogue: these copy `push.fallback.body`.
  */
 export const NOTIFICATION_FALLBACK = {
   title: 'Cellier',
@@ -56,6 +58,20 @@ export const NOTIFICATION_FALLBACK = {
   tag: 'cellier',
   path: '/' as NotificationPath,
 } as const;
+
+const FALLBACK_BODIES: Record<NotificationLang, string> = {
+  fr: NOTIFICATION_FALLBACK.body,
+  en: 'Something new in your pantry.',
+  sv: 'Något nytt i ditt förråd.',
+};
+
+const isLang = (v: unknown): v is NotificationLang => v === 'fr' || v === 'en' || v === 'sv';
+
+/** The worker cannot read the user's choice: the fallback follows the device language. */
+function langOf(language: string | undefined): NotificationLang {
+  const base = (language ?? '').toLowerCase().split('-')[0];
+  return isLang(base) ? base : 'fr';
+}
 
 export interface NotificationToShow {
   title: string;
@@ -68,15 +84,19 @@ const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'obj
  * §2.2. Turns the parsed push body into `showNotification` arguments. Every input gives a
  * notification: a malformed payload gives the fallback.
  */
-export function notificationFromPush(payload: unknown): NotificationToShow {
+export function notificationFromPush(
+  payload: unknown,
+  deviceLanguage: string | undefined = globalThis.navigator?.language,
+): NotificationToShow {
   const n = isRecord(payload) && payload.web_push === 8030 ? payload.notification : null;
   if (!isRecord(n) || typeof n.title !== 'string' || n.title.trim() === '') {
+    const lang = langOf(deviceLanguage);
     return {
       title: NOTIFICATION_FALLBACK.title,
       options: {
-        body: NOTIFICATION_FALLBACK.body,
+        body: FALLBACK_BODIES[lang],
         tag: NOTIFICATION_FALLBACK.tag,
-        lang: 'fr',
+        lang,
         dir: 'ltr',
         silent: false,
         data: { path: NOTIFICATION_FALLBACK.path },
@@ -85,7 +105,7 @@ export function notificationFromPush(payload: unknown): NotificationToShow {
   }
   const options: NotificationOptions = {
     body: typeof n.body === 'string' ? n.body : '',
-    lang: 'fr',
+    lang: isLang(n.lang) ? n.lang : 'fr',
     dir: 'ltr',
     silent: false,
     data: isRecord(n.data) ? { ...n.data, navigate: n.navigate } : { navigate: n.navigate },

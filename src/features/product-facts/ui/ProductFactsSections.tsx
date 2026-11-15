@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { type MessageKey, type MessageParams, t } from '@/shared/i18n';
+import { formatFieldNumber, type MessageKey, type MessageParams, t } from '@/shared/i18n';
 import { cx, ListSection, RowSeparator } from '@/shared/ui';
 import {
   allergenName,
@@ -141,12 +141,9 @@ function GradeTile({ score, grade, colors, meaning }: TileProps) {
   );
 }
 
-const fmt = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 });
-const fmtSmall = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 2 });
-
 function amount(key: NutrimentKey, value: number): string {
-  if (key === 'energy_kcal') return `${fmt.format(value)} kcal`;
-  return `${(value < 1 ? fmtSmall : fmt).format(value)} g`;
+  if (key === 'energy_kcal') return `${formatFieldNumber(value, 1)} kcal`;
+  return `${formatFieldNumber(value, value < 1 ? 2 : 1)} g`;
 }
 
 function LevelsSection({ facts }: { facts: ProductFacts }) {

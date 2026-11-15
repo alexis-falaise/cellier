@@ -3,7 +3,9 @@
  * the flat row model the virtual list renders. Pure functions; the page memoises them.
  */
 import type { SortDirection, StockGroup, StockSort } from '@/app/search';
-import { fold } from '@/shared/i18n/text';
+import { compareNames, fold } from '@/shared/i18n';
+
+export { compareNames };
 
 /** One product as the Stock list sees it in the current scope (one cellier or all). */
 export interface StockItem {
@@ -54,10 +56,6 @@ export interface StockRows<T extends StockItem = StockItem> {
   /** Sum of their quantities (the footer's «{u} unités»). */
   unitCount: number;
 }
-
-const nameCollator = new Intl.Collator('fr', { sensitivity: 'base', numeric: true });
-
-export const compareNames = (a: string, b: string): number => nameCollator.compare(a, b);
 
 /** «Catégorie» is not offered as a sort while grouping by category; it falls back to the name. */
 export function effectiveSort(group: StockGroup, sort: StockSort): StockSort {

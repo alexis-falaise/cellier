@@ -21,6 +21,7 @@ import {
   type ProductForecast,
   shoppingCadence,
 } from '@/features/forecast';
+import { capitalize } from '@/shared/i18n';
 import { useStore } from '@/shared/sync';
 import { useNow } from './useNow';
 
@@ -133,7 +134,7 @@ function cachedForecast(
   return result;
 }
 
-const capitalizeKind = (kind: string) => kind.charAt(0).toLocaleUpperCase('fr-FR') + kind.slice(1);
+const capitalizeKind = capitalize;
 
 export interface HouseholdForecasts {
   now: number;

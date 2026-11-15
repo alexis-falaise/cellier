@@ -34,6 +34,7 @@ export const SETTINGS_PAGES = [
   'category',
   'category-new',
   'notifications',
+  'language',
   'about',
 ] as const;
 export type SettingsPage = (typeof SETTINGS_PAGES)[number];

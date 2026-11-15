@@ -1,4 +1,4 @@
-import { Bell, House, Info, RefreshCw, Shapes, SquarePlus, Vibrate, Warehouse } from 'lucide-react';
+import { Bell, House, Info, Languages, RefreshCw, Shapes, SquarePlus, Vibrate, Warehouse } from 'lucide-react';
 import { useEffect, useId, useState } from 'react';
 import { closeSheet, openSheet, pushSheetPage } from '@/app/navigation';
 import { useActiveHousehold, useSession } from '@/app/session';
@@ -8,7 +8,7 @@ import { usePantries } from '@/entities/pantry';
 import { useSyncSummary } from '@/entities/sync';
 import { useOnline } from '@/features/auth';
 import { browserPushEnvironment, type PushStatus, readPushStatus } from '@/features/notifications';
-import { t } from '@/shared/i18n';
+import { getLocale, LOCALE_NAMES, t } from '@/shared/i18n';
 import { hapticSupport, isHapticsEnabled, setHapticsEnabled } from '@/shared/lib/haptics';
 import { isStandalone, ListRow, ListSection, SheetTextButton, Switch } from '@/shared/ui';
 import { notificationsSummary } from '../model/account';
@@ -110,6 +110,12 @@ export function RootPage() {
           title={t('notifications.title')}
           value={pushKind === 'loading' ? undefined : t(`settings.notifications.${notifications}`)}
           onPress={() => pushSheetPage({ page: 'notifications' })}
+        />
+        <ListRow
+          leading={<RowIcon icon={Languages} />}
+          title={t('language.title')}
+          value={LOCALE_NAMES[getLocale()]}
+          onPress={() => pushSheetPage({ page: 'language' })}
         />
         {showHaptics ? (
           <ListRow

@@ -1,18 +1,63 @@
-import { t } from './fr';
+import { perLocale } from './locale';
+import { t } from './messages';
 import { NNBSP } from './typography';
 
-const LOCALE = 'fr-FR';
-
-const decimal = new Intl.NumberFormat(LOCALE, { maximumFractionDigits: 2 });
-const euro = new Intl.NumberFormat(LOCALE, { style: 'currency', currency: 'EUR' });
-const time = new Intl.DateTimeFormat(LOCALE, { hour: '2-digit', minute: '2-digit' });
-const weekday = new Intl.DateTimeFormat(LOCALE, { weekday: 'long' });
-const dayMonth = new Intl.DateTimeFormat(LOCALE, { day: 'numeric', month: 'short' });
-const dayMonthYear = new Intl.DateTimeFormat(LOCALE, { day: 'numeric', month: 'short', year: 'numeric' });
-const weekdayDayMonth = new Intl.DateTimeFormat(LOCALE, { weekday: 'long', day: 'numeric', month: 'short' });
+const decimal = perLocale((tag) => new Intl.NumberFormat(tag, { maximumFractionDigits: 2 }));
+const euro = perLocale((tag) => new Intl.NumberFormat(tag, { style: 'currency', currency: 'EUR' }));
+const time = perLocale((tag) => new Intl.DateTimeFormat(tag, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }));
+const weekday = perLocale((tag) => new Intl.DateTimeFormat(tag, { weekday: 'long' }));
+const dayMonth = perLocale((tag) => new Intl.DateTimeFormat(tag, { day: 'numeric', month: 'short' }));
+const dayMonthYear = perLocale(
+  (tag) => new Intl.DateTimeFormat(tag, { day: 'numeric', month: 'short', year: 'numeric' }),
+);
+const weekdayDayMonth = perLocale(
+  (tag) => new Intl.DateTimeFormat(tag, { weekday: 'long', day: 'numeric', month: 'short' }),
+);
+const weekdayDayMonthYear = perLocale(
+  (tag) => new Intl.DateTimeFormat(tag, { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' }),
+);
+const monthName = perLocale((tag) => new Intl.DateTimeFormat(tag, { month: 'long', timeZone: 'UTC' }));
+const weekdayName = perLocale((tag) => new Intl.DateTimeFormat(tag, { weekday: 'long', timeZone: 'UTC' }));
+const conjunction = perLocale((tag) => new Intl.ListFormat(tag, { style: 'long', type: 'conjunction' }));
+const plainNumber = perLocale((tag) => new Intl.NumberFormat(tag));
 
 export function formatNumber(value: number): string {
-  return decimal.format(value);
+  return decimal().format(value);
+}
+
+/** A number with every digit it has («1 234,567»), for values shown as typed. */
+export function formatPlainNumber(value: number): string {
+  return plainNumber().format(value);
+}
+
+const fieldNumber = perLocale((tag) => {
+  const cache = new Map<string, Intl.NumberFormat>();
+  return (digits: number, fixed: boolean) => {
+    const key = `${digits}:${fixed}`;
+    let format = cache.get(key);
+    if (!format) {
+      format = new Intl.NumberFormat(tag, {
+        minimumFractionDigits: fixed ? digits : 0,
+        maximumFractionDigits: digits,
+        useGrouping: false,
+      });
+      cache.set(key, format);
+    }
+    return format;
+  };
+});
+
+/**
+ * A number with at most `digits` decimals (exactly `digits` when `fixed`) and no thousands separator,
+ * as it is typed in a field: «1,5», «2,50».
+ */
+export function formatFieldNumber(value: number, digits: number, fixed = false): string {
+  return fieldNumber()(digits, fixed).format(value);
+}
+
+/** «Lait, Café et Pâtes» / “Milk, Coffee and Pasta”. */
+export function formatList(items: readonly string[]): string {
+  return conjunction().format(items);
 }
 
 // Quantities
@@ -21,7 +66,7 @@ export type QuantityUnit = 'g' | 'kg' | 'ml' | 'cl' | 'l' | 'piece';
 
 const round2 = (value: number) => Math.round(value * 100) / 100;
 const withUnit = (value: number, unit: 'g' | 'kg' | 'ml' | 'cl' | 'l') =>
-  `${decimal.format(round2(value))}${NNBSP}${t(`unit.${unit}`)}`;
+  `${decimal().format(round2(value))}${NNBSP}${t(`unit.${unit}`)}`;
 
 /**
  * «500 g», «1,5 kg», «75 cl», «1,5 L», «3 pièces».
@@ -50,12 +95,12 @@ export function formatQuantity(value: number, unit: QuantityUnit): string {
 
 /** «1,89 €». */
 export function formatEuros(amount: number): string {
-  return euro.format(amount);
+  return euro().format(amount);
 }
 
 /** «1,89 €» from 189 cents (the domain stores prices in cents). */
 export function formatPriceCents(cents: number): string {
-  return euro.format(cents / 100);
+  return euro().format(cents / 100);
 }
 
 // Dates
@@ -73,17 +118,33 @@ function calendarDays(date: Date, now: Date): number {
 
 /** «18:40». */
 export function formatTime(date: Date): string {
-  return time.format(date);
+  return time().format(date);
 }
 
 /** «jeudi 14 nov.». */
 export function formatShortDate(date: Date): string {
-  return weekdayDayMonth.format(date);
+  return weekdayDayMonth().format(date);
+}
+
+/** «jeudi 14 nov. 2025». */
+export function formatShortDateYear(date: Date): string {
+  return weekdayDayMonthYear().format(date);
+}
+
+/** «novembre» for a month (0 = January). */
+export function formatMonthName(month: number): string {
+  return monthName().format(new Date(Date.UTC(2024, month, 15)));
+}
+
+/** «samedi» for a weekday (0 = Sunday … 6 = Saturday). */
+export function formatWeekdayName(day: number): string {
+  // 7 January 2024 was a Sunday.
+  return weekdayName().format(new Date(Date.UTC(2024, 0, 7 + day, 12)));
 }
 
 /** «3 oct.», with the year when it differs from `now`'s: «3 oct. 2025». */
 export function formatDayMonth(date: Date, now: Date = new Date()): string {
-  return date.getFullYear() === now.getFullYear() ? dayMonth.format(date) : dayMonthYear.format(date);
+  return date.getFullYear() === now.getFullYear() ? dayMonth().format(date) : dayMonthYear().format(date);
 }
 
 /**
@@ -97,7 +158,7 @@ export function formatRelativeTime(date: Date, now: Date = new Date()): string {
   const days = -calendarDays(date, now);
   if (days === 0) return t('time.todayAt', { time: formatTime(date) });
   if (days === 1) return t('time.yesterdayAt', { time: formatTime(date) });
-  if (days <= 6) return weekday.format(date);
+  if (days <= 6) return weekday().format(date);
   return formatDayMonth(date, now);
 }
 

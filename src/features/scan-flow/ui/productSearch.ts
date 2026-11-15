@@ -1,6 +1,5 @@
 import type { ProductView } from '@/domain/types';
-
-const fold = (s: string) => s.normalize('NFD').replace(/\p{M}/gu, '').toLocaleLowerCase('fr');
+import { fold } from '@/shared/i18n';
 
 /** Household products whose name or brand contains every word of the query (accents ignored). */
 export function searchProducts(views: readonly ProductView[], query: string, limit = 8): ProductView[] {

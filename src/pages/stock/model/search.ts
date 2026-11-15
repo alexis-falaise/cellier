@@ -4,7 +4,7 @@
  * whose GTIN-14 is 03017620422003). One index, rebuilt only when the documents change.
  */
 import MiniSearch from 'minisearch';
-import { fold } from '@/shared/i18n/text';
+import { fold } from '@/shared/i18n';
 
 export interface StockSearchDoc {
   id: string;

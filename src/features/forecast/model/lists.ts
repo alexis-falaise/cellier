@@ -1,5 +1,5 @@
 import type { GroceryEntry, GroceryId, ProductId, UserId } from '@/domain/types';
-import { compareFr } from '@/shared/i18n';
+import { compareText } from '@/shared/i18n';
 import { DAY_MS } from './time';
 import type {
   Dismissal,
@@ -66,7 +66,7 @@ export function runningLowView(
       Number(b.totalQuantity <= 0) - Number(a.totalQuantity <= 0) ||
       (a.daysLeft ?? 0) - (b.daysLeft ?? 0) ||
       a.totalQuantity - b.totalQuantity ||
-      compareFr(a.name, b.name),
+      compareText(a.name, b.name),
   );
 }
 
@@ -101,7 +101,7 @@ export function shoppingList(
     });
   }
   entries.sort(
-    (a, b) => a.urgencyDays - b.urgencyDays || a.totalQuantity - b.totalQuantity || compareFr(a.name, b.name),
+    (a, b) => a.urgencyDays - b.urgencyDays || a.totalQuantity - b.totalQuantity || compareText(a.name, b.name),
   );
   return { trip, entries };
 }
@@ -262,7 +262,7 @@ export function groceryList(input: GroceryListInput): GroceryList {
     (a, b) =>
       (a.urgencyDays ?? 0) - (b.urgencyDays ?? 0) ||
       (a.totalQuantity ?? 0) - (b.totalQuantity ?? 0) ||
-      compareFr(a.name, b.name),
+      compareText(a.name, b.name),
   );
   const byOrder = (a: { order: number }, b: { order: number }) => (a.order || 0) - (b.order || 0);
   return {

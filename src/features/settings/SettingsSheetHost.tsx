@@ -11,6 +11,7 @@ import { CategoryPage, NewCategoryPage } from './ui/CategoryPage';
 import { FallbackActivityPage, FallbackPantriesPage } from './ui/FallbackPages';
 import { HouseholdPage } from './ui/HouseholdPage';
 import { InvitePage } from './ui/InvitePage';
+import { LanguagePage } from './ui/LanguagePage';
 import { MemberPage } from './ui/MemberPage';
 import { NotificationsPage } from './ui/NotificationsPage';
 import { RootPage } from './ui/RootPage';
@@ -51,6 +52,8 @@ function PageView({ entry }: { entry: SettingsStackEntry }) {
       return <NewCategoryPage />;
     case 'notifications':
       return <NotificationsPage />;
+    case 'language':
+      return <LanguagePage />;
     case 'about':
       return <AboutPage />;
   }

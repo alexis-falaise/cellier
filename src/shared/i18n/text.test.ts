@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { compareFr, fold } from './text';
+import { setActiveLocale } from './locale';
+import { capitalize, compareNames, compareText, elide, fold } from './text';
 
 describe('fold', () => {
   it('removes diacritics and case', () => {
@@ -18,9 +19,9 @@ describe('fold', () => {
   });
 });
 
-describe('compareFr', () => {
+describe('compareText', () => {
   it('sorts French names', () => {
-    expect(['Œufs', 'eau', 'Épices', 'abricots', 'Été'].sort(compareFr)).toEqual([
+    expect(['Œufs', 'eau', 'Épices', 'abricots', 'Été'].sort(compareText)).toEqual([
       'abricots',
       'eau',
       'Épices',
@@ -30,6 +31,46 @@ describe('compareFr', () => {
   });
 
   it('sorts digits by value', () => {
-    expect(['Lot 10', 'Lot 2'].sort(compareFr)).toEqual(['Lot 2', 'Lot 10']);
+    expect(['Lot 10', 'Lot 2'].sort(compareText)).toEqual(['Lot 2', 'Lot 10']);
+  });
+});
+
+describe('other languages', () => {
+  it('sorts Swedish å ä ö after z', () => {
+    setActiveLocale('sv');
+    try {
+      expect(['Öl', 'Zucchini', 'Ägg', 'Apelsiner', 'Ål'].sort(compareText)).toEqual([
+        'Apelsiner',
+        'Zucchini',
+        'Ål',
+        'Ägg',
+        'Öl',
+      ]);
+    } finally {
+      setActiveLocale('fr');
+    }
+  });
+
+  it('compares names without case or accents', () => {
+    expect(compareNames('Épices', 'epices')).toBe(0);
+  });
+
+  it('folds Swedish letters for search', () => {
+    expect(fold('Rödbetor')).toBe('rodbetor');
+    expect(fold('Blåbär')).toBe('blabar');
+  });
+});
+
+describe('capitalize and elide', () => {
+  it('capitalizes the first letter only', () => {
+    expect(capitalize('samedi 16 nov.')).toBe('Samedi 16 nov.');
+    expect(capitalize('élan')).toBe('Élan');
+    expect(capitalize('')).toBe('');
+  });
+
+  it('elides «de» before a vowel', () => {
+    expect(elide('Au lieu de Avocats')).toBe('Au lieu d’Avocats');
+    expect(elide('Au lieu de Tomates')).toBe('Au lieu de Tomates');
+    expect(elide('Au lieu de Haricots verts')).toBe('Au lieu de Haricots verts');
   });
 });

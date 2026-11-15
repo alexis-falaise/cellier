@@ -18,6 +18,7 @@ import { type PantrySelection, resolvePantrySelection, usePantryPreference, writ
 export {
   type AppSessionState,
   bootstrapSession,
+  chooseLanguage,
   enterHousehold,
   getAppSession,
   getHouseholds,

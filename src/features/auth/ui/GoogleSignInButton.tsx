@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { t } from '@/shared/i18n';
+import { getLocale, t } from '@/shared/i18n';
 import { Spinner } from '@/shared/ui';
 import type { SessionUser } from '../model/authStore';
 import { loadGis } from '../model/gis';
@@ -117,7 +117,7 @@ export function GoogleSignInButton({ onSignedIn, redirectPath = '/auth/callback'
           shape: 'pill',
           logo_alignment: 'center',
           width: Math.min(400, Math.max(200, Math.floor(slot.clientWidth || 320))),
-          locale: 'fr',
+          locale: getLocale(),
         });
         setPhase('gis');
         renderTimer = setTimeout(() => {

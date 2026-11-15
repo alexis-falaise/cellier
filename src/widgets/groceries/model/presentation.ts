@@ -4,7 +4,7 @@
  */
 import type { Category } from '@/domain/types';
 import type { GroceryItem, NextTrip, ProductForecast } from '@/features/forecast';
-import { formatDayMonth, formatShortDate, t } from '@/shared/i18n';
+import { capitalize, formatDayMonth, formatList, formatShortDate, formatWeekdayName, t } from '@/shared/i18n';
 import { type CategoryHue, categoryVisual } from '@/shared/ui/categories';
 
 const DAY_MS = 86_400_000;
@@ -24,18 +24,10 @@ function mondayOf(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate() - offset);
 }
 
-/** «samedi 16 nov.» → «Samedi 16 nov.» (a date standing alone as a title). */
-export function capitalize(text: string): string {
-  return text.length > 0 ? text.charAt(0).toLocaleUpperCase('fr') + text.slice(1) : text;
-}
+export { capitalize };
 
-const weekdayFormat = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', timeZone: 'UTC' });
-
-/** French weekday name of a cadence weekday (0 = Sunday … 6 = Saturday). */
-export function weekdayName(day: number): string {
-  // 7 January 2024 was a Sunday.
-  return weekdayFormat.format(new Date(Date.UTC(2024, 0, 7 + day, 12)));
-}
+/** Weekday name of a cadence weekday (0 = Sunday … 6 = Saturday), in the active language. */
+export const weekdayName = formatWeekdayName;
 
 /**
  * Date line of the next trip (§4.2.4): «aujourd’hui», «demain», then by cadence confidence
@@ -80,11 +72,9 @@ export function isThin(trip: NextTrip): boolean {
   return trip.cadence === null || trip.cadence.confidence === 'low';
 }
 
-const listFormat = new Intl.ListFormat('fr', { style: 'long', type: 'conjunction' });
-
 /** «Lait, Café et Pâtes», or «Lait, Café, Pâtes et 4 autres» beyond three names (`trip.preview`). */
 export function tripPreview(names: readonly string[]): string {
-  if (names.length <= 3) return listFormat.format(names);
+  if (names.length <= 3) return formatList(names);
   const [a = '', b = '', c = ''] = names;
   return t('trip.preview', { a, b, c, n: names.length - 3 });
 }

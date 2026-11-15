@@ -13,6 +13,8 @@ export type IsoDateTime = string;
 // --- Push payload (§2.1) ----------------------------------------------------------------------
 
 export type NotificationKind = 'running_low' | 'digest';
+/** Language a notification is written in: the recipient's own, French by default. */
+export type NotificationLang = 'fr' | 'en' | 'sv';
 export type NotificationPath = '/' | '/groceries' | `/items/${string}`;
 export type NotificationTag = `produit-${string}` | `courses-${string}` | `digest-${string}`;
 
@@ -31,7 +33,7 @@ export interface DeclarativeNotification {
   body: string;
   navigate: string;
   tag: NotificationTag;
-  lang: 'fr';
+  lang: NotificationLang;
   dir: 'ltr';
   silent: false;
   data: CellierNotificationData;
@@ -59,6 +61,8 @@ export interface ClaimedSubscription {
 
 export interface ClaimedRecipient {
   userId: UserId;
+  /** `cellier_locale` of the account's metadata; absent or null until the user's app has saved one. */
+  locale?: string | null;
   subscriptions: ClaimedSubscription[];
 }
 

@@ -1,10 +1,10 @@
 /** Pantry selectors: live pantries in display order, and the stock of one pantry. */
 import type { Pantry, ProductView } from '@/domain/types';
 import { stockKey } from '@/domain/types';
-import { compareFr, createSelector, keyedSelector, type Selector } from '../lib/selector';
+import { compareNames, createSelector, keyedSelector, type Selector } from '../lib/selector';
 import { selectProductViews } from '../product/model';
 
-const byOrder = (a: Pantry, b: Pantry) => a.sortOrder - b.sortOrder || compareFr(a.name, b.name);
+const byOrder = (a: Pantry, b: Pantry) => a.sortOrder - b.sortOrder || compareNames(a.name, b.name);
 
 /** Live pantries by sortOrder, then name. */
 export const selectPantries: Selector<readonly Pantry[]> = createSelector(

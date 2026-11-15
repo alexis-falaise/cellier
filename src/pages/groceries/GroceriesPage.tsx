@@ -117,7 +117,7 @@ export function GroceriesPage() {
   );
   const memberNames = useMemo(() => new Map(members.map((m) => [m.userId as string, m.displayName])), [members]);
   const memberLabel = (userId: string | null) => {
-    if (userId !== null && userId === me) return t('common.you').toLocaleLowerCase('fr');
+    if (userId !== null && userId === me) return t('common.youObject');
     return (userId !== null ? memberNames.get(userId) : undefined) ?? t('activity.row.formerMember');
   };
 

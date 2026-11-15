@@ -1,16 +1,21 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import {
   formatCover,
   formatCoverA11y,
   formatDayLabel,
   formatDayMonth,
   formatEuros,
+  formatFieldNumber,
+  formatList,
+  formatMonthName,
   formatPriceCents,
   formatQuantity,
   formatRelativeTime,
   formatShortDate,
   formatTime,
+  formatWeekdayName,
 } from './format';
+import { setActiveLocale } from './locale';
 import { NNBSP } from './typography';
 
 const nb = (s: string) => s.replace(/ /g, NNBSP);
@@ -91,5 +96,39 @@ describe('formatCover', () => {
     expect(formatCoverA11y(1)).toBe('Environ 1 jour de stock');
     expect(formatCoverA11y(4)).toBe('Environ 4 jours de stock');
     expect(formatCoverA11y(21)).toBe('Environ 3 semaines de stock');
+  });
+});
+
+describe('other languages', () => {
+  const now = new Date(2026, 10, 14, 18, 40);
+  afterEach(() => setActiveLocale('fr'));
+
+  it('formats the English way: decimal point, € first, capitalised days', () => {
+    setActiveLocale('en');
+    expect(formatQuantity(1500, 'g')).toBe(nb('1.5 kg'));
+    expect(formatQuantity(6, 'piece')).toBe('6 pieces');
+    expect(formatPriceCents(123450)).toBe('€1,234.50');
+    expect(formatTime(new Date(2026, 10, 14, 8, 5))).toBe('08:05');
+    expect(formatShortDate(new Date(2026, 10, 12))).toBe('Thursday 12 Nov');
+    expect(formatRelativeTime(new Date(2026, 10, 14, 14, 2), now)).toBe('today, 14:02');
+    expect(formatCover(21)).toBe(nb('≈ 3 wk'));
+    expect(formatCoverA11y(1)).toBe('About 1 day of stock left');
+    expect(formatList(['A', 'B', 'C'])).toBe('A, B and C');
+    expect(formatFieldNumber(2.5, 2, true)).toBe('2.50');
+    expect([formatMonthName(10), formatWeekdayName(6)]).toEqual(['November', 'Saturday']);
+  });
+
+  it('formats the Swedish way: decimal comma, € last, lower-case days', () => {
+    setActiveLocale('sv');
+    expect(formatQuantity(1500, 'g')).toBe(nb('1,5 kg'));
+    expect(formatQuantity(6, 'piece')).toBe('6 st');
+    expect(normalizeSpaces(formatEuros(1.89))).toBe('1,89 €');
+    expect(formatShortDate(new Date(2026, 10, 12))).toBe('torsdag 12 nov.');
+    expect(formatRelativeTime(new Date(2026, 10, 9, 10, 0), now)).toBe('måndag');
+    expect(formatDayLabel(new Date(2026, 10, 15, 9, 0), now)).toBe('i morgon');
+    expect(formatCover(21)).toBe(nb('≈ 3 v'));
+    expect(formatList(['A', 'B', 'C'])).toBe('A, B och C');
+    expect(formatFieldNumber(1.5, 3)).toBe('1,5');
+    expect([formatMonthName(10), formatWeekdayName(6)]).toEqual(['november', 'lördag']);
   });
 });

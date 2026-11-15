@@ -1,6 +1,4 @@
-import { frenchTypography } from './typography';
-
-/** A string with a `one` form (0 and 1 in French) and an `other` form. */
+/** A string with a `one` form (0 and 1 in French, 1 in English and Swedish) and an `other` form. */
 export interface Plural {
   readonly one: string;
   readonly other: string;
@@ -9,10 +7,11 @@ export interface Plural {
 export type Entry = string | Plural;
 
 /**
- * Copy deck from `docs/design/03-screens.md` §7, written with ordinary spaces;
- * `fr` below is the same catalogue with French typographic spaces applied.
+ * French catalogue, and the reference for the keys: copy deck from `docs/design/03-screens.md` §7,
+ * written with ordinary spaces (`typeset` applies French typographic spaces when it is loaded).
+ * `en.ts` and `sv.ts` hold the same keys; a key added here must be added there.
  */
-const source = {
+export const frSource = {
   'time.justNow': 'à l’instant',
   'time.minutesAgo': 'il y a {n} min',
   'time.todayAt': 'aujourd’hui, {time}',
@@ -580,7 +579,7 @@ const source = {
   'groceries.new.title': 'La liste se remplira toute seule',
   'groceries.new.body': 'Dès que le stock sera scanné, Cellier proposera ici ce qu’il faut racheter.',
   'groceries.seasonal.title': 'De saison en {month}',
-  'groceries.seasonal.swap': 'Au lieu {ofName}',
+  'groceries.seasonal.swap': 'Au lieu de {name}',
   'groceries.seasonal.back': 'De retour de saison',
   'groceries.seasonal.starting': 'Début de saison',
   'groceries.seasonal.source': 'Calendrier des saisons : ADEME, Impact CO₂.',
@@ -895,7 +894,7 @@ const source = {
   'facts.additives.none': 'Sans additif',
   'facts.origins': 'Origine',
   'facts.afterOpening': 'Après ouverture',
-  'facts.afterOpening.months': '{n} mois',
+  'facts.afterOpening.months': { one: '{n} mois', other: '{n} mois' },
   'facts.labels': 'Labels',
   'facts.ingredients': 'Ingrédients',
   'facts.ingredients.more': 'Afficher tout',
@@ -906,58 +905,116 @@ const source = {
   'facts.attribution.link.obf': 'Voir sur Open Beauty Facts',
   'facts.attribution.link.opf': 'Voir sur Open Products Facts',
   'facts.attribution.link.opff': 'Voir sur Open Pet Food Facts',
+  // Not in the deck: language choice (Réglages › Langue).
+  'language.title': 'Langue',
+  'language.footer':
+    'La langue suit votre compte sur tous vos appareils, notifications comprises. Les autres membres du foyer gardent la leur.',
+  'language.dataFooter': 'Les noms d’articles, de celliers et de catégories saisis par le foyer ne sont pas traduits.',
+  'common.youObject': 'vous',
+
+  // Not in the deck: allergens, labels and analysis chips of the product facts.
+  'facts.allergen.gluten': 'Gluten',
+  'facts.allergen.crustaceans': 'Crustacés',
+  'facts.allergen.eggs': 'Œufs',
+  'facts.allergen.fish': 'Poisson',
+  'facts.allergen.peanuts': 'Arachides',
+  'facts.allergen.soybeans': 'Soja',
+  'facts.allergen.milk': 'Lait',
+  'facts.allergen.nuts': 'Fruits à coque',
+  'facts.allergen.celery': 'Céleri',
+  'facts.allergen.mustard': 'Moutarde',
+  'facts.allergen.sesame': 'Sésame',
+  'facts.allergen.sulphites': 'Sulfites',
+  'facts.allergen.lupin': 'Lupin',
+  'facts.allergen.molluscs': 'Mollusques',
+  'facts.label.organic': 'Bio',
+  'facts.label.euOrganic': 'Bio européen',
+  'facts.label.fairTrade': 'Commerce équitable',
+  'facts.label.vegan': 'Végan',
+  'facts.label.vegetarian': 'Végétarien',
+  'facts.label.noGluten': 'Sans gluten',
+  'facts.label.noLactose': 'Sans lactose',
+  'facts.label.noPalmOil': 'Sans huile de palme',
+  'facts.label.noPreservatives': 'Sans conservateurs',
+  'facts.label.noColorings': 'Sans colorants',
+  'facts.label.noAdditives': 'Sans additifs',
+  'facts.label.noAddedSugar': 'Sans sucres ajoutés',
+  'facts.label.noGmos': 'Sans OGM',
+  'facts.label.madeInFrance': 'Fabriqué en France',
+  'facts.label.frenchOrigin': 'Origine France',
+  'facts.label.pdo': 'AOP',
+  'facts.label.pgi': 'IGP',
+  'facts.label.tsg': 'STG',
+  'facts.label.msc': 'Pêche durable MSC',
+  'facts.label.asc': 'Aquaculture responsable ASC',
+  'facts.label.euEcolabel': 'Écolabel européen',
+  'facts.label.ecolabel': 'Écolabel',
+  'facts.label.noPerfume': 'Sans parfum',
+  'facts.label.notTestedOnAnimals': 'Non testé sur les animaux',
+  'facts.label.crueltyFree': 'Cruelty free',
+  'facts.analysis.palmOil': 'Huile de palme',
+
+  // Not in the deck: names of the category icons, read by VoiceOver in the icon picker.
+  'category.icon.carrot': 'Carotte',
+  'category.icon.apple': 'Pomme',
+  'category.icon.wheat': 'Blé',
+  'category.icon.fish': 'Poisson',
+  'category.icon.beef': 'Viande',
+  'category.icon.milk': 'Lait',
+  'category.icon.croissant': 'Croissant',
+  'category.icon.popcorn': 'Pop-corn',
+  'category.icon.cookie': 'Biscuit',
+  'category.icon.candy': 'Bonbon',
+  'category.icon.sunrise': 'Matin',
+  'category.icon.can': 'Conserve',
+  'category.icon.snowflake': 'Flocon',
+  'category.icon.soup': 'Soupe',
+  'category.icon.cup-soda': 'Soda',
+  'category.icon.citrus': 'Agrume',
+  'category.icon.glass-water': 'Verre d’eau',
+  'category.icon.wine': 'Vin',
+  'category.icon.beer': 'Bière',
+  'category.icon.coffee': 'Café',
+  'category.icon.cooking-pot': 'Marmite',
+  'category.icon.baby': 'Bébé',
+  'category.icon.paw-print': 'Patte',
+  'category.icon.brush-cleaning': 'Brosse',
+  'category.icon.soap-dispenser-droplet': 'Savon',
+  'category.icon.scroll': 'Rouleau',
+  'category.icon.pill': 'Gélule',
+  'category.icon.shapes': 'Formes',
+  'category.icon.egg': 'Œuf',
+  'category.icon.cherry': 'Cerise',
+  'category.icon.grape': 'Raisin',
+  'category.icon.banana': 'Banane',
+  'category.icon.salad': 'Salade',
+  'category.icon.sandwich': 'Sandwich',
+  'category.icon.pizza': 'Pizza',
+  'category.icon.drumstick': 'Volaille',
+  'category.icon.ham': 'Jambon',
+  'category.icon.cake-slice': 'Gâteau',
+  'category.icon.ice-cream-cone': 'Glace',
+  'category.icon.lollipop': 'Sucette',
+  'category.icon.nut': 'Noix',
+  'category.icon.bean': 'Haricot',
+  'category.icon.leafy-green': 'Feuilles',
+  'category.icon.martini': 'Cocktail',
+  'category.icon.bone': 'Os',
+  'category.icon.cat': 'Chat',
+  'category.icon.dog': 'Chien',
+  'category.icon.droplets': 'Gouttes',
 } as const satisfies Record<string, Entry>;
 
-type Source = typeof source;
+type Source = typeof frSource;
 export type MessageKey = keyof Source;
 export type PluralKey = { [K in MessageKey]: Source[K] extends Plural ? K : never }[MessageKey];
+
+/** Shape of a translation: the same keys, a plural where French has one. */
+export type Catalogue = { readonly [K in MessageKey]: Source[K] extends Plural ? Plural : string };
 
 type Placeholders<S> = S extends `${string}{${infer P}}${infer R}` ? P | Placeholders<R> : never;
 type EntryText<E> = E extends Plural ? E['one'] | E['other'] : E;
 export type MessageParams<K extends MessageKey> = { [P in Placeholders<EntryText<Source[K]>>]: string | number };
-type ParamsArg<K extends MessageKey> = [Placeholders<EntryText<Source[K]>>] extends [never]
+export type ParamsArg<K extends MessageKey> = [Placeholders<EntryText<Source[K]>>] extends [never]
   ? []
   : [params: MessageParams<K>];
-
-export const fr: { readonly [K in MessageKey]: Entry } = Object.fromEntries(
-  Object.entries(source).map(([key, entry]) => [
-    key,
-    typeof entry === 'string'
-      ? frenchTypography(entry)
-      : { one: frenchTypography(entry.one), other: frenchTypography(entry.other) },
-  ]),
-) as { readonly [K in MessageKey]: Entry };
-
-const pluralRules = new Intl.PluralRules('fr');
-const numberFormat = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 2 });
-
-/** Which numeric parameter drives the plural; the deck uses `n` except where noted. */
-const PLURAL_PARAMS = ['n', 'applied', 'k', 'd', 'w', 'u'] as const;
-
-export function pluralForm(count: number): 'one' | 'other' {
-  return pluralRules.select(count) === 'one' ? 'one' : 'other';
-}
-
-/**
- * Looks up a catalogue string and fills `{name}` placeholders.
- * Numbers are formatted with `Intl` (`fr-FR`); pass identifiers such as barcodes as strings.
- */
-export function t<K extends MessageKey>(key: K, ...args: ParamsArg<K>): string {
-  const params = args[0] as Record<string, string | number> | undefined;
-  const entry: Entry | undefined = fr[key];
-  if (entry === undefined) return key;
-  let text: string;
-  if (typeof entry === 'string') {
-    text = entry;
-  } else {
-    const driver = PLURAL_PARAMS.find((name) => typeof params?.[name] === 'number');
-    const count = driver ? (params?.[driver] as number) : undefined;
-    text = count === undefined ? entry.other : entry[pluralForm(count)];
-  }
-  if (!params) return text;
-  return text.replace(/\{(\w+)\}/g, (match, name: string) => {
-    const value = params[name];
-    if (value === undefined) return match;
-    return typeof value === 'number' ? numberFormat.format(value) : value;
-  });
-}
