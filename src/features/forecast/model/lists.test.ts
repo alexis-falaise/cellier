@@ -274,6 +274,44 @@ describe('groceryList (Courses merged with entries)', () => {
       ['Sel', null],
     ]);
   });
+
+  describe('one line per kind', () => {
+    // «a» and «b» are two ground coffees; «a», restocked last, carries the kind's forecast.
+    const coffee = { label: 'café moulu', representative: id('a'), members: [id('a'), id('b')] };
+    const kinds = new Map([
+      [id('a'), coffee],
+      [id('b'), coffee],
+    ]);
+    const coffeeNames = new Map([...names, [id('a'), 'Café moulu'], [id('b'), 'Café moulu']]);
+    const fs = [low('a', { totalQuantity: 1 }), forecast('b', { totalQuantity: 0 })];
+    const list = (entries: GroceryEntry[]) =>
+      groceryList({ forecasts: fs, names: coffeeNames, entries, trip: trip(), now: NOW, kinds });
+
+    it('lists the kind once, with the kind figures, whichever product the rows name', () => {
+      const own = entry({ productId: id('b'), quantity: 2 });
+      const extra = entry({ productId: id('a') });
+      const { toBuy } = list([own, extra]);
+      expect(toBuy).toHaveLength(1);
+      const line = toBuy[0];
+      expect(
+        line?.kind === 'product' && [line.name, line.productId, line.entryId, line.reason, line.totalQuantity],
+      ).toEqual(['Café moulu', 'b', own.id, 'threshold', 1]);
+      expect(line?.kind === 'product' && line.foldedEntryIds).toEqual([extra.id]);
+    });
+
+    it('a check or a dismissal of any product of the kind holds for the kind until the next restock', () => {
+      const checked = list([entry({ productId: id('b'), checkedAt: iso(day(99)) })]);
+      expect(checked.toBuy).toEqual([]);
+      expect(checked.inCart.map((i) => i.kind === 'product' && i.name)).toEqual(['Café moulu']);
+      expect(list([entry({ productId: id('b'), dismissedAt: iso(day(95)) })]).toBuy).toEqual([]);
+    });
+
+    it('without a row, suggests the kind on its representative', () => {
+      expect(list([]).toBuy.map((i) => [i.key, i.kind === 'product' && i.name])).toEqual([
+        ['suggested:a', 'Café moulu'],
+      ]);
+    });
+  });
 });
 
 describe('no alert threshold (seuil 0)', () => {

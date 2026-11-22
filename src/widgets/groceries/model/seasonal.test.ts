@@ -19,6 +19,7 @@ const product = (productId: string, name: string, checked = false): GroceryItem 
   productId: productId as ProductId,
   name,
   entryId: null,
+  foldedEntryIds: [],
   quantity: 1,
   suggestedQuantity: 1,
   reason: 'threshold',

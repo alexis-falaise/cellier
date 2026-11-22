@@ -1,5 +1,6 @@
 import type { GroceryEntry, GroceryId, ProductId, UserId } from '@/domain/types';
 import { compareText } from '@/shared/i18n';
+import type { KindGroup } from './kinds';
 import { DAY_MS } from './time';
 import type {
   Dismissal,
@@ -116,10 +117,17 @@ export interface GroceryProductItem {
   kind: 'product';
   /** Stable React key: the entry id, or `suggested:<productId>` for a suggestion without a row. */
   key: string;
+  /** The product the row is about (put away on «Ranger»); for a kind's suggestion, its representative. */
   productId: ProductId;
+  /** The kind («Café moulu») when the product has one, else the product name. */
   name: string;
   /** Row backing this item; null for a pure suggestion (no row exists until the user acts). */
   entryId: GroceryId | null;
+  /**
+   * Other open rows of the same kind, folded into this line (a list has one line per kind). They
+   * are redundant: checking or hiding the line removes them.
+   */
+  foldedEntryIds: GroceryId[];
   /** Quantity to show: the entry's own quantity when set, else the suggested one. */
   quantity: number;
   /** Suggested quantity (§5.11), or null when the product has no forecast. */
@@ -156,13 +164,18 @@ export interface GroceryList {
 
 export interface GroceryListInput {
   forecasts: readonly ProductForecast[];
-  /** Names of the live products; entries of products missing from this map are skipped. */
+  /** List names of the live products (the kind when set); entries of products missing from this map are skipped. */
   names: ReadonlyMap<ProductId, string>;
   entries: readonly GroceryEntry[];
   trip: NextTrip;
   now: EpochMs;
   /** Device-local 'courses' dismissals (§5.12), in addition to dismissed grocery rows. */
   dismissals?: readonly Dismissal[];
+  /**
+   * Products that share their kind with another product (`KindMerge.groups`). The kind is one line:
+   * its rows count for the representative, whose forecast carries the kind.
+   */
+  kinds?: ReadonlyMap<ProductId, KindGroup>;
 }
 
 const at = (iso: string | null) => (iso === null ? Number.NaN : Date.parse(iso));
@@ -178,18 +191,24 @@ function holdsUntilRestock(stamp: EpochMs, f: ProductForecast | undefined): bool
  * - A checked row puts the product «Dans le panier» and hides its suggestion until the next restock.
  * - An open row of a suggested product becomes that suggestion (its own quantity wins when set).
  * - Other open rows are manual rows; a null quantity means «suggested» (at least 1).
+ * - Products of one kind are one line: what is missing is «café moulu», not a given ground coffee.
+ *   Their rows count for the kind (a check or dismissal of any of them holds for the kind), and
+ *   extra open rows of the kind are folded into the first one (`foldedEntryIds`).
  */
 export function groceryList(input: GroceryListInput): GroceryList {
   const { forecasts, names, trip, now } = input;
   const byProduct = new Map(forecasts.map((f) => [f.productId, f]));
   const live = input.entries.filter((e) => e.deletedAt === null);
+  /** The line a product's rows belong to: its kind's representative, else the product itself. */
+  const lineOf = (productId: ProductId): ProductId => input.kinds?.get(productId)?.representative ?? productId;
 
   const suppressed = new Set<ProductId>();
   for (const e of live) {
     if (e.productId === null) continue;
-    const f = byProduct.get(e.productId);
-    if (e.dismissedAt !== null && holdsUntilRestock(at(e.dismissedAt), f)) suppressed.add(e.productId);
-    if (e.checkedAt !== null && holdsUntilRestock(at(e.checkedAt), f)) suppressed.add(e.productId);
+    const line = lineOf(e.productId);
+    const f = byProduct.get(line);
+    if (e.dismissedAt !== null && holdsUntilRestock(at(e.dismissedAt), f)) suppressed.add(line);
+    if (e.checkedAt !== null && holdsUntilRestock(at(e.checkedAt), f)) suppressed.add(line);
   }
 
   const suggestions = new Map(
@@ -200,9 +219,12 @@ export function groceryList(input: GroceryListInput): GroceryList {
 
   const productItem = (e: GroceryEntry | null, productId: ProductId, checked: boolean): GroceryProductItem | null => {
     const name = names.get(productId);
-    const f = byProduct.get(productId);
-    if (name === undefined || f?.deleted) return null;
-    const s = checked ? undefined : suggestions.get(productId);
+    const own = byProduct.get(productId);
+    if (name === undefined || own?.deleted) return null;
+    const line = lineOf(productId);
+    // A kind's figures (stock, run-out, suggested quantity) are carried by its representative.
+    const f = byProduct.get(line) ?? own;
+    const s = checked ? undefined : suggestions.get(line);
     const suggested = s ? s.quantity : f ? suggestedQuantity(f) : null;
     return {
       kind: 'product',
@@ -210,6 +232,7 @@ export function groceryList(input: GroceryListInput): GroceryList {
       productId,
       name,
       entryId: e ? e.id : null,
+      foldedEntryIds: [],
       quantity: e?.quantity ?? suggested ?? 1,
       suggestedQuantity: suggested,
       reason: s ? s.reason : 'manual',
@@ -225,16 +248,22 @@ export function groceryList(input: GroceryListInput): GroceryList {
   const merged: GroceryProductItem[] = [];
   const manual: Array<{ item: GroceryItem; order: number }> = [];
   const cart: Array<{ item: GroceryItem; order: number }> = [];
-  const claimed = new Set<ProductId>();
+  /** The open line of each product or kind: at most one (server natural key per product, folding per kind). */
+  const open = new Map<ProductId, GroceryProductItem>();
 
   for (const e of live) {
     if (e.dismissedAt !== null) continue;
     const checked = e.checkedAt !== null;
     let item: GroceryItem | null;
     if (e.productId !== null) {
-      if (!checked && claimed.has(e.productId)) continue; // at most one open row per product (server natural key)
+      const line = lineOf(e.productId);
+      const holder = checked ? undefined : open.get(line);
+      if (holder) {
+        holder.foldedEntryIds.push(e.id);
+        continue;
+      }
       item = productItem(e, e.productId, checked);
-      if (item && !checked) claimed.add(e.productId);
+      if (item && !checked) open.set(line, item);
     } else {
       item = {
         kind: 'label',
@@ -253,7 +282,7 @@ export function groceryList(input: GroceryListInput): GroceryList {
   }
 
   for (const [productId] of suggestions) {
-    if (claimed.has(productId)) continue;
+    if (open.has(productId)) continue;
     const item = productItem(null, productId, false);
     if (item) merged.push(item);
   }

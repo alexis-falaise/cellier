@@ -484,6 +484,17 @@ put coffee on the list.
   The seuil of a kind is the largest member `minQuantity`, else the largest `suggestedMin`, else the default
   rule (§5.6 of 04). Client: `src/features/forecast/model/kinds.ts`; server: `private.evaluate_low_stock`
   (migration `20261111120000_product_kinds.sql`), which notifies once per kind.
+- **Names on the lists**: what is missing is named by what it is, not by which product. Accueil («Bientôt épuisé»),
+  Courses, «Ajouter un article» and the notifications show the kind, first letter capitalised («Café moulu»),
+  for every product that has one; the product name stays on the item screens. Client: `listName`
+  (`src/widgets/groceries/model/householdForecasts.ts`); server: `private.list_name` (migration
+  `20261122120000_kind_names_in_notifications.sql`, which also lists a kind once in the digest).
+- **One line per kind on Courses**: rows of any product of a kind count for the kind (a check or a dismissal holds
+  for the kind until its next restock), extra open rows of the kind are folded into the first one and removed when
+  the line is checked or hidden, and «Ajouter un article» offers the kind once (matching its products' names too).
+- **Granularity**: the kind is the level at which one product replaces another for the household. «Riz Arborio» and
+  «Riz Carnaroli» are «riz à risotto», never just «riz»; «concentré de tomates», «tomates pelées» and «tomate» stay
+  apart. The classifier prompt (`supabase/functions/classify-product/prompt.ts`) spells this out with examples.
 
 ## 6. Edge Function `catalog-lookup`
 

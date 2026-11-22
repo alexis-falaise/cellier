@@ -35,7 +35,13 @@ import {
   setChecked,
   setQuantity,
 } from '@/widgets/groceries/model/actions';
-import { useGroceryList, useHouseholdForecasts } from '@/widgets/groceries/model/householdForecasts';
+import { groceryAddOptions } from '@/widgets/groceries/model/addOptions';
+import {
+  lineForecast,
+  lineMembers,
+  useGroceryList,
+  useHouseholdForecasts,
+} from '@/widgets/groceries/model/householdForecasts';
 import {
   capitalize,
   groceryReasonText,
@@ -103,18 +109,22 @@ export function GroceriesPage() {
   const [adding, setAdding] = useState(false);
   const pull = usePullToRefresh(scrollRef ?? noScroll, { onRefresh: () => void syncNow() });
 
-  const { viewsById, forecastsById } = forecasts;
+  const { viewsById } = forecasts;
   const sections = useMemo(
     () => groupByCategory(list.toBuy, (id) => viewsById.get(id)?.category ?? null, categories),
     [list.toBuy, viewsById, categories],
   );
+  // Products already on the list, with every other product of their kind: «Café moulu» is listed once.
   const listed = useMemo(
     () =>
       new Set(
-        [...list.toBuy, ...list.inCart].flatMap((i) => (i.kind === 'product' && !i.checked ? [i.productId] : [])),
+        [...list.toBuy, ...list.inCart].flatMap((i) =>
+          i.kind === 'product' && !i.checked ? lineMembers(forecasts, i.productId) : [],
+        ),
       ),
-    [list.toBuy, list.inCart],
+    [list.toBuy, list.inCart, forecasts],
   );
+  const addOptions = useMemo(() => groceryAddOptions(forecasts), [forecasts]);
   const memberNames = useMemo(() => new Map(members.map((m) => [m.userId as string, m.displayName])), [members]);
   const memberLabel = (userId: string | null) => {
     if (userId !== null && userId === me) return t('common.youObject');
@@ -137,7 +147,7 @@ export function GroceriesPage() {
         name={itemName(item)}
         reason={groceryReasonText(
           item,
-          productId ? forecastsById.get(productId) : undefined,
+          productId ? lineForecast(forecasts, productId) : undefined,
           memberLabel(item.addedBy),
           forecasts.now,
         )}
@@ -175,7 +185,7 @@ export function GroceriesPage() {
 
   const addRow = (
     <AddGroceryRow
-      products={forecasts.views}
+      options={addOptions}
       listed={listed}
       onAddProduct={addProduct}
       onAddLabel={addLabel}

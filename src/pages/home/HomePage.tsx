@@ -21,7 +21,7 @@ import {
 import { AppSyncIndicator, SessionExpiredBanner } from '@/widgets';
 import { ActivityRow } from '@/widgets/activity/ActivityRow';
 import { useActivityFeed } from '@/widgets/activity/useActivityFeed';
-import { useGroceryList, useHouseholdForecasts } from '@/widgets/groceries/model/householdForecasts';
+import { lineMembers, useGroceryList, useHouseholdForecasts } from '@/widgets/groceries/model/householdForecasts';
 import { capitalize, tripDateText, tripReasonText } from '@/widgets/groceries/model/presentation';
 import { tripSummary } from '@/widgets/groceries/model/tripSummary';
 import { NextTripCard } from '@/widgets/groceries/NextTripCard';
@@ -76,15 +76,17 @@ export function HomePage() {
   const lowRows = useMemo((): LowListRow[] => {
     const { viewsById } = forecasts;
     const onlyPantry = !isAll && pantry ? pantry.id : null;
+    // A row is a kind when its products share one: its pantries are those of every product of the kind.
+    const perPantry = (id: string) => lineMembers(forecasts, id).flatMap((m) => viewsById.get(m)?.perPantry ?? []);
     const rows = runningLowRows(forecasts.forecasts, forecasts.names, (id) =>
-      onlyPantry === null ? true : (viewsById.get(id)?.perPantry.some((p) => p.pantryId === onlyPantry) ?? false),
+      onlyPantry === null ? true : perPantry(id).some((p) => p.pantryId === onlyPantry),
     );
     return rows.map((row) => {
       const view = viewsById.get(row.productId);
-      const holders = view?.perPantry.filter((p) => p.quantity > 0) ?? [];
+      const holders = [...new Set(perPantry(row.productId).flatMap((p) => (p.quantity > 0 ? [p.pantryId] : [])))];
       let secondary = t('home.low.remaining', { qty: row.totalQuantity });
       if (isAll && multiPantry && holders.length === 1 && holders[0]) {
-        secondary = `${secondary} ${t('home.low.inPantry', { pantry: pantryNames.get(holders[0].pantryId) ?? '' })}`;
+        secondary = `${secondary} ${t('home.low.inPantry', { pantry: pantryNames.get(holders[0]) ?? '' })}`;
       }
       return { ...row, secondary, visual: categoryVisual(view?.category ?? {}) };
     });

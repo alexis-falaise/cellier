@@ -27,10 +27,17 @@ function ensureRow(item: GroceryItem, quantity: number | null = null): GroceryId
   return mutate('grocery.add', { groceryId: newId(), productId: item.productId, quantity }) as unknown as GroceryId;
 }
 
+/** Removes the redundant rows folded into a kind's line; returns the mutation ids (for «Annuler»). */
+function dropFolded(item: GroceryItem): ReturnType<typeof mutate>[] {
+  if (item.kind !== 'product') return [];
+  return item.foldedEntryIds.map((groceryId) => mutate('grocery.delete', { groceryId }));
+}
+
 export function setChecked(item: GroceryItem, checked: boolean): void {
   try {
     const groceryId = ensureRow(item);
     mutate('grocery.update', { groceryId, fields: { checked } });
+    if (checked) dropFolded(item);
   } catch (error) {
     // Unchecking a product that already has another open row: the checked row is redundant.
     if (!checked && item.entryId && error instanceof MutationValidationError) {
@@ -59,19 +66,23 @@ export function setQuantity(item: GroceryItem, quantity: number): void {
  * a manual row is removed. Both with «Annuler» in the toast.
  */
 export function hide(item: GroceryItem): void {
+  const undoAll = (ids: readonly ReturnType<typeof mutate>[]) => async () => {
+    for (const id of [...ids].reverse()) await syncActions.undo(id).catch(report);
+  };
   try {
     if (item.kind === 'label' || item.reason === 'manual') {
       const groceryId = item.entryId as GroceryId;
-      const mutationId = mutate('grocery.delete', { groceryId });
+      const done = [mutate('grocery.delete', { groceryId }), ...dropFolded(item)];
       showToast({
         message: t('toast.groceryRemoved'),
-        action: { label: t('common.undo'), onPress: () => void syncActions.undo(mutationId).catch(report) },
+        action: { label: t('common.undo'), onPress: () => void undoAll(done)() },
       });
       return;
     }
     const existed = item.entryId !== null;
     const groceryId = ensureRow(item);
     mutate('grocery.update', { groceryId, fields: { dismissed: true } });
+    const folded = dropFolded(item);
     const undo = existed
       ? () => {
           try {
@@ -79,8 +90,9 @@ export function hide(item: GroceryItem): void {
           } catch (error) {
             report(error);
           }
+          void undoAll(folded)();
         }
-      : () => void syncActions.undo(groceryId as never).catch(report);
+      : () => void undoAll([groceryId as never, ...folded])();
     showToast({ message: t('toast.dismissed'), action: { label: t('common.undo'), onPress: undo } });
   } catch (error) {
     report(error);

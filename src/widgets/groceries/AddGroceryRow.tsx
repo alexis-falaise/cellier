@@ -1,14 +1,14 @@
 import { Plus } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import type { ProductId, ProductView } from '@/domain/types';
+import type { ProductId } from '@/domain/types';
 import { fold, t } from '@/shared/i18n';
 import { CategoryTile, categoryVisual, ListRow, ListSection, RowSeparator } from '@/shared/ui';
-
-const MAX_MATCHES = 5;
+import { type GroceryAddOption, matchAddOptions } from './model/addOptions';
 
 export interface AddGroceryRowProps {
-  products: readonly ProductView[];
-  /** Products already on the list, not offered again. */
+  /** One choice per line of the list (`groceryAddOptions`): a kind once, else a product. */
+  options: readonly GroceryAddOption[];
+  /** Products already on the list (with the rest of their kind), not offered again. */
   listed: ReadonlySet<string>;
   onAddProduct: (productId: ProductId) => void;
   onAddLabel: (label: string) => void;
@@ -17,33 +17,14 @@ export interface AddGroceryRowProps {
   onOpenChange: (open: boolean) => void;
 }
 
-/** Up to five household products whose folded name contains the folded query, prefix matches first. */
-export function matchProducts(
-  products: readonly ProductView[],
-  query: string,
-  listed: ReadonlySet<string>,
-): ProductView[] {
-  const q = fold(query.trim());
-  if (!q) return [];
-  const prefix: ProductView[] = [];
-  const inner: ProductView[] = [];
-  for (const v of products) {
-    if (listed.has(v.product.id)) continue;
-    const name = fold(v.product.name);
-    if (name.startsWith(q)) prefix.push(v);
-    else if (name.includes(q)) inner.push(v);
-    if (prefix.length >= MAX_MATCHES) break;
-  }
-  return [...prefix, ...inner].slice(0, MAX_MATCHES);
-}
-
 /**
  * «Ajouter un article» (design 03 §4.8.2): the row turns into a text field; matching household
- * products are offered below (a linked entry), then «Ajouter « q »» for a free-text entry.
+ * products are offered below by what they are (a kind once, a linked entry), then «Ajouter « q »»
+ * for a free-text entry.
  */
-export function AddGroceryRow({ products, listed, onAddProduct, onAddLabel, open, onOpenChange }: AddGroceryRowProps) {
+export function AddGroceryRow({ options, listed, onAddProduct, onAddLabel, open, onOpenChange }: AddGroceryRowProps) {
   const [query, setQuery] = useState('');
-  const matches = useMemo(() => matchProducts(products, query, listed), [products, query, listed]);
+  const matches = useMemo(() => matchAddOptions(options, query, listed), [options, query, listed]);
   const trimmed = query.trim();
 
   const close = () => {
@@ -64,8 +45,8 @@ export function AddGroceryRow({ products, listed, onAddProduct, onAddLabel, open
       close();
       return;
     }
-    const exact = matches.find((v) => fold(v.product.name) === fold(trimmed));
-    if (exact) onAddProduct(exact.product.id);
+    const exact = matches.find((o) => o.terms.includes(fold(trimmed)));
+    if (exact) onAddProduct(exact.productId);
     else onAddLabel(trimmed);
     close();
   };
@@ -105,14 +86,14 @@ export function AddGroceryRow({ products, listed, onAddProduct, onAddLabel, open
         />
         <RowSeparator inset={16} />
       </div>
-      {matches.map((v) => (
+      {matches.map((o) => (
         <ListRow
-          key={v.product.id}
+          key={o.productId}
           variant="value"
-          title={v.product.name}
-          leading={<CategoryTile visual={categoryVisual(v.category ?? {})} size={28} />}
+          title={o.name}
+          leading={<CategoryTile visual={categoryVisual(o.category ?? {})} size={28} />}
           onPress={() => {
-            onAddProduct(v.product.id);
+            onAddProduct(o.productId);
             close();
           }}
         />
