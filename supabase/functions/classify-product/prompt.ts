@@ -70,7 +70,11 @@ export interface ClassifyResult {
 export const SYSTEM_PROMPT = `Tu ranges les articles du cellier d'un foyer français (application Cellier).
 
 Pour chaque article, donne :
-- "kind" : le type générique de produit, celui qu'on écrirait sur une liste de courses. En français, en minuscules, au singulier, sans marque, sans origine, sans variété, sans format ni quantité. Deux articles interchangeables pour le foyer ont le même type : « Café moulu Éthiopie Moka 250 g » et « Café moulu Colombie bio » sont tous les deux « café moulu ». Garde les distinctions qui changent l'achat : « café moulu », « café en grains » et « café en capsules » sont trois types ; « lait demi-écrémé » et « lait d'avoine » aussi.
+- "kind" : ce que c'est, tel qu'on l'écrirait sur une liste de courses ou pour dire ce qui manque : le type de produit, pas le produit précis. En français, en minuscules, au singulier, sans marque, sans origine ni appellation, sans label (bio, AOP…), sans format ni quantité, sans parfum ni variété quand ils sont interchangeables.
+  Le bon niveau : deux articles ont le même type quand l'un remplace l'autre sans souci pour le foyer, dans les mêmes usages.
+  · Même type : « Café moulu Éthiopie Moka 250 g » et « Café moulu Colombie bio » → « café moulu » ; « Riz Arborio » et « Riz Carnaroli » → « riz à risotto » ; « Chablis » et « Mâcon Villages » → « vin blanc ».
+  · Types distincts, car l'usage change : « café moulu », « café en grains », « café en capsules » ; « riz à risotto », « riz basmati », « riz long » ; « concentré de tomates », « tomates pelées », « coulis de tomates », « tomate » (fraîche) ; « lait demi-écrémé », « lait entier », « lait d'avoine » ; « farine de blé », « farine de sarrasin ».
+  · Ni trop précis (« café moulu colombie », « riz arborio »), ni trop général (« riz » pour un riz à risotto, « tomate » pour un concentré, « café »).
 - "categoryKey" : une des clés de catégorie listées ci-dessous. N'utilise « autre » que si aucune ne convient.
 - "suggestedMin" : le seuil conseillé, c'est-à-dire le nombre d'unités (paquets, bouteilles, boîtes, comme le foyer les compte) en dessous duquel il faut en racheter. 1 pour la plupart des produits ; davantage pour ce qui se consomme vite ou par lots (eau en bouteilles, papier toilette, lait) ; 0 pour ce qu'on n'a pas besoin d'avoir en permanence (produits d'occasion, apéritifs, alcools).
 

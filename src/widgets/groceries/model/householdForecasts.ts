@@ -4,7 +4,7 @@
  * trip and the merged Courses list. Pure derivations over store data; no I/O.
  */
 import { useMemo } from 'react';
-import type { GroceryEntry, Movement, PantryId, ProductId, ProductView } from '@/domain/types';
+import type { GroceryEntry, Movement, PantryId, Product, ProductId, ProductView } from '@/domain/types';
 import { createSelector, type Selector, sameArray } from '@/entities/lib/selector';
 import { useProductViews } from '@/entities/product';
 import {
@@ -134,7 +134,14 @@ function cachedForecast(
   return result;
 }
 
-const capitalizeKind = capitalize;
+/**
+ * The name of a product on Accueil and Courses: what it is («Café moulu»), not which one it is
+ * («Café moulu Colombie 250 g»). The kind when the product has one, else its own name.
+ */
+export function listName(product: Pick<Product, 'name' | 'kind'>): string {
+  const kind = product.kind?.trim().replace(/\s+/g, ' ');
+  return kind ? capitalize(kind) : product.name;
+}
 
 export interface HouseholdForecasts {
   now: number;
@@ -147,7 +154,7 @@ export interface HouseholdForecasts {
   productForecastsById: ReadonlyMap<string, ProductForecast>;
   /** Kind of every product that shares its kind with another product. */
   kinds: ReadonlyMap<ProductId, KindGroup>;
-  /** List names: a kind's representative is named after the kind («Café moulu»). */
+  /** List names (`listName`): every product with a kind is named after it («Café moulu»). */
   names: ReadonlyMap<ProductId, string>;
   cadence: Cadence | null;
   trip: NextTrip;
@@ -165,8 +172,9 @@ export function computeHouseholdForecasts(
     cachedForecast(v, ledger.byProduct.get(v.product.id) ?? EMPTY, deleted, hasCadence, now),
   );
   const { forecasts, groups } = mergeKindForecasts(own, new Map(views.map((v) => [v.product.id, v.product])), now);
-  const names = new Map(views.map((v) => [v.product.id, v.product.name]));
-  for (const [id, g] of groups) if (g.representative === id) names.set(id, capitalizeKind(g.label));
+  const names = new Map(views.map((v) => [v.product.id, listName(v.product)]));
+  // One spelling per kind: every member is named like the representative.
+  for (const [id, g] of groups) names.set(id, listName({ name: names.get(id) ?? '', kind: g.label }));
   return {
     now,
     views,
@@ -179,6 +187,24 @@ export function computeHouseholdForecasts(
     cadence,
     trip: nextTrip(cadence, forecasts, now),
   };
+}
+
+/** The product carrying a product's line on the lists: its kind's representative, else itself. */
+export function lineOf(h: Pick<HouseholdForecasts, 'kinds'>, productId: string): string {
+  return h.kinds.get(productId as ProductId)?.representative ?? productId;
+}
+
+/** Every product of a product's line (the members of its kind, else the product alone). */
+export function lineMembers(h: Pick<HouseholdForecasts, 'kinds'>, productId: string): readonly string[] {
+  return h.kinds.get(productId as ProductId)?.members ?? [productId];
+}
+
+/** The forecast of a product's line: the kind's (on its representative), else the product's own. */
+export function lineForecast(
+  h: Pick<HouseholdForecasts, 'kinds' | 'forecastsById'>,
+  productId: string,
+): ProductForecast | undefined {
+  return h.forecastsById.get(lineOf(h, productId));
 }
 
 /** Forecasts of every live product, the household cadence and the next trip. */
@@ -194,7 +220,7 @@ export function useHouseholdForecasts(): HouseholdForecasts {
 export function useGroceryList(h: HouseholdForecasts): GroceryList {
   const entries = useStore(selectGroceryRows);
   return useMemo(
-    () => groceryList({ forecasts: h.forecasts, names: h.names, entries, trip: h.trip, now: h.now }),
+    () => groceryList({ forecasts: h.forecasts, names: h.names, entries, trip: h.trip, now: h.now, kinds: h.kinds }),
     [h, entries],
   );
 }

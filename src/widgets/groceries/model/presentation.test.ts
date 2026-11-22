@@ -129,6 +129,7 @@ const product = (
     productId: 'p',
     name: 'Lait',
     entryId: null,
+    foldedEntryIds: [],
     quantity: 2,
     suggestedQuantity: 2,
     reason: 'threshold',
